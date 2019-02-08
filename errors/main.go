@@ -21,14 +21,14 @@ type Response struct {
 func SetErrorResponse(statusCode int, errorCode int, text string, c *gin.Context) {
 	c.JSON(statusCode, Response{
 		Error: Error{
-			Code: errorCode,
+			Code:    errorCode,
 			Message: text,
 		},
 	})
 }
 
 // Returns validation errors
-func SetValidationErrorResponse(err error, c *gin.Context)  {
+func SetValidationErrorResponse(err error, c *gin.Context) {
 	errs := err.(validator.ValidationErrors)
 
 	errorFieldsList := make(map[string]string)
@@ -38,9 +38,9 @@ func SetValidationErrorResponse(err error, c *gin.Context)  {
 
 	c.JSON(http.StatusInternalServerError, Response{
 		Error{
-			Code: 1,
+			Code:    1,
 			Message: "Validation failed.",
-			Fields: errorFieldsList,
+			Fields:  errorFieldsList,
 		},
 	})
 }
@@ -57,4 +57,3 @@ func validationErrorToText(e *validator.FieldError) string {
 		return fmt.Sprintf("%s is not valid", field)
 	}
 }
-

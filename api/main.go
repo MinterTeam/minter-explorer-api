@@ -19,13 +19,13 @@ func Run(db *pg.DB) {
 // Setup router
 func SetupRouter(db *pg.DB) *gin.Engine {
 	router := gin.Default()
-	router.Use(gin.ErrorLogger())                  // print all errors
-	router.Use(gin.Recovery())                     // returns 500 on any code panics
-	router.Use(apiMiddleware(db))                  // init global context
+	router.Use(gin.ErrorLogger()) // print all errors
+	router.Use(gin.Recovery())    // returns 500 on any code panics
+	router.Use(apiMiddleware(db)) // init global context
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
-	    	errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Resource not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Resource not found.", c)
 	})
 
 	// Create base api prefix

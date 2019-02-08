@@ -3,6 +3,7 @@ package blocks
 import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/errors"
+	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"net/http"
@@ -36,10 +37,11 @@ func GetBlocks(c *gin.Context) {
 	var page = 1
 	if request.Page != "" {
 		page, err = strconv.Atoi(request.Page)
+		helpers.CheckErr(err)
 	}
 
 	// fetch blocks
-	blockService := blocks.BlockService{DB:db}
+	blockService := blocks.BlockService{DB: db}
 	blocksList := blockService.GetList(page, CountOfBlocksPerPage)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -63,7 +65,7 @@ func GetBlock(c *gin.Context) {
 	blockId, err := strconv.ParseUint(request.ID, 10, 64)
 
 	// fetch block by height
-	blockService := blocks.BlockService{DB:db}
+	blockService := blocks.BlockService{DB: db}
 	block := blockService.GetById(blockId)
 
 	// check block to existing

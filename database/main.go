@@ -8,9 +8,9 @@ import (
 
 func Connect(env *core.Environment) *pg.DB {
 	options := &pg.Options{
-		User:     *env.DbUser,
-		Password: *env.DbPassword,
-		Database: *env.DbName,
+		User:     env.DbUser,
+		Password: env.DbPassword,
+		Database: env.DbName,
 	}
 
 	db := pg.Connect(options)
@@ -22,7 +22,7 @@ func Connect(env *core.Environment) *pg.DB {
 	return db
 }
 
-func Close(db *pg.DB)  {
+func Close(db *pg.DB) {
 	dbCloseError := db.Close()
 	if dbCloseError != nil {
 		println("Could not close connection to database")

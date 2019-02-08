@@ -22,16 +22,16 @@ func GetCoins(c *gin.Context) {
 		data := coinService.GetList()
 
 		c.JSON(http.StatusOK, gin.H{"data": data})
-	} else {
-		// fetch coin
-		coin := coinService.GetBySymbol(symbol)
-		if coin == nil {
-			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coin not found.", c)
-			return
-		}
-
-		data := []coins.CoinResource{*coin}
-
-		c.JSON(http.StatusOK, gin.H{"data": data})
+		return
 	}
+
+	// fetch coin
+	coin := coinService.GetBySymbol(symbol)
+	if coin == nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coin not found.", c)
+		return
+	}
+
+	data := []coins.CoinResource{*coin}
+	c.JSON(http.StatusOK, gin.H{"data": data})
 }

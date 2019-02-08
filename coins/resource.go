@@ -6,14 +6,14 @@ import (
 )
 
 type CoinResource struct {
-	Crr                   uint64    `json:"crr"             example:"10"`
-	Volume                string    `json:"volume"          example:"46573.556"`
-	ReserveBalance        string    `json:"reserve_balance" example:"134.23456"`
-	Name                  string    `json:"name"            example:"My test coin"`
-	Symbol                string    `json:"symbol"          example:"TESTCOIN"`
+	Crr            uint64 `json:"crr"             example:"10"`
+	Volume         string `json:"volume"          example:"46573.556"`
+	ReserveBalance string `json:"reserve_balance" example:"134.23456"`
+	Name           string `json:"name"            example:"My test coin"`
+	Symbol         string `json:"symbol"          example:"TESTCOIN"`
 }
 
-func TransformCoin(model models.Coin) CoinResource  {
+func TransformCoin(model models.Coin) CoinResource {
 	return CoinResource{
 		Crr:            model.Crr,
 		Volume:         helpers.PipStr2Bip(model.Volume),

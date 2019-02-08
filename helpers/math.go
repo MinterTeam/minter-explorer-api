@@ -10,11 +10,9 @@ func PipStr2Bip(value string) string {
 	}
 
 	// default amount pip in 1 bip
-	pipInBip        := big.NewFloat(1000000000000000000)
-	floatValue, err := new (big.Float).SetString(value)
+	pipInBip := big.NewFloat(1000000000000000000)
+	floatValue, err := new(big.Float).SetString(value)
 	CheckErrBool(err)
 
-	bip := new(big.Float).Quo(floatValue, pipInBip)
-
-	return bip.String()
+	return new(big.Float).Quo(floatValue, pipInBip).String()
 }

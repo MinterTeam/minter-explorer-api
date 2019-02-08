@@ -25,7 +25,7 @@ func (service *BlockService) GetById(id uint64) *BlockResource {
 }
 
 // Get paginated list of blocks
-func (service *BlockService) GetList(page int, perPage int) *[]BlockResource  {
+func (service *BlockService) GetList(page int, perPage int) *[]BlockResource {
 	var blocks []models.Block
 
 	// fetch blocks

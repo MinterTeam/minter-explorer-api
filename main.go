@@ -18,23 +18,23 @@ func main() {
 
 func initEnvironment() *core.Environment {
 	env := &core.Environment{
-		DbName:     flag.String("db_name", "", "DB name"),
-		DbUser:     flag.String("db_user", "", "DB user"),
-		DbPassword: flag.String("db_password", "", "DB password"),
+		DbName:     *flag.String("db_name", "", "DB name"),
+		DbUser:     *flag.String("db_user", "", "DB user"),
+		DbPassword: *flag.String("db_password", "", "DB password"),
 	}
 	flag.Parse()
 
-	if *env.DbUser == `` {
+	if env.DbUser == `` {
 		dbUser := os.Getenv("EXPLORER_DB_USER")
-		env.DbUser = &dbUser
+		env.DbUser = dbUser
 	}
-	if *env.DbName == `` {
+	if env.DbName == `` {
 		dbName := os.Getenv("EXPLORER_DB_NAME")
-		env.DbName = &dbName
+		env.DbName = dbName
 	}
-	if *env.DbPassword == `` {
+	if env.DbPassword == `` {
 		dbPassword := os.Getenv("EXPLORER_DB_PASSWORD")
-		env.DbPassword = &dbPassword
+		env.DbPassword = dbPassword
 	}
 
 	return env
