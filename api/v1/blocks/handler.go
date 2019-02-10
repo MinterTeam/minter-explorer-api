@@ -2,10 +2,10 @@ package blocks
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
+	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/gin-gonic/gin"
-	"github.com/go-pg/pg"
 	"net/http"
 	"strconv"
 )
@@ -23,7 +23,7 @@ const CountOfBlocksPerPage = 50
 
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
-	db := c.MustGet(`db`).(*pg.DB)
+	explorer := c.MustGet(`explorer`).(*core.Explorer)
 
 	// validate request
 	var request GetBlocksRequest
@@ -41,17 +41,26 @@ func GetBlocks(c *gin.Context) {
 	}
 
 	// fetch blocks
-	blockService := blocks.BlockService{DB: db}
-	blocksList := blockService.GetList(page, CountOfBlocksPerPage)
+	models := explorer.BlockRepository.GetPaginated(page, CountOfBlocksPerPage)
+
+	// make response as empty array if no models
+	if len(*models) == 0 {
+		empty := make([]blocks.BlockResource, 0)
+		c.JSON(http.StatusOK, gin.H{"data": empty})
+		return
+	}
+
+	// transform to resource
+	blocksList := blocks.TransformBlockCollection(*models)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": *blocksList,
+		"data": blocksList,
 	})
 }
 
 // Get block detail
 func GetBlock(c *gin.Context) {
-	db := c.MustGet(`db`).(*pg.DB)
+	explorer := c.MustGet(`explorer`).(*core.Explorer)
 
 	// validate request
 	var request GetBlockRequest
@@ -63,10 +72,10 @@ func GetBlock(c *gin.Context) {
 
 	// parse to uint64
 	blockId, err := strconv.ParseUint(request.ID, 10, 64)
+	helpers.CheckErr(err)
 
 	// fetch block by height
-	blockService := blocks.BlockService{DB: db}
-	block := blockService.GetById(blockId)
+	block := explorer.BlockRepository.GetById(blockId)
 
 	// check block to existing
 	if block == nil {
@@ -74,7 +83,10 @@ func GetBlock(c *gin.Context) {
 		return
 	}
 
+	// transform to resource
+	resource := blocks.TransformBlock(*block)
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": block,
+		"data": resource,
 	})
 }

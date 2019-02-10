@@ -22,3 +22,12 @@ func TransformCoin(model models.Coin) CoinResource {
 		Symbol:         model.Symbol,
 	}
 }
+
+func TransformCoinCollection(models []models.Coin) []CoinResource {
+	var data []CoinResource
+	for _, coin := range models {
+		data = append(data, TransformCoin(coin))
+	}
+
+	return data
+}

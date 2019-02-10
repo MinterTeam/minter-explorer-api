@@ -29,3 +29,12 @@ func TransformBlock(model models.Block) BlockResource {
 		Validators:  model.Validators,
 	}
 }
+
+func TransformBlockCollection(models []models.Block) []BlockResource {
+	var data []BlockResource
+	for _, item := range models {
+		data = append(data, TransformBlock(item))
+	}
+
+	return data
+}
