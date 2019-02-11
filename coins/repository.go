@@ -7,18 +7,18 @@ import (
 	"github.com/go-pg/pg"
 )
 
-type CoinRepository struct {
+type Repository struct {
 	DB *pg.DB
 }
 
-func NewRepository(db *pg.DB) *CoinRepository {
-	return &CoinRepository{
+func NewRepository(db *pg.DB) *Repository {
+	return &Repository{
 		DB: db,
 	}
 }
 
 // Get list of coins
-func (repository *CoinRepository) GetCoins() []models.Coin {
+func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
 	// fetch data
@@ -30,7 +30,7 @@ func (repository *CoinRepository) GetCoins() []models.Coin {
 }
 
 // Get coin detail by symbol
-func (repository *CoinRepository) GetBySymbol(symbol string) []models.Coin {
+func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
 	var coins []models.Coin
 
 	// fetch data

@@ -5,6 +5,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/paginator"
+	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -45,17 +47,34 @@ func GetBlocks(c *gin.Context) {
 
 	// make response as empty array if no models
 	if len(models) == 0 {
-		empty := make([]blocks.BlockResource, 0)
+		empty := make([]blocks.Resource, 0)
 		c.JSON(http.StatusOK, gin.H{"data": empty})
 		return
 	}
 
 	// transform to resource
-	blocksList := blocks.TransformBlockCollection(models)
+	blocksList := resource.TransformCollection(models, blocks.Resource{})
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": blocksList,
-	})
+	response := paginator.Resource{
+		Data: blocksList,
+		Links: paginator.LinksResource{
+			First: "",
+			Last:  "",
+			Prev:  "",
+			Next:  "",
+		},
+		Meta: paginator.MetaResource{
+			CurrentPage: 1,
+			From:        2,
+			LastPage:    3,
+			Path:        "",
+			PerPage:     5,
+			To:          6,
+			Total:       7,
+		},
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // Get block detail
@@ -84,9 +103,10 @@ func GetBlock(c *gin.Context) {
 	}
 
 	// transform to resource
-	resource := blocks.TransformBlock(*block)
+	var blocksResource blocks.Resource
+	data := blocksResource.Transform(*block)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": resource,
+		"data": data,
 	})
 }

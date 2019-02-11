@@ -2,11 +2,12 @@ package blocks
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"time"
 )
 
-type BlockResource struct {
+type Resource struct {
 	ID          uint64              `json:"height"`
 	Size        uint64              `json:"size"`
 	NumTxs      uint32              `json:"txCount"`
@@ -17,24 +18,17 @@ type BlockResource struct {
 	Validators  []*models.Validator `json:"validators"`
 }
 
-func TransformBlock(model models.Block) BlockResource {
-	return BlockResource{
-		ID:          model.ID,
-		Size:        model.Size,
-		NumTxs:      model.NumTxs,
-		BlockTime:   model.BlockTime,
-		Timestamp:   model.CreatedAt,
-		BlockReward: helpers.PipStr2Bip(model.BlockReward),
-		Hash:        model.Hash,
-		Validators:  model.Validators,
-	}
-}
+func (Resource) Transform(model resource.ItemInterface) resource.ResourceItemInterface {
+	realModel := model.(models.Block)
 
-func TransformBlockCollection(models []models.Block) []BlockResource {
-	var data []BlockResource
-	for _, item := range models {
-		data = append(data, TransformBlock(item))
+	return Resource{
+		ID:          realModel.ID,
+		Size:        realModel.Size,
+		NumTxs:      realModel.NumTxs,
+		BlockTime:   realModel.BlockTime,
+		Timestamp:   realModel.CreatedAt,
+		BlockReward: helpers.PipStr2Bip(realModel.BlockReward),
+		Hash:        realModel.Hash,
+		Validators:  realModel.Validators,
 	}
-
-	return data
 }

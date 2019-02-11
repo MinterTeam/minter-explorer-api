@@ -3,6 +3,7 @@ package coins
 import (
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -26,14 +27,14 @@ func GetCoins(c *gin.Context) {
 
 	// make response as empty array if no models
 	if len(data) == 0 {
-		empty := make([]coins.CoinResource, 0)
+		empty := make([]coins.Resource, 0)
 
 		c.JSON(http.StatusOK, gin.H{"data": empty})
 		return
 	}
 
 	// transform models to resource
-	result := coins.TransformCoinCollection(data)
+	result := resource.TransformCollection(data, coins.Resource{})
 
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }

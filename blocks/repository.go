@@ -6,18 +6,18 @@ import (
 	"github.com/go-pg/pg"
 )
 
-type BlockRepository struct {
+type Repository struct {
 	DB *pg.DB
 }
 
-func NewRepository(db *pg.DB) *BlockRepository {
-	return &BlockRepository{
+func NewRepository(db *pg.DB) *Repository {
+	return &Repository{
 		DB: db,
 	}
 }
 
 // Get block by height (id)
-func (repository *BlockRepository) GetById(id uint64) *models.Block {
+func (repository *Repository) GetById(id uint64) *models.Block {
 	// fetch model from the database
 	var block models.Block
 
@@ -32,7 +32,7 @@ func (repository *BlockRepository) GetById(id uint64) *models.Block {
 }
 
 // Get paginated list of blocks
-func (repository *BlockRepository) GetPaginated(page int, perPage int) []models.Block {
+func (repository *Repository) GetPaginated(page int, perPage int) []models.Block {
 	var blocks []models.Block
 
 	// fetch blocks

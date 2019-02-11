@@ -7,8 +7,8 @@ import (
 )
 
 type Explorer struct {
-	CoinRepository  coins.CoinRepository
-	BlockRepository blocks.BlockRepository
+	CoinRepository  coins.Repository
+	BlockRepository blocks.Repository
 }
 
 func NewExplorer(db *pg.DB) *Explorer {
