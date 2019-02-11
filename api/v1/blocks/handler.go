@@ -23,7 +23,7 @@ const CountOfBlocksPerPage = 50
 
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
-	explorer := c.MustGet(`explorer`).(*core.Explorer)
+	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// validate request
 	var request GetBlocksRequest
@@ -44,14 +44,14 @@ func GetBlocks(c *gin.Context) {
 	models := explorer.BlockRepository.GetPaginated(page, CountOfBlocksPerPage)
 
 	// make response as empty array if no models
-	if len(*models) == 0 {
+	if len(models) == 0 {
 		empty := make([]blocks.BlockResource, 0)
 		c.JSON(http.StatusOK, gin.H{"data": empty})
 		return
 	}
 
 	// transform to resource
-	blocksList := blocks.TransformBlockCollection(*models)
+	blocksList := blocks.TransformBlockCollection(models)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": blocksList,
@@ -60,7 +60,7 @@ func GetBlocks(c *gin.Context) {
 
 // Get block detail
 func GetBlock(c *gin.Context) {
-	explorer := c.MustGet(`explorer`).(*core.Explorer)
+	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// validate request
 	var request GetBlockRequest

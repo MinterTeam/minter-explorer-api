@@ -19,15 +19,15 @@ func NewEnvironment() *Environment {
 	}
 	flag.Parse()
 
-	if env.DbUser == `` {
+	if env.DbUser == "" {
 		dbUser := os.Getenv("EXPLORER_DB_USER")
 		env.DbUser = dbUser
 	}
-	if env.DbName == `` {
+	if env.DbName == "" {
 		dbName := os.Getenv("EXPLORER_DB_NAME")
 		env.DbName = dbName
 	}
-	if env.DbPassword == `` {
+	if env.DbPassword == "" {
 		dbPassword := os.Getenv("EXPLORER_DB_PASSWORD")
 		env.DbPassword = dbPassword
 	}

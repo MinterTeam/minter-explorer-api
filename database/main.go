@@ -3,7 +3,6 @@ package database
 import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/go-pg/pg"
-	"os"
 )
 
 func Connect(env *core.Environment) *pg.DB {
@@ -15,8 +14,7 @@ func Connect(env *core.Environment) *pg.DB {
 
 	db := pg.Connect(options)
 	if db == nil {
-		println("Could not connect to database")
-		os.Exit(100)
+		panic("Could not connect to database")
 	}
 
 	return db
@@ -25,7 +23,6 @@ func Connect(env *core.Environment) *pg.DB {
 func Close(db *pg.DB) {
 	dbCloseError := db.Close()
 	if dbCloseError != nil {
-		println("Could not close connection to database")
-		os.Exit(100)
+		panic("Could not close connection to database")
 	}
 }

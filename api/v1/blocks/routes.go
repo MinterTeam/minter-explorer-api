@@ -8,7 +8,7 @@ import (
 func ApplyRoutes(r *gin.RouterGroup) {
 	blocks := r.Group("/blocks")
 	{
-		blocks.GET(``, GetBlocks)
-		blocks.GET(`/:height`, GetBlock)
+		blocks.GET("", GetBlocks)
+		blocks.GET("/:height", GetBlock)
 	}
 }

@@ -32,7 +32,7 @@ func (repository *BlockRepository) GetById(id uint64) *models.Block {
 }
 
 // Get paginated list of blocks
-func (repository *BlockRepository) GetPaginated(page int, perPage int) *[]models.Block {
+func (repository *BlockRepository) GetPaginated(page int, perPage int) []models.Block {
 	var blocks []models.Block
 
 	// fetch blocks
@@ -41,5 +41,5 @@ func (repository *BlockRepository) GetPaginated(page int, perPage int) *[]models
 
 	helpers.CheckErr(err)
 
-	return &blocks
+	return blocks
 }

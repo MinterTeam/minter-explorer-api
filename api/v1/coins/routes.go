@@ -8,6 +8,6 @@ import (
 func ApplyRoutes(r *gin.RouterGroup) {
 	blocks := r.Group("/coins")
 	{
-		blocks.GET(``, GetCoins)
+		blocks.GET("", GetCoins)
 	}
 }

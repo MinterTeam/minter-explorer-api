@@ -18,7 +18,7 @@ func NewRepository(db *pg.DB) *CoinRepository {
 }
 
 // Get list of coins
-func (repository *CoinRepository) GetCoins() *[]models.Coin {
+func (repository *CoinRepository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
 	// fetch data
@@ -26,11 +26,11 @@ func (repository *CoinRepository) GetCoins() *[]models.Coin {
 
 	helpers.CheckErr(err)
 
-	return &coins
+	return coins
 }
 
 // Get coin detail by symbol
-func (repository *CoinRepository) GetBySymbol(symbol string) *[]models.Coin {
+func (repository *CoinRepository) GetBySymbol(symbol string) []models.Coin {
 	var coins []models.Coin
 
 	// fetch data
@@ -39,5 +39,5 @@ func (repository *CoinRepository) GetBySymbol(symbol string) *[]models.Coin {
 
 	helpers.CheckErr(err)
 
-	return &coins
+	return coins
 }
