@@ -5,8 +5,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/pagination"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -23,7 +23,6 @@ type GetBlocksRequest struct {
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
-	paginationService := c.MustGet("paginator").(pagination.Service)
 
 	// validate request
 	var request GetBlocksRequest
@@ -34,7 +33,8 @@ func GetBlocks(c *gin.Context) {
 	}
 
 	// fetch blocks
-	models := explorer.BlockRepository.GetPaginated(&paginationService)
+	pagination := tools.NewPagination(c.Request)
+	models := explorer.BlockRepository.GetPaginated(&pagination)
 
 	// make response as empty array if no models
 	if len(models) == 0 {
@@ -44,7 +44,7 @@ func GetBlocks(c *gin.Context) {
 	}
 
 	// transform to resource
-	blocksList := resource.TransformPaginatedCollection(models, blocks.Resource{}, paginationService)
+	blocksList := resource.TransformPaginatedCollection(models, blocks.Resource{}, pagination)
 
 	c.JSON(http.StatusOK, blocksList)
 }

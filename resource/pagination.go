@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/pagination"
+	"github.com/MinterTeam/minter-explorer-api/tools"
 )
 
 type PaginationResource struct {
@@ -25,23 +25,23 @@ type PaginationMetaResource struct {
 	Total       int    `json:"total"`
 }
 
-func TransformPaginatedCollection(collection interface{}, resource ResourceItemInterface, paginationService pagination.Service) PaginationResource {
+func TransformPaginatedCollection(collection interface{}, resource ResourceItemInterface, pagination tools.Pagination) PaginationResource {
 	result := TransformCollection(collection, resource)
 
 	return PaginationResource{
 		Data: result,
 		Links: PaginationLinksResource{
-			First: paginationService.GetFirstPageLink(),
-			Last:  paginationService.GetLastPageLink(),
-			Prev:  paginationService.GetPrevPageLink(),
-			Next:  paginationService.GetNextPageLink(),
+			First: pagination.GetFirstPageLink(),
+			Last:  pagination.GetLastPageLink(),
+			Prev:  pagination.GetPrevPageLink(),
+			Next:  pagination.GetNextPageLink(),
 		},
 		Meta: PaginationMetaResource{
-			CurrentPage: paginationService.GetCurrentPage(),
-			LastPage:    paginationService.GetLastPage(),
-			Path:        paginationService.GetPath(),
-			PerPage:     paginationService.GetPerPage(),
-			Total:       paginationService.Total,
+			CurrentPage: pagination.GetCurrentPage(),
+			LastPage:    pagination.GetLastPage(),
+			Path:        pagination.GetPath(),
+			PerPage:     pagination.GetPerPage(),
+			Total:       pagination.Total,
 		},
 	}
 }

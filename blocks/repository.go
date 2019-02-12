@@ -2,7 +2,7 @@ package blocks
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/pagination"
+	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
 )
@@ -23,7 +23,7 @@ func (repository *Repository) GetById(id uint64) *models.Block {
 	var block models.Block
 
 	// fetch block
-	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id)
+	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id).Select()
 
 	if err != nil {
 		return nil
@@ -33,7 +33,7 @@ func (repository *Repository) GetById(id uint64) *models.Block {
 }
 
 // Get paginated list of blocks
-func (repository *Repository) GetPaginated(paginationService *pagination.Service) []models.Block {
+func (repository *Repository) GetPaginated(pagination *tools.Pagination) []models.Block {
 	var blocks []models.Block
 	var err error
 
@@ -41,7 +41,7 @@ func (repository *Repository) GetPaginated(paginationService *pagination.Service
 	query := repository.DB.Model(&blocks).Column("Validators")
 
 	// apply pagination
-	paginationService.Total, err = paginationService.ApplyFilter(query).Order("id DESC").SelectAndCount()
+	pagination.Total, err = pagination.ApplyFilter(query).Order("id DESC").SelectAndCount()
 	helpers.CheckErr(err)
 
 	return blocks

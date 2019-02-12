@@ -5,7 +5,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/pagination"
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"net/http"
@@ -24,7 +23,6 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(gin.Recovery())              // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
-	router.Use(pagination.Middleware())
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
