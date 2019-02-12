@@ -16,7 +16,6 @@ func GetCoins(c *gin.Context) {
 
 	var data []models.Coin
 
-	// if symbol is not specified
 	if symbol == "" {
 		// fetch coins resource
 		data = explorer.CoinRepository.GetCoins()
@@ -25,7 +24,7 @@ func GetCoins(c *gin.Context) {
 		data = explorer.CoinRepository.GetBySymbol(symbol)
 	}
 
-	// make response as empty array if no models
+	// make response as empty array if no models found
 	if len(data) == 0 {
 		empty := make([]coins.Resource, 0)
 

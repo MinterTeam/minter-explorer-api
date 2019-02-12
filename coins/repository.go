@@ -21,9 +21,7 @@ func NewRepository(db *pg.DB) *Repository {
 func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
-	// fetch data
 	err := repository.DB.Model(&coins).Column("crr", "volume", "reserve_balance", "name", "symbol").Select()
-
 	helpers.CheckErr(err)
 
 	return coins
@@ -33,10 +31,8 @@ func (repository *Repository) GetCoins() []models.Coin {
 func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
 	var coins []models.Coin
 
-	// fetch data
 	err := repository.DB.Model(&coins).Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Column("crr", "volume", "reserve_balance", "name", "symbol").Select()
-
 	helpers.CheckErr(err)
 
 	return coins

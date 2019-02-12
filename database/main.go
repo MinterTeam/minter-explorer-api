@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/go-pg/pg"
 )
@@ -21,8 +22,8 @@ func Connect(env *core.Environment) *pg.DB {
 }
 
 func Close(db *pg.DB) {
-	dbCloseError := db.Close()
-	if dbCloseError != nil {
-		panic("Could not close connection to database")
+	err := db.Close()
+	if err != nil {
+		panic(fmt.Sprintf("Could not close connection to database: %s", err))
 	}
 }

@@ -17,11 +17,11 @@ type Pagination struct {
 	Total      int
 }
 
-const DefaultLimit = "50"
+const DefaultLimit = 50
 
 func NewPagination(request *http.Request) Pagination {
 	values := urlvalues.Values(request.URL.Query())
-	values.SetDefault("limit", DefaultLimit)
+	values.SetDefault("limit", strconv.Itoa(DefaultLimit))
 
 	return Pagination{
 		Pager:      values.Pager(),
