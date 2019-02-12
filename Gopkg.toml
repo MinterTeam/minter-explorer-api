@@ -29,10 +29,18 @@
   go-tests = true
   unused-packages = true
 
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "gopkg.in/fsnotify/fsnotify.v1"
+
 [[constraint]]
   name = "github.com/gin-gonic/gin"
   branch = "master"
 
 [[constraint]]
   name = "github.com/go-pg/pg"
-  version = "7.1.7"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/MinterTeam/minter-explorer-extender"
+  branch = "master"

@@ -1,6 +1,8 @@
 package resource
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type ItemInterface interface{}
 

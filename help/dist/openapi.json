@@ -20,6 +20,14 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Blocks per page",
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -28,15 +36,7 @@
             "content": {
               "application-json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/BlockResource"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/BlockPaginatedCollectionResponse"
                 }
               }
             }
@@ -71,7 +71,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/BlockResource"
+                      "$ref": "#/components/schemas/BlockResponse"
                     }
                   }
                 }
@@ -117,7 +117,7 @@
           {
             "name": "symbol",
             "in": "query",
-            "description": "Coin symbol",
+            "description": "Coin symbol for filter",
             "schema": {
               "type": "string"
             }
@@ -134,7 +134,7 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/CoinResource"
+                        "$ref": "#/components/schemas/CoinResponse"
                       }
                     }
                   }
@@ -148,7 +148,7 @@
   },
   "components": {
     "schemas": {
-      "BlockResource": {
+      "BlockResponse": {
         "properties": {
           "height": {
             "description": "Block height",
@@ -188,7 +188,25 @@
         },
         "type": "object"
       },
-      "CoinResource": {
+      "BlockPaginatedCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Blocks",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockResponse"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinksResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaResponse"
+          }
+        },
+        "type": "object"
+      },
+      "CoinResponse": {
         "properties": {
           "crr": {
             "description": "Coin crr",
@@ -214,6 +232,61 @@
             "description": "Coin symbol",
             "type": "string",
             "example": "MNT"
+          }
+        },
+        "type": "object"
+      },
+      "PaginationLinksResponse": {
+        "properties": {
+          "first": {
+            "description": "First page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=1"
+          },
+          "last": {
+            "description": "Last page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=10"
+          },
+          "prev": {
+            "description": "Previous page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=1"
+          },
+          "next": {
+            "description": "Next page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=2"
+          }
+        },
+        "type": "object"
+      },
+      "PaginationMetaResponse": {
+        "properties": {
+          "current_page": {
+            "description": "Current page number",
+            "type": "integer",
+            "example": 2
+          },
+          "last_page": {
+            "description": "Last page number",
+            "type": "integer",
+            "example": 10
+          },
+          "path": {
+            "description": "Request path",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network"
+          },
+          "per_page": {
+            "description": "Elements per page",
+            "type": "integer",
+            "example": 50
+          },
+          "total": {
+            "description": "Total number of elements",
+            "type": "integer",
+            "example": 16434
           }
         },
         "type": "object"

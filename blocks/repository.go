@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/pagination"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
 )
@@ -22,7 +23,7 @@ func (repository *Repository) GetById(id uint64) *models.Block {
 	var block models.Block
 
 	// fetch block
-	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id).Select()
+	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id)
 
 	if err != nil {
 		return nil
@@ -32,13 +33,15 @@ func (repository *Repository) GetById(id uint64) *models.Block {
 }
 
 // Get paginated list of blocks
-func (repository *Repository) GetPaginated(page int, perPage int) []models.Block {
+func (repository *Repository) GetPaginated(paginationService *pagination.Service) []models.Block {
 	var blocks []models.Block
+	var err error
 
 	// fetch blocks
-	err := repository.DB.Model(&blocks).Column("Validators").Limit(perPage).
-		Offset(perPage * (page - 1)).Order("id DESC").Select()
+	query := repository.DB.Model(&blocks).Column("Validators")
 
+	// apply pagination
+	paginationService.Total, err = paginationService.ApplyFilter(query).Order("id DESC").SelectAndCount()
 	helpers.CheckErr(err)
 
 	return blocks
