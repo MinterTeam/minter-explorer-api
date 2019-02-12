@@ -1,0 +1,296 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Minter Explorer api"
+  },
+  "paths": {
+    "/api/v1/blocks": {
+      "get": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Get list of blocks",
+        "operationId": "getBlocks",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Blocks per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of blocks",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockPaginatedCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/blocks/{height}": {
+      "get": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Get block detail",
+        "operationId": "getBlock",
+        "parameters": [
+          {
+            "name": "height",
+            "in": "path",
+            "description": "Block height",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of blocks",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/BlockResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Block not found",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "integer",
+                          "example": 404
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "Block not found."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/coins": {
+      "get": {
+        "tags": [
+          "Coins"
+        ],
+        "summary": "Get list of coins",
+        "operationId": "getCoins",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Coin symbol for filter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of coins",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CoinResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BlockResponse": {
+        "properties": {
+          "height": {
+            "description": "Block height",
+            "type": "integer",
+            "example": 34863
+          },
+          "size": {
+            "description": "Block size",
+            "type": "integer",
+            "example": 253
+          },
+          "txCount": {
+            "description": "Transaction count",
+            "type": "integer",
+            "example": 25
+          },
+          "blockTime": {
+            "description": "Block time",
+            "type": "integer",
+            "example": 34863
+          },
+          "timestamp": {
+            "description": "Block height",
+            "type": "integer",
+            "example": 518
+          },
+          "reward": {
+            "description": "Block reward",
+            "type": "string",
+            "example": "333"
+          },
+          "hash": {
+            "description": "Block hash",
+            "type": "string",
+            "example": "ITHA0XQPS5XTOY6NTTOOJX5VAVZQHTRIZJDHQKKUPUQDNX7JYVDE4UO5LFFCWSVA"
+          }
+        },
+        "type": "object"
+      },
+      "BlockPaginatedCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Blocks",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockResponse"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinksResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaResponse"
+          }
+        },
+        "type": "object"
+      },
+      "CoinResponse": {
+        "properties": {
+          "crr": {
+            "description": "Coin crr",
+            "type": "integer",
+            "example": 10
+          },
+          "volume": {
+            "description": "Coin volume",
+            "type": "string",
+            "example": "45656534.3546"
+          },
+          "reserve_balance": {
+            "description": "Coin reserve balance",
+            "type": "string",
+            "example": "10.356"
+          },
+          "name": {
+            "description": "Coin name",
+            "type": "string",
+            "example": "My super coin"
+          },
+          "symbol": {
+            "description": "Coin symbol",
+            "type": "string",
+            "example": "MNT"
+          }
+        },
+        "type": "object"
+      },
+      "PaginationLinksResponse": {
+        "properties": {
+          "first": {
+            "description": "First page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=1"
+          },
+          "last": {
+            "description": "Last page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=10"
+          },
+          "prev": {
+            "description": "Previous page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=1"
+          },
+          "next": {
+            "description": "Next page",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network/blocks?page=2"
+          }
+        },
+        "type": "object"
+      },
+      "PaginationMetaResponse": {
+        "properties": {
+          "current_page": {
+            "description": "Current page number",
+            "type": "integer",
+            "example": 2
+          },
+          "last_page": {
+            "description": "Last page number",
+            "type": "integer",
+            "example": 10
+          },
+          "path": {
+            "description": "Request path",
+            "type": "string",
+            "example": "https://testnet.explorer.minter.network"
+          },
+          "per_page": {
+            "description": "Elements per page",
+            "type": "integer",
+            "example": 50
+          },
+          "total": {
+            "description": "Total number of elements",
+            "type": "integer",
+            "example": 16434
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}
