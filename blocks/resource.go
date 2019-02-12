@@ -18,17 +18,17 @@ type Resource struct {
 	Validators  []*models.Validator `json:"validators"`
 }
 
-func (Resource) Transform(model resource.ItemInterface) resource.ResourceItemInterface {
-	realModel := model.(models.Block)
+func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+	block := model.(models.Block)
 
 	return Resource{
-		ID:          realModel.ID,
-		Size:        realModel.Size,
-		NumTxs:      realModel.NumTxs,
-		BlockTime:   realModel.BlockTime,
-		Timestamp:   realModel.CreatedAt,
-		BlockReward: helpers.PipStr2Bip(realModel.BlockReward),
-		Hash:        realModel.Hash,
-		Validators:  realModel.Validators,
+		ID:          block.ID,
+		Size:        block.Size,
+		NumTxs:      block.NumTxs,
+		BlockTime:   uint64(block.BlockTime),
+		Timestamp:   block.CreatedAt,
+		BlockReward: helpers.PipStr2Bip(block.BlockReward.String()),
+		Hash:        block.Hash,
+		Validators:  block.Validators,
 	}
 }

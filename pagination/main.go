@@ -17,11 +17,11 @@ type Service struct {
 	Total      int
 }
 
-const DefaultLimit = "50"
+const DefaultLimit = 50
 
 func NewService(request *http.Request) Service {
 	values := urlvalues.Values(request.URL.Query())
-	values.SetDefault("limit", DefaultLimit)
+	values.SetDefault("limit", strconv.Itoa(DefaultLimit))
 
 	return Service{
 		Pager:      values.Pager(),

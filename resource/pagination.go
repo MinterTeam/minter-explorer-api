@@ -5,7 +5,7 @@ import (
 )
 
 type PaginationResource struct {
-	Data  []ResourceItemInterface `json:"data"`
+	Data  []Interface             `json:"data"`
 	Links PaginationLinksResource `json:"links"`
 	Meta  PaginationMetaResource  `json:"meta"`
 }
@@ -25,7 +25,7 @@ type PaginationMetaResource struct {
 	Total       int    `json:"total"`
 }
 
-func TransformPaginatedCollection(collection interface{}, resource ResourceItemInterface, paginationService pagination.Service) PaginationResource {
+func TransformPaginatedCollection(collection interface{}, resource Interface, paginationService pagination.Service) PaginationResource {
 	result := TransformCollection(collection, resource)
 
 	return PaginationResource{

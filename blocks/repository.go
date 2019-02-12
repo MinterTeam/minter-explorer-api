@@ -19,12 +19,9 @@ func NewRepository(db *pg.DB) *Repository {
 
 // Get block by height (id)
 func (repository *Repository) GetById(id uint64) *models.Block {
-	// fetch model from the database
 	var block models.Block
 
-	// fetch block
 	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id)
-
 	if err != nil {
 		return nil
 	}
@@ -37,7 +34,6 @@ func (repository *Repository) GetPaginated(paginationService *pagination.Service
 	var blocks []models.Block
 	var err error
 
-	// fetch blocks
 	query := repository.DB.Model(&blocks).Column("Validators")
 
 	// apply pagination

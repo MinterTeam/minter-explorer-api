@@ -6,11 +6,11 @@ import (
 
 type ItemInterface interface{}
 
-type ResourceItemInterface interface {
-	Transform(model ItemInterface) ResourceItemInterface
+type Interface interface {
+	Transform(model ItemInterface) Interface
 }
 
-func TransformCollection(collection interface{}, resource ResourceItemInterface) []ResourceItemInterface {
+func TransformCollection(collection interface{}, resource Interface) []Interface {
 	val := reflect.ValueOf(collection)
 
 	models := make([]ItemInterface, val.Len())
@@ -18,7 +18,7 @@ func TransformCollection(collection interface{}, resource ResourceItemInterface)
 		models[i] = val.Index(i).Interface()
 	}
 
-	result := make([]ResourceItemInterface, len(models))
+	result := make([]Interface, len(models))
 	for i := range models {
 		result[i] = resource.Transform(models[i])
 	}

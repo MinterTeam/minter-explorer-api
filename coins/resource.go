@@ -14,13 +14,13 @@ type Resource struct {
 	Symbol         string `json:"symbol"          example:"TESTCOIN"`
 }
 
-func (Resource) Transform(model resource.ItemInterface) resource.ResourceItemInterface {
-	realModel := model.(models.Coin)
+func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+	coin := model.(models.Coin)
 	return Resource{
-		Crr:            realModel.Crr,
-		Volume:         helpers.PipStr2Bip(realModel.Volume),
-		ReserveBalance: helpers.PipStr2Bip(realModel.ReserveBalance),
-		Name:           realModel.Name,
-		Symbol:         realModel.Symbol,
+		Crr:            coin.Crr,
+		Volume:         helpers.PipStr2Bip(coin.Volume.String()),
+		ReserveBalance: helpers.PipStr2Bip(coin.ReserveBalance.String()),
+		Name:           coin.Name,
+		Symbol:         coin.Symbol,
 	}
 }
