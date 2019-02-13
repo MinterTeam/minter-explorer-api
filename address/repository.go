@@ -22,7 +22,6 @@ func (repository Repository) GetByAddress(minterAddress string) *models.Address 
 
 	err := repository.DB.Model(&address).Column("Balances", "Balances.Coin").
 		Where("address = ?", minterAddress).Select()
-
 	if err != nil {
 		return nil
 	}
@@ -41,7 +40,6 @@ func (repository Repository) GetByAddresses(minterAddresses []string) *[]models.
 
 	err := repository.DB.Model(&addresses).Column("Balances", "Balances.Coin").
 		WhereIn("address IN (?)", addressesList...).Select()
-
 	helpers.CheckErr(err)
 
 	return &addresses
