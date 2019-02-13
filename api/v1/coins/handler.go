@@ -32,8 +32,5 @@ func GetCoins(c *gin.Context) {
 		return
 	}
 
-	// transform models to resource
-	result := resource.TransformCollection(data, coins.Resource{})
-
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, gin.H{"data": resource.TransformCollection(data, coins.Resource{})})
 }

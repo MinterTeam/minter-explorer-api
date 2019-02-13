@@ -43,10 +43,7 @@ func GetBlocks(c *gin.Context) {
 		return
 	}
 
-	// transform to resource
-	blocksList := resource.TransformPaginatedCollection(models, blocks.Resource{}, pagination)
-
-	c.JSON(http.StatusOK, blocksList)
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(models, blocks.Resource{}, pagination))
 }
 
 // Get block detail
@@ -74,11 +71,7 @@ func GetBlock(c *gin.Context) {
 		return
 	}
 
-	// transform to resource
-	var blocksResource blocks.Resource
-	data := blocksResource.Transform(*block)
-
 	c.JSON(http.StatusOK, gin.H{
-		"data": data,
+		"data": new(blocks.Resource).Transform(*block),
 	})
 }

@@ -33,17 +33,15 @@ func GetAddresses(c *gin.Context) {
 
 	// remove Minter wallet prefix from each address
 	var minterAddresses []string
-	for _, address := range request.Addresses {
-		minterAddresses = append(minterAddresses, helpers.RemoveMinterWalletPrefix(address))
+	for _, addr := range request.Addresses {
+		minterAddresses = append(minterAddresses, helpers.RemoveMinterWalletPrefix(addr))
 	}
 
 	// fetch addresses
 	addresses := explorer.AddressRepository.GetByAddresses(minterAddresses)
-	// transform to resource
-	addressList := resource.TransformCollection(*addresses, address.Resource{})
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": addressList,
+		"data": resource.TransformCollection(*addresses, address.Resource{}),
 	})
 }
 
@@ -70,11 +68,7 @@ func GetAddress(c *gin.Context) {
 		}
 	}
 
-	// transform to resource
-	var addressResource address.Resource
-	data := addressResource.Transform(*model)
-
 	c.JSON(http.StatusOK, gin.H{
-		"data": data,
+		"data": new(address.Resource).Transform(*model),
 	})
 }
