@@ -2,12 +2,11 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:326a9d78ad51bee09d7c2e557d87a88cae2beffabb066985257ade6194b7b0d1"
+  digest = "1:d0d9752772472915ce7bbc6c9efd186a4383b78d44453d3b859261924089f458"
   name = "github.com/MinterTeam/minter-explorer-extender"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "a6206f6f7cdb16b1a65568ca5eb862759af7abd8"
+  revision = "c4adcf0eed2287f4b5c6d72922860d97f701be94"
 
 [[projects]]
   branch = "master"
@@ -151,6 +150,7 @@
   input-imports = [
     "github.com/MinterTeam/minter-explorer-extender/models",
     "github.com/gin-gonic/gin",
+    "github.com/gin-gonic/gin/binding",
     "github.com/go-pg/pg",
     "github.com/go-pg/pg/orm",
     "github.com/go-pg/pg/urlvalues",

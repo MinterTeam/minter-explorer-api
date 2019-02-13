@@ -2,11 +2,14 @@ package api
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/api/v1"
+	"github.com/MinterTeam/minter-explorer-api/api/validators"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg"
+	"gopkg.in/go-playground/validator.v8"
 	"net/http"
 )
 
@@ -39,6 +42,8 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	// Create Swagger UI
 	router.Static("/help", "./help/dist")
 
+	registerApiValidators()
+
 	return router
 }
 
@@ -48,5 +53,12 @@ func apiMiddleware(db *pg.DB, explorer *core.Explorer) gin.HandlerFunc {
 		c.Set("db", db)
 		c.Set("explorer", explorer)
 		c.Next()
+	}
+}
+
+func registerApiValidators() {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		err := v.RegisterValidation("minterAddress", validators.MinterAddress)
+		helpers.CheckErr(err)
 	}
 }

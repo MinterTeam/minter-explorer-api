@@ -144,6 +144,86 @@
           }
         }
       }
+    },
+    "/api/v1/addresses": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "summary": "Get list of addresses",
+        "operationId": "getAddresses",
+        "parameters": [
+          {
+            "name": "addresses",
+            "in": "query",
+            "required": true,
+            "description": "List of addresses",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Minter addresses",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AddressResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/addresses/{address}": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "summary": "Get Minter address detail",
+        "operationId": "getAddress",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "description": "Minter address",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Minter address details",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/AddressResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -290,6 +370,37 @@
           }
         },
         "type": "object"
+      },
+      "AddressResponse": {
+        "properties": {
+          "address": {
+            "description": "Minter address",
+            "type": "string",
+            "example": "Mxe449e9fd85fd553fa45d245b62e30253bce29cc7"
+          },
+          "balances": {
+            "description": "Address balances",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressBalanceResponse"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "AddressBalanceResponse": {
+        "properties": {
+          "coin": {
+            "description": "Coin symbol",
+            "type": "string",
+            "example": "MNT"
+          },
+          "amount": {
+            "description": "Amount of coin",
+            "type": "string",
+            "example": 1257.4657
+          }
+        }
       }
     }
   }
