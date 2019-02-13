@@ -23,7 +23,7 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 	for _, balance := range address.Balances {
 		balances = append(balances, BalanceResource{
 			Coin:   balance.Coin.Symbol,
-			Amount: helpers.PipStr2Bip(balance.Value.String()),
+			Amount: helpers.PipStr2Bip(balance.Value),
 		})
 	}
 

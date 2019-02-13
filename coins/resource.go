@@ -18,8 +18,8 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 	coin := model.(models.Coin)
 	return Resource{
 		Crr:            coin.Crr,
-		Volume:         helpers.PipStr2Bip(coin.Volume.String()),
-		ReserveBalance: helpers.PipStr2Bip(coin.ReserveBalance.String()),
+		Volume:         helpers.PipStr2Bip(coin.Volume),
+		ReserveBalance: helpers.PipStr2Bip(coin.ReserveBalance),
 		Name:           coin.Name,
 		Symbol:         coin.Symbol,
 	}
