@@ -40,7 +40,7 @@ func GetAddresses(c *gin.Context) {
 	// remove Minter wallet prefix from each address
 	var minterAddresses []string
 	for _, addr := range request.Addresses {
-		minterAddresses = append(minterAddresses, helpers.RemoveMinterWalletPrefix(addr))
+		minterAddresses = append(minterAddresses, helpers.RemoveMinterAddressPrefix(addr))
 	}
 
 	// fetch addresses
@@ -64,7 +64,7 @@ func GetAddress(c *gin.Context) {
 	}
 
 	// fetch address
-	minterAddress := helpers.RemoveMinterWalletPrefix(request.Address)
+	minterAddress := helpers.RemoveMinterAddressPrefix(request.Address)
 	model := explorer.AddressRepository.GetByAddress(minterAddress)
 
 	// if no models found

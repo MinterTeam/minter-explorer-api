@@ -1,5 +1,5 @@
 package helpers
 
-func RemoveMinterWalletPrefix(address string) string {
+func RemoveMinterAddressPrefix(address string) string {
 	return address[2:42]
 }
