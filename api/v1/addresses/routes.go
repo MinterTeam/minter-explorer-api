@@ -8,5 +8,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 	{
 		blocks.GET("", GetAddresses)
 		blocks.GET("/:address", GetAddress)
+		blocks.GET("/:address/transactions", GetTransactions)
 	}
 }
