@@ -38,7 +38,7 @@ func TestValidateMinterAddress(t *testing.T) {
 	}
 
 	for _, c := range tCases {
-		if validateMinterAddress(c.Address) != c.Valid {
+		if isValidMinterAddress(c.Address) != c.Valid {
 			t.Fatalf("Address validation failed. For %s expected %t, got %t", c.Address, c.Valid, !c.Valid)
 		}
 	}
