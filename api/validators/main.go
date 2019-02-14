@@ -7,8 +7,8 @@ import (
 )
 
 func MinterAddress(
-    v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
-    field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
+	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
+	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
 ) bool {
 	if fieldType.String() == "[]string" {
 		data, _ := field.Interface().([]string)

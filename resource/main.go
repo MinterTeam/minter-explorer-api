@@ -17,7 +17,7 @@ func TransformCollection(collection interface{}, resource Interface) []Interface
 	for i := 0; i < val.Len(); i++ {
 		if val.Index(i).Kind() == reflect.Ptr {
 			models[i] = val.Index(i).Elem().Interface()
-		}  else {
+		} else {
 			models[i] = val.Index(i).Interface()
 		}
 	}
