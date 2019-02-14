@@ -7,11 +7,11 @@ import (
 )
 
 type Resource struct {
-	Crr            uint64 `json:"crr"             example:"10"`
-	Volume         string `json:"volume"          example:"46573.556"`
-	ReserveBalance string `json:"reserve_balance" example:"134.23456"`
-	Name           string `json:"name"            example:"My test coin"`
-	Symbol         string `json:"symbol"          example:"TESTCOIN"`
+	Crr            uint64 `json:"crr"`
+	Volume         string `json:"volume"`
+	ReserveBalance string `json:"reserve_balance"`
+	Name           string `json:"name"`
+	Symbol         string `json:"symbol"`
 }
 
 func (Resource) Transform(model resource.ItemInterface) resource.Interface {

@@ -44,3 +44,15 @@ func (repository Repository) GetByAddresses(minterAddresses []string) *[]models.
 
 	return &addresses
 }
+
+// Get address_id by address
+func (repository Repository) GetIdByAddress(minterAddress string) *uint64 {
+	var address models.Address
+
+	err := repository.DB.Model(&address).Column("id").Where("address = ?", minterAddress).Select()
+	if err != nil {
+		return nil
+	}
+
+	return &address.ID
+}

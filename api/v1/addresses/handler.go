@@ -1,12 +1,13 @@
 package addresses
 
 import (
-	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/tools"
+	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,8 +22,8 @@ type GetAddressesRequest struct {
 }
 
 type GetAddressTransactionsRequest struct {
-	StartBlock string `form:"startblock" binding:"omitempty,numeric"`
-	EndBlock string `form:"endblock" binding:"omitempty,numeric"`
+	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
+	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
 }
 
 // Get list of addresses
@@ -81,9 +82,9 @@ func GetAddress(c *gin.Context) {
 
 // Get list of transactions by Minter address
 func GetTransactions(c *gin.Context) {
-	//explorer := c.MustGet("explorer").(*core.Explorer)
+	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// validate path request
+	// validate request path
 	var request GetAddressRequest
 	err := c.ShouldBindUri(&request)
 	if err != nil {
@@ -91,7 +92,7 @@ func GetTransactions(c *gin.Context) {
 		return
 	}
 
-	// validate query request
+	// validate request query
 	var requestQuery GetAddressTransactionsRequest
 	err = c.ShouldBindQuery(&requestQuery)
 	if err != nil {
@@ -99,6 +100,14 @@ func GetTransactions(c *gin.Context) {
 		return
 	}
 
-	//minterAddress := helpers.RemoveMinterWalletPrefix(request.Address)
-	fmt.Println(requestQuery)
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	addressId := explorer.AddressRepository.GetIdByAddress(helpers.RemoveMinterAddressPrefix(request.Address))
+	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
+		AddressId:  addressId,
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
