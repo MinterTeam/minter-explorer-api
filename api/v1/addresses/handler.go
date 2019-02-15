@@ -41,8 +41,8 @@ func GetAddresses(c *gin.Context) {
 
 	// remove Minter wallet prefix from each address
 	minterAddresses := make([]string, len(request.Addresses))
-	for _, addr := range request.Addresses {
-		minterAddresses = append(minterAddresses, helpers.RemoveMinterPrefix(addr))
+	for key, addr := range request.Addresses {
+		minterAddresses[key] = helpers.RemoveMinterPrefix(addr)
 	}
 
 	// fetch addresses
