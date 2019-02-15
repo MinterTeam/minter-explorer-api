@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/invalid_transaction"
 	"github.com/MinterTeam/minter-explorer-api/reward"
+	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/go-pg/pg"
 )
@@ -17,6 +18,7 @@ type Explorer struct {
 	TransactionRepository        transaction.Repository
 	InvalidTransactionRepository invalid_transaction.Repository
 	RewardRepository             reward.Repository
+	SlashRepository              slash.Repository
 }
 
 func NewExplorer(db *pg.DB) *Explorer {
@@ -27,5 +29,6 @@ func NewExplorer(db *pg.DB) *Explorer {
 		TransactionRepository:        *transaction.NewRepository(db),
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),
 		RewardRepository:             *reward.NewRepository(db),
+		SlashRepository:              *slash.NewRepository(db),
 	}
 }

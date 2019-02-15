@@ -1,0 +1,28 @@
+package slash
+
+import (
+	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-extender/models"
+)
+
+type Resource struct {
+	BlockID   uint64 `json:"block"`
+	Coin      string `json:"role"`
+	Amount    string `json:"amount"`
+	Address   string `json:"address"`
+	Validator string `json:"validator"`
+	//Timestamp string `json:"timestamp"`
+}
+
+func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+	slash := model.(models.Slash)
+
+	return Resource{
+		BlockID: slash.BlockID,
+		Coin: slash.Coin.Symbol,
+		Amount: helpers.PipStr2Bip(slash.Amount),
+		Address: slash.Address.GetAddress(),
+		Validator: slash.Validator.GetPublicKey(),
+	}
+}

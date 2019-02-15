@@ -1,4 +1,4 @@
-package reward
+package slash
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -38,12 +38,12 @@ func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	return q, nil
 }
 
-func (repository Repository) GetPaginatedByAddress(filter SelectFilter, pagination *tools.Pagination) []models.Reward {
-	var rewards []models.Reward
+func (repository Repository) GetPaginatedByAddress(filter SelectFilter, pagination *tools.Pagination) []models.Slash {
+	var slashes []models.Slash
 	var err error
 
-	pagination.Total, err = repository.db.Model(&rewards).
-		Column("Address.address", "Validator.public_key").
+	pagination.Total, err = repository.db.Model(&slashes).
+		Column("Coin.symbol", "Address.address", "Validator.public_key").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
@@ -51,5 +51,5 @@ func (repository Repository) GetPaginatedByAddress(filter SelectFilter, paginati
 
 	helpers.CheckErr(err)
 
-	return rewards
+	return slashes
 }

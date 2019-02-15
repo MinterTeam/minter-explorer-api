@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/reward"
+	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/models"
@@ -113,7 +114,6 @@ func GetTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 
-
 // Get list of rewards by Minter address
 func GetRewards(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -136,7 +136,42 @@ func GetRewards(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	rewards := explorer.RewardRepository.GetPaginatedByAddress(helpers.RemoveMinterPrefix(request.Address), &pagination)
+	rewards := explorer.RewardRepository.GetPaginatedByAddress(reward.SelectFilter{
+		Address:    helpers.RemoveMinterPrefix(request.Address),
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, pagination))
+}
+
+// Get list of slashes by Minter address
+func GetSlashes(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request path
+	var request GetAddressRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var requestQuery FilterQueryRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	slashes := explorer.SlashRepository.GetPaginatedByAddress(slash.SelectFilter{
+		Address:    helpers.RemoveMinterPrefix(request.Address),
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, pagination))
 }
