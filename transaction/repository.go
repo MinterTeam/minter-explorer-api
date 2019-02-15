@@ -27,7 +27,7 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	if f.Addresses != nil {
+	if len(f.Addresses) > 0 {
 		q = q.Join("LEFT OUTER JOIN transaction_outputs ON transaction_outputs.transaction_id = transaction.id").
 			Join("JOIN addresses ON (addresses.id = transaction_outputs.to_address_id OR addresses.id = transaction.from_address_id)").
 			WhereIn("addresses.address IN (?)", f.Addresses...)
