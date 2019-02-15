@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/transaction/data"
 	"github.com/MinterTeam/minter-explorer-extender/models"
+	"reflect"
 	"time"
 )
 
@@ -43,33 +44,33 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
 	switch txType {
 	case models.TxTypeSend:
-		return new(data.SendResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.SendData), data.SendResource{})
 	case models.TxTypeSellCoin:
-		return new(data.SellCoinResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.SellCoinData), data.SellCoinResource{})
 	case models.TxTypeSellAllCoin:
-		return new(data.SellAllCoinResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.SellAllCoinData),  data.SellAllCoinResource{})
 	case models.TxTypeBuyCoin:
-		return new(data.BuyCoinResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.BuyCoinData), data.BuyCoinResource{})
 	case models.TxTypeCreateCoin:
-		return new(data.CreateCoinResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.CreateCoinData), data.CreateCoinResource{})
 	case models.TxTypeDeclareCandidacy:
-		return new(data.DeclareCandidacyResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.DeclareCandidacyData), data.DeclareCandidacyResource{})
 	case models.TxTypeDelegate:
-		return new(data.DelegateResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.DelegateData), data.DelegateResource{})
 	case models.TxTypeUnbound:
-		return new(data.UnbondResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.UnbondData), data.UnbondResource{})
 	case models.TxTypeRedeemCheck:
-		return new(data.RedeemCheckResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.RedeemCheckData), data.RedeemCheckResource{})
 	case models.TxTypeMultiSig:
-		return new(data.CreateMultisigResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.CreateMultisigData), data.CreateMultisigResource{})
 	case models.TxTypeMultiSend:
-		return new(data.MultisendResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.MultisendData), data.MultisendResource{})
 	case models.TxTypeEditCandidate:
-		return new(data.EditCandidateResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.EditCandidateData), data.EditCandidateResource{})
 	case models.TxTypeSetCandidateOnline:
-		return new(data.SetCandidateOnResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.SetCandidateOnData), data.SetCandidateOffResource{})
 	case models.TxTypeSetCandidateOffline:
-		return new(data.SetCandidateOffResource).TransformFromJsonRaw(txData)
+		return TransformTxDataModelToResource(txData, new(models.SetCandidateOffData), data.SetCandidateOffResource{})
 	}
 
 	return nil
@@ -108,4 +109,13 @@ func GetTypeAsText(txType uint8) string {
 	}
 
 	return ""
+}
+
+func TransformTxDataModelToResource(raw json.RawMessage, model resource.ItemInterface, resource resource.Interface) resource.Interface {
+	val := reflect.New(reflect.TypeOf(model).Elem()).Interface()
+
+	err := json.Unmarshal(raw, val)
+	helpers.CheckErr(err)
+
+	return resource.Transform(val)
 }
