@@ -2,10 +2,10 @@ package transaction
 
 import (
 	"encoding/json"
+	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/transaction/data"
 	"github.com/MinterTeam/minter-explorer-extender/models"
-	"strconv"
 	"time"
 )
 
@@ -32,7 +32,7 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 		Nonce:     tx.Nonce,
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt,
-		Fee:       strconv.FormatUint(tx.GetFee(), 10),
+		Fee:       helpers.Fee2Bip(tx.GetFee()),
 		Type:      GetTypeAsText(tx.Type),
 		Payload:   string(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
