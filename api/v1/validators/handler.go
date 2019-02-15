@@ -47,6 +47,8 @@ func GetValidatorTransactions(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
 		ValidatorPubKey: &publicKey,
+		StartBlock:      request.StartBlock,
+		EndBlock:        request.EndBlock,
 	}, &pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
