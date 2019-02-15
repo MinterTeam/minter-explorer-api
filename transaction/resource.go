@@ -47,7 +47,7 @@ func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
 	case models.TxTypeSellCoin:
 		return TransformTxDataModelToResource(txData, new(models.SellCoinTxData), data.SellCoinResource{})
 	case models.TxTypeSellAllCoin:
-		return TransformTxDataModelToResource(txData, new(models.SellAllCoinTxData),  data.SellAllCoinResource{})
+		return TransformTxDataModelToResource(txData, new(models.SellAllCoinTxData), data.SellAllCoinResource{})
 	case models.TxTypeBuyCoin:
 		return TransformTxDataModelToResource(txData, new(models.BuyCoinTxData), data.BuyCoinResource{})
 	case models.TxTypeCreateCoin:

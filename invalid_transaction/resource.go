@@ -8,21 +8,21 @@ import (
 )
 
 type Resource struct {
-	Hash      string                 `json:"hash"`
-	Block     uint64                 `json:"block"`
-	Timestamp time.Time              `json:"timestamp"`
-	Type      string                 `json:"type"`
-	From      string                 `json:"from"`
+	Hash      string    `json:"hash"`
+	Block     uint64    `json:"block"`
+	Timestamp time.Time `json:"timestamp"`
+	Type      string    `json:"type"`
+	From      string    `json:"from"`
 }
 
 func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 	tx := model.(models.InvalidTransaction)
 
 	return Resource{
-		Hash: tx.GetHash(),
-		Block: tx.BlockID,
+		Hash:      tx.GetHash(),
+		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt,
-		Type: transaction.GetTypeAsText(tx.Type),
-		From: tx.FromAddress.Address,
+		Type:      transaction.GetTypeAsText(tx.Type),
+		From:      tx.FromAddress.Address,
 	}
 }

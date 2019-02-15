@@ -22,5 +22,5 @@ func PipStr2Bip(value string) string {
 }
 
 func Fee2Bip(value uint64) string {
-	return PipStr2Bip(strconv.FormatUint(value * feeDefaultMultiplier, 10))
+	return PipStr2Bip(strconv.FormatUint(value*feeDefaultMultiplier, 10))
 }
