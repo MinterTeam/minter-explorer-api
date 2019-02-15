@@ -24,6 +24,7 @@ type GetAddressesRequest struct {
 type GetAddressTransactionsRequest struct {
 	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
+	Page       *string `form:"page"       binding:"omitempty,numeric"`
 }
 
 // Get list of addresses
@@ -41,7 +42,7 @@ func GetAddresses(c *gin.Context) {
 	// remove Minter wallet prefix from each address
 	var minterAddresses []string
 	for _, addr := range request.Addresses {
-		minterAddresses = append(minterAddresses, helpers.RemoveMinterAddressPrefix(addr))
+		minterAddresses = append(minterAddresses, helpers.RemoveMinterPrefix(addr))
 	}
 
 	// fetch addresses
@@ -65,7 +66,7 @@ func GetAddress(c *gin.Context) {
 	}
 
 	// fetch address
-	minterAddress := helpers.RemoveMinterAddressPrefix(request.Address)
+	minterAddress := helpers.RemoveMinterPrefix(request.Address)
 	model := explorer.AddressRepository.GetByAddress(minterAddress)
 
 	// if no models found
@@ -102,9 +103,8 @@ func GetTransactions(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	addressId := explorer.AddressRepository.GetIdByAddress(helpers.RemoveMinterAddressPrefix(request.Address))
 	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
-		AddressId:  addressId,
+		Addresses:  []interface{}{helpers.RemoveMinterPrefix(request.Address)},
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
 	}, &pagination)

@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/tools"
+	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -23,14 +24,6 @@ type GetBlocksRequest struct {
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
-
-	// validate request
-	var request GetBlocksRequest
-	err := c.ShouldBindQuery(&request)
-	if err != nil {
-		errors.SetValidationErrorResponse(err, c)
-		return
-	}
 
 	// fetch blocks
 	pagination := tools.NewPagination(c.Request)
@@ -74,4 +67,37 @@ func GetBlock(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": new(blocks.Resource).Transform(*block),
 	})
+}
+
+// Get list of transactions by block height
+func GetBlockTransactions(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var request GetBlockRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var requestQuery GetBlocksRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// parse to uint64
+	blockId, err := strconv.ParseUint(request.ID, 10, 64)
+	helpers.CheckErr(err)
+
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
+		BlockId: &blockId,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }

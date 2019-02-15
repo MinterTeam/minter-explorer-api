@@ -13,9 +13,11 @@ type Repository struct {
 }
 
 type SelectFilter struct {
-	AddressId  *uint64
-	StartBlock *string
-	EndBlock   *string
+	Addresses       []interface{}
+	BlockId         *uint64
+	StartBlock      *string
+	EndBlock        *string
+	ValidatorPubKey *string
 }
 
 func NewRepository(db *pg.DB) *Repository {
@@ -25,14 +27,20 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	if f.AddressId != nil {
+	if f.Addresses != nil {
 		q = q.Join("LEFT OUTER JOIN transaction_outputs ON transaction_outputs.transaction_id = transaction.id").
-			WhereOrGroup(func(q *orm.Query) (*orm.Query, error) {
-				q = q.Where("transaction.from_address_id = ?", f.AddressId).
-					WhereOr("transaction_outputs.to_address_id = ?", f.AddressId)
+			Join("JOIN addresses ON (addresses.id = transaction_outputs.to_address_id OR addresses.id = transaction.from_address_id)").
+			WhereIn("addresses.address IN (?)", f.Addresses...)
+	}
 
-				return q, nil
-			})
+	if f.ValidatorPubKey != nil {
+		q = q.Join("LEFT OUTER JOIN transaction_outputs ON transaction_outputs.transaction_id = transaction.id").
+			Join("JOIN transaction_validator ON transaction_validator.transaction_id = transaction.id").
+			Join("JOIN validators ON validators.public_key = ?", f.ValidatorPubKey)
+	}
+
+	if f.BlockId != nil {
+		q = q.Where("transaction.block_id = ?", f.BlockId)
 	}
 
 	if f.StartBlock != nil {
@@ -61,4 +69,16 @@ func (repository Repository) GetPaginatedTxByFilter(filter SelectFilter, paginat
 	helpers.CheckErr(err)
 
 	return transactions
+}
+
+// Get transaction by hash
+func (repository Repository) GetTxByHash(hash string) *models.Transaction {
+	var transaction models.Transaction
+
+	err := repository.db.Model(&transaction).Column("FromAddress").Where("hash = ?", hash).Select()
+	if err != nil {
+		return nil
+	}
+
+	return &transaction
 }

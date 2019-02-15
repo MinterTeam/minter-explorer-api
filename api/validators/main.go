@@ -22,9 +22,30 @@ func MinterAddress(
 	}
 
 	return isValidMinterAddress(field.String())
+}
 
+func MinterTxHash(
+	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
+	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
+) bool {
+	return isValidMinterHash(field.String())
+}
+
+func MinterPublicKey(
+	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
+	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
+) bool {
+	return isValidMinterPublicKey(field.String())
 }
 
 func isValidMinterAddress(address string) bool {
 	return regexp.MustCompile("^Mx([A-Fa-f0-9]{40})$").MatchString(address)
+}
+
+func isValidMinterHash(hash string) bool {
+	return regexp.MustCompile("^Mt([A-Fa-f0-9]{64})$").MatchString(hash)
+}
+
+func isValidMinterPublicKey(publicKey string) bool {
+	return regexp.MustCompile("^Mp([A-Fa-f0-9]{64})$").MatchString(publicKey)
 }

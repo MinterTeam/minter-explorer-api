@@ -10,5 +10,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 	{
 		blocks.GET("", GetBlocks)
 		blocks.GET("/:height", GetBlock)
+		blocks.GET("/:height/transactions", GetBlockTransactions)
 	}
 }

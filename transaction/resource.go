@@ -43,33 +43,33 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
 	switch txType {
 	case models.TxTypeSend:
-		return SendDataResource{}.TransformFromJsonRaw(txData)
+		return new(SendDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSellCoin:
-		return SellCoinDataResource{}.TransformFromJsonRaw(txData)
+		return new(SellCoinDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSellAllCoin:
-		return SellAllCoinDataResource{}.TransformFromJsonRaw(txData)
+		return new(SellAllCoinDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeBuyCoin:
-		return BuyCoinDataResource{}.TransformFromJsonRaw(txData)
+		return new(BuyCoinDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeCreateCoin:
-		return CreateCoinDataResource{}.TransformFromJsonRaw(txData)
+		return new(CreateCoinDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeDeclareCandidacy:
-		return DeclareCandidacyDataResource{}.TransformFromJsonRaw(txData)
+		return new(DeclareCandidacyDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeDelegate:
-		return DelegateDataResource{}.TransformFromJsonRaw(txData)
+		return new(DelegateDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeUnbound:
-		return UnbondDataResource{}.TransformFromJsonRaw(txData)
+		return new(UnbondDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeRedeemCheck:
-		return RedeemCheckDataResource{}.TransformFromJsonRaw(txData)
+		return new(RedeemCheckDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeMultiSig:
-		return CreateMultisigDataResource{}.TransformFromJsonRaw(txData)
+		return new(CreateMultisigDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeMultiSend:
-		return MultisendDataResource{}.TransformFromJsonRaw(txData)
+		return new(MultisendDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeEditCandidate:
-		return EditCandidateDataResource{}.TransformFromJsonRaw(txData)
+		return new(EditCandidateDataResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSetCandidateOnline:
-		return SetCandidateOnResource{}.TransformFromJsonRaw(txData)
+		return new(SetCandidateOnResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSetCandidateOffline:
-		return SetCandidateOffDataResource{}.TransformFromJsonRaw(txData)
+		return new(SetCandidateOffDataResource).TransformFromJsonRaw(txData)
 	}
 
 	return nil
