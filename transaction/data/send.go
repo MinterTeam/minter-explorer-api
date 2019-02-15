@@ -13,7 +13,7 @@ type SendResource struct {
 }
 
 func (SendResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.SendData)
+	data := txData.(*models.SendTxData)
 
 	return SendResource{
 		Coin:  data.Coin,

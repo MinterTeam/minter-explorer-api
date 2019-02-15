@@ -14,7 +14,7 @@ type BuyCoinResource struct {
 }
 
 func (BuyCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.BuyCoinData)
+	data := txData.(*models.BuyCoinTxData)
 
 	return BuyCoinResource{
 		CoinToBuy:          data.CoinToBuy,

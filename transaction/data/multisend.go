@@ -10,7 +10,7 @@ type MultisendResource struct {
 }
 
 func (MultisendResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.MultisendData)
+	data := txData.(*models.MultiSendTxData)
 
 	var list []SendResource
 	for _, item := range data.List {

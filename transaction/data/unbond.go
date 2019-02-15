@@ -13,7 +13,7 @@ type UnbondResource struct {
 }
 
 func (UnbondResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.UnbondData)
+	data := txData.(*models.UnbondTxData)
 
 	return UnbondResource{
 		PubKey: data.PubKey,

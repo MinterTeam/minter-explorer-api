@@ -12,7 +12,7 @@ type EditCandidateResource struct {
 }
 
 func (EditCandidateResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.EditCandidateData)
+	data := txData.(*models.EditCandidateTxData)
 
 	return EditCandidateResource{
 		PubKey:        data.PubKey,

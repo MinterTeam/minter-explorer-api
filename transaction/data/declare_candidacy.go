@@ -15,7 +15,7 @@ type DeclareCandidacyResource struct {
 }
 
 func (DeclareCandidacyResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.DeclareCandidacyData)
+	data := txData.(*models.DeclareCandidacyTxData)
 
 	return DeclareCandidacyResource{
 		Address:    data.Address,

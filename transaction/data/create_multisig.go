@@ -12,7 +12,7 @@ type CreateMultisigResource struct {
 }
 
 func (CreateMultisigResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.CreateMultisigData)
+	data := txData.(*models.CreateMultisigTxData)
 
 	return CreateMultisigResource{
 		Threshold: data.Threshold,

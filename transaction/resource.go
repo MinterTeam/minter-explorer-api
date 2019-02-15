@@ -43,33 +43,31 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
 	switch txType {
 	case models.TxTypeSend:
-		return TransformTxDataModelToResource(txData, new(models.SendData), data.SendResource{})
+		return TransformTxDataModelToResource(txData, new(models.SendTxData), data.SendResource{})
 	case models.TxTypeSellCoin:
-		return TransformTxDataModelToResource(txData, new(models.SellCoinData), data.SellCoinResource{})
+		return TransformTxDataModelToResource(txData, new(models.SellCoinTxData), data.SellCoinResource{})
 	case models.TxTypeSellAllCoin:
-		return TransformTxDataModelToResource(txData, new(models.SellAllCoinData),  data.SellAllCoinResource{})
+		return TransformTxDataModelToResource(txData, new(models.SellAllCoinTxData),  data.SellAllCoinResource{})
 	case models.TxTypeBuyCoin:
-		return TransformTxDataModelToResource(txData, new(models.BuyCoinData), data.BuyCoinResource{})
+		return TransformTxDataModelToResource(txData, new(models.BuyCoinTxData), data.BuyCoinResource{})
 	case models.TxTypeCreateCoin:
-		return TransformTxDataModelToResource(txData, new(models.CreateCoinData), data.CreateCoinResource{})
+		return TransformTxDataModelToResource(txData, new(models.CreateCoinTxData), data.CreateCoinResource{})
 	case models.TxTypeDeclareCandidacy:
-		return TransformTxDataModelToResource(txData, new(models.DeclareCandidacyData), data.DeclareCandidacyResource{})
+		return TransformTxDataModelToResource(txData, new(models.DeclareCandidacyTxData), data.DeclareCandidacyResource{})
 	case models.TxTypeDelegate:
-		return TransformTxDataModelToResource(txData, new(models.DelegateData), data.DelegateResource{})
+		return TransformTxDataModelToResource(txData, new(models.DelegateTxData), data.DelegateResource{})
 	case models.TxTypeUnbound:
-		return TransformTxDataModelToResource(txData, new(models.UnbondData), data.UnbondResource{})
+		return TransformTxDataModelToResource(txData, new(models.UnbondTxData), data.UnbondResource{})
 	case models.TxTypeRedeemCheck:
-		return TransformTxDataModelToResource(txData, new(models.RedeemCheckData), data.RedeemCheckResource{})
+		return TransformTxDataModelToResource(txData, new(models.RedeemCheckTxData), data.RedeemCheckResource{})
 	case models.TxTypeMultiSig:
-		return TransformTxDataModelToResource(txData, new(models.CreateMultisigData), data.CreateMultisigResource{})
+		return TransformTxDataModelToResource(txData, new(models.CreateMultisigTxData), data.CreateMultisigResource{})
 	case models.TxTypeMultiSend:
-		return TransformTxDataModelToResource(txData, new(models.MultisendData), data.MultisendResource{})
+		return TransformTxDataModelToResource(txData, new(models.MultiSendTxData), data.MultisendResource{})
 	case models.TxTypeEditCandidate:
-		return TransformTxDataModelToResource(txData, new(models.EditCandidateData), data.EditCandidateResource{})
-	case models.TxTypeSetCandidateOnline:
-		return TransformTxDataModelToResource(txData, new(models.SetCandidateOnData), data.SetCandidateOffResource{})
-	case models.TxTypeSetCandidateOffline:
-		return TransformTxDataModelToResource(txData, new(models.SetCandidateOffData), data.SetCandidateOffResource{})
+		return TransformTxDataModelToResource(txData, new(models.EditCandidateTxData), data.EditCandidateResource{})
+	case models.TxTypeSetCandidateOnline, models.TxTypeSetCandidateOffline:
+		return TransformTxDataModelToResource(txData, new(models.SetCandidateTxData), data.SetCandidateResource{})
 	}
 
 	return nil

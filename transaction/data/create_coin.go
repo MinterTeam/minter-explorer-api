@@ -15,7 +15,7 @@ type CreateCoinResource struct {
 }
 
 func (CreateCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.CreateCoinData)
+	data := txData.(*models.CreateCoinTxData)
 
 	return CreateCoinResource{
 		Name:                 data.Name,

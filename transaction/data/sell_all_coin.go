@@ -13,7 +13,7 @@ type SellAllCoinResource struct {
 }
 
 func (SellAllCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.SellAllCoinData)
+	data := txData.(*models.SellAllCoinTxData)
 
 	return SellAllCoinResource{
 		CoinToSell:        data.CoinToSell,

@@ -11,7 +11,7 @@ type RedeemCheckResource struct {
 }
 
 func (RedeemCheckResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.RedeemCheckData)
+	data := txData.(*models.RedeemCheckTxData)
 
 	return RedeemCheckResource{
 		RawCheck: data.RawCheck,

@@ -13,7 +13,7 @@ type DelegateResource struct {
 }
 
 func (DelegateResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(*models.DelegateData)
+	data := txData.(*models.DelegateTxData)
 
 	return DelegateResource{
 		PubKey: data.PubKey,
