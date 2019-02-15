@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,21 +7,21 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type RedeemCheckDataResource struct {
+type RedeemCheckResource struct {
 	RawCheck string `json:"raw_check"`
 	Proof    string `json:"proof"`
 }
 
-func (RedeemCheckDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (RedeemCheckResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.RedeemCheckData)
 
-	return RedeemCheckDataResource{
+	return RedeemCheckResource{
 		RawCheck: data.RawCheck,
 		Proof:    data.Proof,
 	}
 }
 
-func (resource RedeemCheckDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource RedeemCheckResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.RedeemCheckData
 
 	err := json.Unmarshal(raw, &data)

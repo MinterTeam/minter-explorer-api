@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,23 +7,23 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type SendDataResource struct {
+type SendResource struct {
 	Coin  string `json:"coin"`
 	To    string `json:"to"`
 	Value string `json:"value"`
 }
 
-func (SendDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (SendResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.SendData)
 
-	return SendDataResource{
+	return SendResource{
 		Coin:  data.Coin,
 		To:    data.To,
 		Value: helpers.PipStr2Bip(data.Value),
 	}
 }
 
-func (resource SendDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource SendResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.SendData
 
 	err := json.Unmarshal(raw, &data)

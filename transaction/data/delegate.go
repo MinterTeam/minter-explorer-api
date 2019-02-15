@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,23 +7,23 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type DelegateDataResource struct {
+type DelegateResource struct {
 	PubKey string `json:"pub_key"`
 	Coin   string `json:"coin"`
 	Stake  string `json:"stake"`
 }
 
-func (DelegateDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (DelegateResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.DelegateData)
 
-	return DelegateDataResource{
+	return DelegateResource{
 		PubKey: data.PubKey,
 		Coin:   data.Coin,
 		Stake:  helpers.PipStr2Bip(data.Stake),
 	}
 }
 
-func (resource DelegateDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource DelegateResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.DelegateData
 	err := json.Unmarshal(raw, &data)
 	helpers.CheckErr(err)

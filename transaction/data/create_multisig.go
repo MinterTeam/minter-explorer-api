@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,23 +7,23 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type CreateMultisigDataResource struct {
+type CreateMultisigResource struct {
 	Threshold string   `json:"threshold"`
 	Weights   string   `json:"weights"`
 	Addresses []string `json:"addresses"`
 }
 
-func (CreateMultisigDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (CreateMultisigResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.CreateMultisigData)
 
-	return CreateMultisigDataResource{
+	return CreateMultisigResource{
 		Threshold: data.Threshold,
 		Weights:   data.Weights,
 		Addresses: data.Addresses,
 	}
 }
 
-func (resource CreateMultisigDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource CreateMultisigResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.CreateMultisigData
 
 	err := json.Unmarshal(raw, &data)

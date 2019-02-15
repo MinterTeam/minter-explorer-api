@@ -3,6 +3,7 @@ package transaction
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/transaction/data"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"strconv"
 	"time"
@@ -32,8 +33,7 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt,
 		Fee:       strconv.FormatUint(tx.GetFee(), 10),
-		Type:      getTypeAsText(tx.Type),
-		Status:    "success",
+		Type:      GetTypeAsText(tx.Type),
 		Payload:   string(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
 		Data:      TransformTxData(tx.Type, tx.Data),
@@ -43,39 +43,39 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
 	switch txType {
 	case models.TxTypeSend:
-		return new(SendDataResource).TransformFromJsonRaw(txData)
+		return new(data.SendResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSellCoin:
-		return new(SellCoinDataResource).TransformFromJsonRaw(txData)
+		return new(data.SellCoinResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSellAllCoin:
-		return new(SellAllCoinDataResource).TransformFromJsonRaw(txData)
+		return new(data.SellAllCoinResource).TransformFromJsonRaw(txData)
 	case models.TxTypeBuyCoin:
-		return new(BuyCoinDataResource).TransformFromJsonRaw(txData)
+		return new(data.BuyCoinResource).TransformFromJsonRaw(txData)
 	case models.TxTypeCreateCoin:
-		return new(CreateCoinDataResource).TransformFromJsonRaw(txData)
+		return new(data.CreateCoinResource).TransformFromJsonRaw(txData)
 	case models.TxTypeDeclareCandidacy:
-		return new(DeclareCandidacyDataResource).TransformFromJsonRaw(txData)
+		return new(data.DeclareCandidacyResource).TransformFromJsonRaw(txData)
 	case models.TxTypeDelegate:
-		return new(DelegateDataResource).TransformFromJsonRaw(txData)
+		return new(data.DelegateResource).TransformFromJsonRaw(txData)
 	case models.TxTypeUnbound:
-		return new(UnbondDataResource).TransformFromJsonRaw(txData)
+		return new(data.UnbondResource).TransformFromJsonRaw(txData)
 	case models.TxTypeRedeemCheck:
-		return new(RedeemCheckDataResource).TransformFromJsonRaw(txData)
+		return new(data.RedeemCheckResource).TransformFromJsonRaw(txData)
 	case models.TxTypeMultiSig:
-		return new(CreateMultisigDataResource).TransformFromJsonRaw(txData)
+		return new(data.CreateMultisigResource).TransformFromJsonRaw(txData)
 	case models.TxTypeMultiSend:
-		return new(MultisendDataResource).TransformFromJsonRaw(txData)
+		return new(data.MultisendResource).TransformFromJsonRaw(txData)
 	case models.TxTypeEditCandidate:
-		return new(EditCandidateDataResource).TransformFromJsonRaw(txData)
+		return new(data.EditCandidateResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSetCandidateOnline:
-		return new(SetCandidateOnResource).TransformFromJsonRaw(txData)
+		return new(data.SetCandidateOnResource).TransformFromJsonRaw(txData)
 	case models.TxTypeSetCandidateOffline:
-		return new(SetCandidateOffDataResource).TransformFromJsonRaw(txData)
+		return new(data.SetCandidateOffResource).TransformFromJsonRaw(txData)
 	}
 
 	return nil
 }
 
-func getTypeAsText(txType uint8) string {
+func GetTypeAsText(txType uint8) string {
 	switch txType {
 	case models.TxTypeSend:
 		return "send"

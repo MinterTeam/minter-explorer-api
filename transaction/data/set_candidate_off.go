@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,19 +7,19 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type SetCandidateOffDataResource struct {
+type SetCandidateOffResource struct {
 	PubKey string `json:"pub_key"`
 }
 
-func (SetCandidateOffDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (SetCandidateOffResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.SetCandidateOffData)
 
-	return SetCandidateOffDataResource{
+	return SetCandidateOffResource{
 		PubKey: data.PubKey,
 	}
 }
 
-func (resource SetCandidateOffDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource SetCandidateOffResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.SetCandidateOffData
 
 	err := json.Unmarshal(raw, &data)

@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,26 +7,24 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type SellCoinDataResource struct {
+type SellAllCoinResource struct {
 	CoinToSell        string `json:"coin_to_sell"`
-	ValueToSell       string `json:"value_to_sell"`
 	CoinToBuy         string `json:"coin_to_buy"`
 	MinimumValueToBuy string `json:"minimum_value_to_buy"`
 }
 
-func (SellCoinDataResource) Transform(txData resource.ItemInterface) resource.Interface {
-	data := txData.(models.SellCoinData)
+func (SellAllCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
+	data := txData.(models.SellAllCoinData)
 
-	return SellCoinDataResource{
+	return SellAllCoinResource{
 		CoinToSell:        data.CoinToSell,
-		ValueToSell:       helpers.PipStr2Bip(data.ValueToSell),
-		CoinToBuy:         data.CoinToSell,
+		CoinToBuy:         data.CoinToBuy,
 		MinimumValueToBuy: helpers.PipStr2Bip(data.MinimumValueToBuy),
 	}
 }
 
-func (resource SellCoinDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
-	var data models.SellCoinData
+func (resource SellAllCoinResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+	var data models.SellAllCoinData
 
 	err := json.Unmarshal(raw, &data)
 	helpers.CheckErr(err)

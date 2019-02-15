@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type CreateCoinDataResource struct {
+type CreateCoinResource struct {
 	Name                 string `json:"name"`
 	Symbol               string `json:"symbol"`
 	InitialAmount        string `json:"initial_amount"`
@@ -15,10 +15,10 @@ type CreateCoinDataResource struct {
 	ConstantReserveRatio string `json:"constant_reserve_ratio"`
 }
 
-func (CreateCoinDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (CreateCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.CreateCoinData)
 
-	return CreateCoinDataResource{
+	return CreateCoinResource{
 		Name:                 data.Name,
 		Symbol:               data.Symbol,
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),
@@ -27,7 +27,7 @@ func (CreateCoinDataResource) Transform(txData resource.ItemInterface) resource.
 	}
 }
 
-func (resource CreateCoinDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource CreateCoinResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.CreateCoinData
 
 	err := json.Unmarshal(raw, &data)

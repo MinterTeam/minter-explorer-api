@@ -1,4 +1,4 @@
-package transaction
+package data
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type DeclareCandidacyDataResource struct {
+type DeclareCandidacyResource struct {
 	Address    string `json:"address"`
 	PubKey     string `json:"pub_key"`
 	Commission string `json:"commission"`
@@ -15,10 +15,10 @@ type DeclareCandidacyDataResource struct {
 	Stake      string `json:"stake"`
 }
 
-func (DeclareCandidacyDataResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (DeclareCandidacyResource) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(models.DeclareCandidacyData)
 
-	return DeclareCandidacyDataResource{
+	return DeclareCandidacyResource{
 		Address:    data.Address,
 		PubKey:     data.PubKey,
 		Commission: data.Commission,
@@ -27,7 +27,7 @@ func (DeclareCandidacyDataResource) Transform(txData resource.ItemInterface) res
 	}
 }
 
-func (resource DeclareCandidacyDataResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
+func (resource DeclareCandidacyResource) TransformFromJsonRaw(raw json.RawMessage) resource.Interface {
 	var data models.DeclareCandidacyData
 
 	err := json.Unmarshal(raw, &data)

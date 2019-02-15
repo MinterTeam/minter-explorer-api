@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/invalid_transaction"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
@@ -62,8 +63,18 @@ func GetTransaction(c *gin.Context) {
 	}
 
 	// fetch data
-	tx := explorer.TransactionRepository.GetTxByHash(helpers.RemoveMinterPrefix(request.Hash))
+	hash := helpers.RemoveMinterPrefix(request.Hash)
+	tx := explorer.TransactionRepository.GetTxByHash(hash)
 	if tx == nil {
+		invalidTx := explorer.InvalidTransactionRepository.GetTxByHash(hash)
+		if invalidTx == nil {
+			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Transaction not found.", c)
+			return
+		}
+
+		c.JSON(http.StatusPartialContent, gin.H{
+			"data": new(invalid_transaction.Resource).Transform(*invalidTx),
+		})
 		return
 	}
 
