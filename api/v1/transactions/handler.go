@@ -36,7 +36,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	// remove Minter wallet prefix from each address
-	minterAddresses := make([]interface{}, len(request.Addresses))
+	var minterAddresses []interface{}
 	for _, addr := range request.Addresses {
 		minterAddresses = append(minterAddresses, helpers.RemoveMinterPrefix(addr))
 	}
