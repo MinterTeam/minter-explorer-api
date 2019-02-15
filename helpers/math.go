@@ -8,6 +8,8 @@ import (
 // default amount of pips in 1 bip
 var pipInBip = big.NewFloat(1000000000000000000)
 
+var feeDefaultMultiplier = uint64(1000000000000000)
+
 func PipStr2Bip(value string) string {
 	if value == "" {
 		return value
@@ -20,5 +22,5 @@ func PipStr2Bip(value string) string {
 }
 
 func Fee2Bip(value uint64) string {
-	return PipStr2Bip(strconv.FormatUint(value * 1000000000000000, 10))
+	return PipStr2Bip(strconv.FormatUint(value * feeDefaultMultiplier, 10))
 }

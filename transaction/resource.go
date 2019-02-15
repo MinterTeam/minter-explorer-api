@@ -18,7 +18,6 @@ type Resource struct {
 	Timestamp time.Time              `json:"timestamp"`
 	Fee       string                 `json:"fee"`
 	Type      string                 `json:"type"`
-	Status    string                 `json:"status"`
 	Payload   string                 `json:"payload"`
 	From      string                 `json:"from"`
 	Data      resource.ItemInterface `json:"data"`
