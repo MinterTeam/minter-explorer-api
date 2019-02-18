@@ -30,11 +30,7 @@ func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		q = q.Where("transaction.block_id = ?", f.BlockId)
 	}
 
-	blocksRange := blocks.RangeSelectFilter{
-		StartBlock: f.StartBlock,
-		EndBlock: f.EndBlock,
-	}
-
+	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}
 	q = q.Apply(blocksRange.Filter)
 
 	return q, nil
