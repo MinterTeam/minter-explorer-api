@@ -2,11 +2,12 @@ package transaction
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
+	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 )
 
 type SelectFilter struct {
-	Addresses       []interface{}
+	Addresses       []string
 	BlockId         *uint64
 	StartBlock      *string
 	EndBlock        *string
@@ -17,7 +18,7 @@ func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if len(f.Addresses) > 0 {
 		q = q.Join("LEFT OUTER JOIN transaction_outputs ON transaction_outputs.transaction_id = transaction.id").
 			Join("JOIN addresses ON (addresses.id = transaction_outputs.to_address_id OR addresses.id = transaction.from_address_id)").
-			WhereIn("addresses.address IN (?)", f.Addresses...)
+			WhereIn("addresses.address IN (?)", pg.In(f.Addresses))
 	}
 
 	if f.ValidatorPubKey != nil {

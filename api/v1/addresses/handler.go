@@ -104,7 +104,7 @@ func GetTransactions(c *gin.Context) {
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
-		Addresses:  []interface{}{helpers.RemoveMinterPrefix(request.Address)},
+		Addresses:  []string{helpers.RemoveMinterPrefix(request.Address)},
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
 	}, &pagination)
