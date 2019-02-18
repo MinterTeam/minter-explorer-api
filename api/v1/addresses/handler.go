@@ -167,7 +167,7 @@ func GetSlashes(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	slashes := explorer.SlashRepository.GetPaginatedByAddress(slash.SelectFilter{
+	slashes := explorer.SlashRepository.GetPaginatedByAddress(tools.EventsFilter{
 		Address:    helpers.RemoveMinterPrefix(request.Address),
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
