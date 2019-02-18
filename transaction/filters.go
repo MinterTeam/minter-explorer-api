@@ -16,15 +16,20 @@ type SelectFilter struct {
 
 func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if len(f.Addresses) > 0 {
-		q = q.Join("LEFT OUTER JOIN transaction_outputs ON transaction_outputs.transaction_id = transaction.id").
-			Join("JOIN addresses ON (addresses.id = transaction_outputs.to_address_id OR addresses.id = transaction.from_address_id)").
+		q = q.Join("LEFT OUTER JOIN transaction_outputs").
+			JoinOn("transaction_outputs.transaction_id = transaction.id").
+			Join("JOIN addresses").
+			JoinOn("addresses.id = transaction_outputs.to_address_id OR addresses.id = transaction.from_address_id").
 			WhereIn("addresses.address IN (?)", pg.In(f.Addresses))
 	}
 
 	if f.ValidatorPubKey != nil {
-		q = q.Join("LEFT OUTER JOIN transaction_outputs ON transaction_outputs.transaction_id = transaction.id").
-			Join("JOIN transaction_validator ON transaction_validator.transaction_id = transaction.id").
-			Join("JOIN validators ON validators.public_key = ?", f.ValidatorPubKey)
+		q = q.Join("LEFT OUTER JOIN transaction_outputs").
+			JoinOn("transaction_outputs.transaction_id = transaction.id").
+			Join("JOIN transaction_validator").
+			JoinOn("transaction_validator.transaction_id = transaction.id").
+			Join("JOIN validators").
+			JoinOn("validators.public_key = ?", f.ValidatorPubKey)
 	}
 
 	if f.BlockId != nil {
