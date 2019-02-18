@@ -23,7 +23,7 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	var err error
 
 	pagination.Total, err = repository.db.Model(&slashes).
-		Column("Coin.symbol", "Address.address", "Validator.public_key").
+		Column("Coin.symbol", "Address.address", "Validator.public_key", "Block.created_at").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
