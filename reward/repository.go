@@ -1,11 +1,11 @@
 package reward
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/orm"
 )
 
 type Repository struct {
@@ -18,33 +18,13 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-type SelectFilter struct {
-	Address    string
-	StartBlock *string
-	EndBlock   *string
-}
-
-func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	q = q.Where("address.address = ?", f.Address)
-
-	if f.StartBlock != nil {
-		q = q.Where("block_id >= ?", f.StartBlock)
-	}
-
-	if f.EndBlock != nil {
-		q = q.Where("block_id <= ?", f.EndBlock)
-	}
-
-	return q, nil
-}
-
-func (repository Repository) GetPaginatedByAddress(filter SelectFilter, pagination *tools.Pagination) []models.Reward {
+func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, pagination *tools.Pagination) []models.Reward {
 	var rewards []models.Reward
 	var err error
 
 	pagination.Total, err = repository.db.Model(&rewards).
 		Column("Address.address", "Validator.public_key").
-		Apply(filter.Filter).
+		Apply(filter.Apply).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
 		SelectAndCount()

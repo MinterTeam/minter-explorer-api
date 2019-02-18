@@ -1,6 +1,7 @@
 package slash
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
@@ -17,7 +18,7 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-func (repository Repository) GetPaginatedByAddress(filter tools.EventsFilter, pagination *tools.Pagination) []models.Slash {
+func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, pagination *tools.Pagination) []models.Slash {
 	var slashes []models.Slash
 	var err error
 

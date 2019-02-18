@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
+	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/reward"
@@ -136,7 +137,7 @@ func GetRewards(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	rewards := explorer.RewardRepository.GetPaginatedByAddress(reward.SelectFilter{
+	rewards := explorer.RewardRepository.GetPaginatedByAddress(events.SelectFilter{
 		Address:    helpers.RemoveMinterPrefix(request.Address),
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
@@ -167,7 +168,7 @@ func GetSlashes(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	slashes := explorer.SlashRepository.GetPaginatedByAddress(tools.EventsFilter{
+	slashes := explorer.SlashRepository.GetPaginatedByAddress(events.SelectFilter{
 		Address:    helpers.RemoveMinterPrefix(request.Address),
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
