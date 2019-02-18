@@ -23,10 +23,17 @@ func (repository Repository) GetPaginatedTxsByFilter(filter SelectFilter, pagina
 	var err error
 
 	pagination.Total, err = repository.db.Model(&transactions).
+		Join("LEFT OUTER JOIN transaction_outputs AS tx_output").
+		JoinOn("tx_output.transaction_id = transaction.id").
+		Join("LEFT OUTER JOIN coins AS tx_output__coin").
+		JoinOn("tx_output__coin.id = tx_output.coin_id").
+		ColumnExpr("DISTINCT tx_output.id").
+		ColumnExpr("tx_output.id AS tx_output__id").
+		ColumnExpr("tx_output__coin.symbol AS tx_output__coin__symbol").
 		Column("transaction.*", "FromAddress").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
-		Order("id DESC").
+		Order("transaction.id DESC").
 		SelectAndCount()
 
 	helpers.CheckErr(err)
