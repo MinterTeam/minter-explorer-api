@@ -24,7 +24,7 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 
 	pagination.Total, err = repository.db.Model(&rewards).
 		Column("Address.address", "Validator.public_key").
-		Apply(filter.Apply).
+		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
 		SelectAndCount()

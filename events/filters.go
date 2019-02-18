@@ -11,7 +11,7 @@ type SelectFilter struct {
 	EndBlock   *string
 }
 
-func (f SelectFilter) Apply(q *orm.Query) (*orm.Query, error) {
+func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	q = q.Where("address.address = ?", f.Address)
 
 	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}
