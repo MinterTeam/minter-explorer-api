@@ -74,38 +74,24 @@ func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
 }
 
 func GetTypeAsText(txType uint8) string {
-	switch txType {
-	case models.TxTypeSend:
-		return "send"
-	case models.TxTypeSellCoin:
-		return "sellCoin"
-	case models.TxTypeSellAllCoin:
-		return "sellAllCoin"
-	case models.TxTypeBuyCoin:
-		return "buyCoin"
-	case models.TxTypeCreateCoin:
-		return "createCoin"
-	case models.TxTypeDeclareCandidacy:
-		return "declareCandidacy"
-	case models.TxTypeDelegate:
-		return "delegate"
-	case models.TxTypeUnbound:
-		return "unbond"
-	case models.TxTypeRedeemCheck:
-		return "redeemCheckData"
-	case models.TxTypeMultiSig:
-		return "multiSig"
-	case models.TxTypeMultiSend:
-		return "multiSend"
-	case models.TxTypeEditCandidate:
-		return "editCandidate"
-	case models.TxTypeSetCandidateOnline:
-		return "setCandidateOnData"
-	case models.TxTypeSetCandidateOffline:
-		return "setCandidateOffData"
+	var type2text = map[uint8]string {
+		models.TxTypeSend: "send",
+		models.TxTypeSellCoin: "sellCoin",
+		models.TxTypeSellAllCoin: "sellAllCoin",
+		models.TxTypeBuyCoin: "buyCoin",
+		models.TxTypeCreateCoin: "createCoin",
+		models.TxTypeDeclareCandidacy: "declareCandidacy",
+		models.TxTypeDelegate: "delegate",
+		models.TxTypeUnbound: "unbond",
+		models.TxTypeRedeemCheck: "redeemCheckData",
+		models.TxTypeMultiSig: "multiSig",
+		models.TxTypeMultiSend: "multiSend",
+		models.TxTypeEditCandidate: "editCandidate",
+		models.TxTypeSetCandidateOnline: "setCandidateOnData",
+		models.TxTypeSetCandidateOffline: "setCandidateOffData",
 	}
 
-	return ""
+	return type2text[txType]
 }
 
 func TransformTxDataModelToResource(raw json.RawMessage, model resource.ItemInterface, resource resource.Interface) resource.Interface {

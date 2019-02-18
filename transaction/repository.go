@@ -18,7 +18,7 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get paginated list of transactions by select filter
-func (repository Repository) GetPaginatedTxByFilter(filter SelectFilter, pagination *tools.Pagination) []models.Transaction {
+func (repository Repository) GetPaginatedTxsByFilter(filter SelectFilter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 
