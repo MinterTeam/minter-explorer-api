@@ -12,11 +12,8 @@ type SelectFilter struct {
 }
 
 func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	q = q.Where("address.address = ?", f.Address)
-
 	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}
-	q = q.Apply(blocksRange.Filter)
 
-	return q, nil
+	return q.Where("address.address = ?", f.Address).Apply(blocksRange.Filter), nil
 }
 
