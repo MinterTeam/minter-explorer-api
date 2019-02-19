@@ -58,7 +58,7 @@ var transformConfig = map[uint8]TransformTxConfig{
 	models.TxTypeUnbound:             {Model: new(models.UnbondTxData), Resource: data_resources.Unbond{}, TypeText: "unbond"},
 	models.TxTypeRedeemCheck:         {Model: new(models.RedeemCheckTxData), Resource: data_resources.RedeemCheck{}, TypeText: "redeemCheckData"},
 	models.TxTypeMultiSig:            {Model: new(models.CreateMultisigTxData), Resource: data_resources.CreateMultisig{}, TypeText: "multiSig"},
-	models.TxTypeMultiSend:           {Model: new(models.TransactionOutput), Resource: data_resources.Multisend{}, TypeText: "multiSend"},
+	models.TxTypeMultiSend:           {Model: new(models.MultiSendTxData), Resource: data_resources.Multisend{}, TypeText: "multiSend"},
 	models.TxTypeEditCandidate:       {Model: new(models.EditCandidateTxData), Resource: data_resources.EditCandidate{}, TypeText: "editCandidate"},
 	models.TxTypeSetCandidateOnline:  {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}, TypeText: "setCandidateOnData"},
 	models.TxTypeSetCandidateOffline: {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}, TypeText: "setCandidateOffData"},
@@ -67,14 +67,14 @@ var transformConfig = map[uint8]TransformTxConfig{
 func TransformTxData(tx models.Transaction) resource.Interface {
 	config := transformConfig[tx.Type]
 
-	var val resource.ItemInterface
-	if tx.Type == models.TxTypeMultiSend {
-		val = tx.TxOutput
-	} else {
-		val = reflect.New(reflect.TypeOf(config.Model).Elem()).Interface()
-		err := json.Unmarshal(tx.Data, val)
-		helpers.CheckErr(err)
+	// handle special case
+	if tx.Type == models.TxTypeMultiSend && tx.TxOutput != nil {
+		return new(data_resources.Multisend).TransformByTxOutput(tx.TxOutput)
 	}
+
+	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface()
+	err := json.Unmarshal(tx.Data, val)
+	helpers.CheckErr(err)
 
 	return config.Resource.Transform(val)
 }

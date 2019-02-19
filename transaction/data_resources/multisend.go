@@ -7,15 +7,24 @@ import (
 )
 
 type Multisend struct {
-	Coin  string `json:"coin"`
-	To    string `json:"to"`
-	Value string `json:"value"`
+	List  []Send `json:"list"`
 }
 
 func (Multisend) Transform(txData resource.ItemInterface) resource.Interface {
+	data := txData.(*models.MultiSendTxData)
+
+	list := make([]Send, len(data.List))
+	for key, item := range data.List {
+		list[key] = Send{}.Transform(&item).(Send)
+	}
+
+	return Multisend{list}
+}
+
+func (Multisend) TransformByTxOutput(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.TransactionOutput)
 
-	return Multisend{
+	return Send{
 		Coin: data.Coin.Symbol,
 		To: data.ToAddress.GetAddress(),
 		Value: helpers.PipStr2Bip(data.Value),
