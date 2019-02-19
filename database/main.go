@@ -18,8 +18,6 @@ func Connect(env *core.Environment) *pg.DB {
 		panic("Could not connect to database")
 	}
 
-	db.AddQueryHook(dbLogger{})
-
 	return db
 }
 
@@ -28,12 +26,4 @@ func Close(db *pg.DB) {
 	if err != nil {
 		panic(fmt.Sprintf("Could not close connection to database: %s", err))
 	}
-}
-
-type dbLogger struct{}
-
-func (d dbLogger) BeforeQuery(q *pg.QueryEvent) {}
-
-func (d dbLogger) AfterQuery(q *pg.QueryEvent) {
-	fmt.Println(q.FormattedQuery())
 }
