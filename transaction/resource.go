@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
@@ -34,7 +35,7 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 		Timestamp: tx.CreatedAt,
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
 		Type:      GetTypeAsText(tx.Type),
-		Payload:   string(tx.Payload[:]),
+		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
 		Data:      TransformTxData(tx),
 	}
