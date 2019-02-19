@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -8,10 +9,12 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
+	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
+// TODO: replace string in StartBlock, EndBlock, Page to int
 type GetTransactionsRequest struct {
 	Addresses  []string `form:"addresses[]" binding:"omitempty,minterAddress"`
 	Page       string   `form:"page"        binding:"omitempty,numeric"`
@@ -43,11 +46,19 @@ func GetTransactions(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
-		Addresses:  minterAddresses,
-		StartBlock: request.StartBlock,
-		EndBlock:   request.EndBlock,
-	}, &pagination)
+
+	var txs []models.Transaction
+	if len(minterAddresses) > 0 {
+		txs = explorer.TransactionRepository.GetPaginatedTxsByAddresses(minterAddresses, blocks.RangeSelectFilter {
+			StartBlock: request.StartBlock,
+			EndBlock:   request.EndBlock,
+		}, &pagination)
+	} else {
+		txs = explorer.TransactionRepository.GetPaginatedTxsByFilter(blocks.RangeSelectFilter{
+			StartBlock: request.StartBlock,
+			EndBlock:   request.EndBlock,
+		}, &pagination)
+	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }

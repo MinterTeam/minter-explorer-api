@@ -1,10 +1,11 @@
 package transaction
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-api/transaction/data"
+	"github.com/MinterTeam/minter-explorer-api/transaction/data_resources"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"reflect"
 	"time"
@@ -34,85 +35,50 @@ func (Resource) Transform(model resource.ItemInterface) resource.Interface {
 		Timestamp: tx.CreatedAt,
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
 		Type:      GetTypeAsText(tx.Type),
-		Payload:   string(tx.Payload[:]),
+		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
-		Data:      TransformTxData(tx.Type, tx.Data),
+		Data:      TransformTxData(tx),
 	}
 }
 
-func TransformTxData(txType uint8, txData json.RawMessage) resource.Interface {
-	switch txType {
-	case models.TxTypeSend:
-		return TransformTxDataModelToResource(txData, new(models.SendTxData), data.SendResource{})
-	case models.TxTypeSellCoin:
-		return TransformTxDataModelToResource(txData, new(models.SellCoinTxData), data.SellCoinResource{})
-	case models.TxTypeSellAllCoin:
-		return TransformTxDataModelToResource(txData, new(models.SellAllCoinTxData), data.SellAllCoinResource{})
-	case models.TxTypeBuyCoin:
-		return TransformTxDataModelToResource(txData, new(models.BuyCoinTxData), data.BuyCoinResource{})
-	case models.TxTypeCreateCoin:
-		return TransformTxDataModelToResource(txData, new(models.CreateCoinTxData), data.CreateCoinResource{})
-	case models.TxTypeDeclareCandidacy:
-		return TransformTxDataModelToResource(txData, new(models.DeclareCandidacyTxData), data.DeclareCandidacyResource{})
-	case models.TxTypeDelegate:
-		return TransformTxDataModelToResource(txData, new(models.DelegateTxData), data.DelegateResource{})
-	case models.TxTypeUnbound:
-		return TransformTxDataModelToResource(txData, new(models.UnbondTxData), data.UnbondResource{})
-	case models.TxTypeRedeemCheck:
-		return TransformTxDataModelToResource(txData, new(models.RedeemCheckTxData), data.RedeemCheckResource{})
-	case models.TxTypeMultiSig:
-		return TransformTxDataModelToResource(txData, new(models.CreateMultisigTxData), data.CreateMultisigResource{})
-	case models.TxTypeMultiSend:
-		return TransformTxDataModelToResource(txData, new(models.MultiSendTxData), data.MultisendResource{})
-	case models.TxTypeEditCandidate:
-		return TransformTxDataModelToResource(txData, new(models.EditCandidateTxData), data.EditCandidateResource{})
-	case models.TxTypeSetCandidateOnline, models.TxTypeSetCandidateOffline:
-		return TransformTxDataModelToResource(txData, new(models.SetCandidateTxData), data.SetCandidateResource{})
+type TransformTxConfig struct {
+	Model    resource.ItemInterface
+	Resource resource.Interface
+	TypeText string
+}
+
+var transformConfig = map[uint8]TransformTxConfig{
+	models.TxTypeSend:                {Model: new(models.SendTxData), Resource: data_resources.Send{}, TypeText: "send"},
+	models.TxTypeSellCoin:            {Model: new(models.SellCoinTxData), Resource: data_resources.SellCoin{}, TypeText: "sellCoin"},
+	models.TxTypeSellAllCoin:         {Model: new(models.SellAllCoinTxData), Resource: data_resources.SellAllCoin{}, TypeText: "sellAllCoin"},
+	models.TxTypeBuyCoin:             {Model: new(models.BuyCoinTxData), Resource: data_resources.BuyCoin{}, TypeText: "buyCoin"},
+	models.TxTypeCreateCoin:          {Model: new(models.CreateCoinTxData), Resource: data_resources.CreateCoin{}, TypeText: "createCoin"},
+	models.TxTypeDeclareCandidacy:    {Model: new(models.DeclareCandidacyTxData), Resource: data_resources.DeclareCandidacy{}, TypeText: "declareCandidacy"},
+	models.TxTypeDelegate:            {Model: new(models.DelegateTxData), Resource: data_resources.Delegate{}, TypeText: "delegate"},
+	models.TxTypeUnbound:             {Model: new(models.UnbondTxData), Resource: data_resources.Unbond{}, TypeText: "unbond"},
+	models.TxTypeRedeemCheck:         {Model: new(models.RedeemCheckTxData), Resource: data_resources.RedeemCheck{}, TypeText: "redeemCheckData"},
+	models.TxTypeMultiSig:            {Model: new(models.CreateMultisigTxData), Resource: data_resources.CreateMultisig{}, TypeText: "multiSig"},
+	models.TxTypeMultiSend:           {Model: new(models.MultiSendTxData), Resource: data_resources.Multisend{}, TypeText: "multiSend"},
+	models.TxTypeEditCandidate:       {Model: new(models.EditCandidateTxData), Resource: data_resources.EditCandidate{}, TypeText: "editCandidate"},
+	models.TxTypeSetCandidateOnline:  {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}, TypeText: "setCandidateOnData"},
+	models.TxTypeSetCandidateOffline: {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}, TypeText: "setCandidateOffData"},
+}
+
+func TransformTxData(tx models.Transaction) resource.Interface {
+	config := transformConfig[tx.Type]
+
+	// handle special case
+	if tx.Type == models.TxTypeMultiSend && tx.TxOutput != nil {
+		return new(data_resources.Multisend).TransformByTxOutput(tx.TxOutput)
 	}
 
-	return nil
+	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface()
+	err := json.Unmarshal(tx.Data, val)
+	helpers.CheckErr(err)
+
+	return config.Resource.Transform(val)
 }
 
 func GetTypeAsText(txType uint8) string {
-	switch txType {
-	case models.TxTypeSend:
-		return "send"
-	case models.TxTypeSellCoin:
-		return "sellCoin"
-	case models.TxTypeSellAllCoin:
-		return "sellAllCoin"
-	case models.TxTypeBuyCoin:
-		return "buyCoin"
-	case models.TxTypeCreateCoin:
-		return "createCoin"
-	case models.TxTypeDeclareCandidacy:
-		return "declareCandidacy"
-	case models.TxTypeDelegate:
-		return "delegate"
-	case models.TxTypeUnbound:
-		return "unbond"
-	case models.TxTypeRedeemCheck:
-		return "redeemCheckData"
-	case models.TxTypeMultiSig:
-		return "multiSig"
-	case models.TxTypeMultiSend:
-		return "multiSend"
-	case models.TxTypeEditCandidate:
-		return "editCandidate"
-	case models.TxTypeSetCandidateOnline:
-		return "setCandidateOnData"
-	case models.TxTypeSetCandidateOffline:
-		return "setCandidateOffData"
-	}
-
-	return ""
-}
-
-func TransformTxDataModelToResource(raw json.RawMessage, model resource.ItemInterface, resource resource.Interface) resource.Interface {
-	val := reflect.New(reflect.TypeOf(model).Elem()).Interface()
-
-	err := json.Unmarshal(raw, val)
-	helpers.CheckErr(err)
-
-	return resource.Transform(val)
+	return transformConfig[txType].TypeText
 }

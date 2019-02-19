@@ -4,6 +4,7 @@ import (
 	"github.com/go-pg/pg/orm"
 )
 
+// TODO: replace string to int
 type RangeSelectFilter struct {
 	StartBlock *string
 	EndBlock   *string

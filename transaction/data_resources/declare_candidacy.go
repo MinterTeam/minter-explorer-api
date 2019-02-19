@@ -1,4 +1,4 @@
-package data
+package data_resources
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -6,7 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type DeclareCandidacyResource struct {
+type DeclareCandidacy struct {
 	Address    string `json:"address"`
 	PubKey     string `json:"pub_key"`
 	Commission string `json:"commission"`
@@ -14,10 +14,10 @@ type DeclareCandidacyResource struct {
 	Stake      string `json:"stake"`
 }
 
-func (DeclareCandidacyResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (DeclareCandidacy) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.DeclareCandidacyTxData)
 
-	return DeclareCandidacyResource{
+	return DeclareCandidacy{
 		Address:    data.Address,
 		PubKey:     data.PubKey,
 		Commission: data.Commission,

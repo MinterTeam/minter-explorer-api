@@ -1,4 +1,4 @@
-package data
+package data_resources
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -6,16 +6,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type UnbondResource struct {
+type Unbond struct {
 	PubKey string `json:"pub_key"`
 	Coin   string `json:"coin"`
 	Value  string `json:"value"`
 }
 
-func (UnbondResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (Unbond) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.UnbondTxData)
 
-	return UnbondResource{
+	return Unbond{
 		PubKey: data.PubKey,
 		Coin:   data.Coin,
 		Value:  helpers.PipStr2Bip(data.Value),

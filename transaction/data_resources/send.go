@@ -1,4 +1,4 @@
-package data
+package data_resources
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -6,16 +6,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type SendResource struct {
+type Send struct {
 	Coin  string `json:"coin"`
 	To    string `json:"to"`
 	Value string `json:"value"`
 }
 
-func (SendResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (Send) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.SendTxData)
 
-	return SendResource{
+	return Send{
 		Coin:  data.Coin,
 		To:    data.To,
 		Value: helpers.PipStr2Bip(data.Value),

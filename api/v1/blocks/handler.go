@@ -13,10 +13,12 @@ import (
 	"strconv"
 )
 
+// TODO: replace string to int
 type GetBlockRequest struct {
 	ID string `uri:"height" binding:"numeric"`
 }
 
+// TODO: replace string to int
 type GetBlocksRequest struct {
 	Page string `form:"page" binding:"omitempty,numeric"`
 }
@@ -95,7 +97,7 @@ func GetBlockTransactions(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
+	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.BlockFilter{
 		BlockId: &blockId,
 	}, &pagination)
 

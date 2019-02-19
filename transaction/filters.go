@@ -2,38 +2,36 @@ package transaction
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
-	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 )
 
-type SelectFilter struct {
-	Addresses       []string
+// TODO: replace string in StartBlock, EndBlock to int
+type BlockFilter struct {
 	BlockId         *uint64
-	StartBlock      *string
-	EndBlock        *string
-	ValidatorPubKey *string
 }
 
-func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	if len(f.Addresses) > 0 {
-		q = q.Join("LEFT OUTER JOIN transaction_outputs").
-			JoinOn("transaction_outputs.transaction_id = transaction.id").
-			Join("JOIN addresses").
-			JoinOn("addresses.id = transaction_outputs.to_address_id OR addresses.id = transaction.from_address_id").
-			WhereIn("addresses.address IN (?)", pg.In(f.Addresses))
-	}
-
-	if f.ValidatorPubKey != nil {
-		q = q.Join("LEFT OUTER JOIN transaction_outputs").
-			JoinOn("transaction_outputs.transaction_id = transaction.id").
-			Join("JOIN transaction_validator").
-			JoinOn("transaction_validator.transaction_id = transaction.id").
-			Join("JOIN validators").
-			JoinOn("validators.public_key = ?", f.ValidatorPubKey)
-	}
-
+func(f BlockFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.BlockId != nil {
 		q = q.Where("transaction.block_id = ?", f.BlockId)
+	}
+
+	return q, nil
+}
+
+// TODO: replace string in StartBlock, EndBlock to int
+type ValidatorFilter struct {
+	ValidatorPubKey *string
+	StartBlock      *string
+	EndBlock        *string
+}
+
+func(f ValidatorFilter) Filter(q *orm.Query) (*orm.Query, error) {
+	if f.ValidatorPubKey != nil {
+		q = q.Join("LEFT JOIN transaction_validator").
+			JoinOn("transaction_validator.transaction_id = transaction.id").
+			Join("LEFT JOIN validators").
+			JoinOn("validators.id = transaction_validator.validator_id").
+			Where("validators.public_key = ?", f.ValidatorPubKey)
 	}
 
 	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}

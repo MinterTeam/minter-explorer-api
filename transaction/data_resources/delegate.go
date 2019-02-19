@@ -1,4 +1,4 @@
-package data
+package data_resources
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -6,16 +6,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type DelegateResource struct {
+type Delegate struct {
 	PubKey string `json:"pub_key"`
 	Coin   string `json:"coin"`
 	Stake  string `json:"stake"`
 }
 
-func (DelegateResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (Delegate) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.DelegateTxData)
 
-	return DelegateResource{
+	return Delegate{
 		PubKey: data.PubKey,
 		Coin:   data.Coin,
 		Stake:  helpers.PipStr2Bip(data.Stake),

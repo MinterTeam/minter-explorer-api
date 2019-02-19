@@ -15,6 +15,7 @@ type GetValidatorRequest struct {
 	PublicKey string `uri:"publicKey"    binding:"required,minterPubKey"`
 }
 
+// TODO: replace string to int
 type GetValidatorTransactionsRequest struct {
 	Page       string  `form:"page"        binding:"omitempty,numeric"`
 	StartBlock *string `form:"startblock"  binding:"omitempty,numeric"`
@@ -45,7 +46,7 @@ func GetValidatorTransactions(c *gin.Context) {
 	// fetch data
 	publicKey := helpers.RemoveMinterPrefix(validatorRequest.PublicKey)
 	pagination := tools.NewPagination(c.Request)
-	txs := explorer.TransactionRepository.GetPaginatedTxByFilter(transaction.SelectFilter{
+	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.ValidatorFilter{
 		ValidatorPubKey: &publicKey,
 		StartBlock:      request.StartBlock,
 		EndBlock:        request.EndBlock,
