@@ -31,7 +31,6 @@ func (repository Repository) GetPaginatedTxsByFilter(filter SelectFilter, pagina
 		JoinOn("tx_output__coin.id = tx_output.coin_id").
 		ColumnExpr("DISTINCT tx_output.id").
 		Column("transaction.*", "FromAddress.address").
-		ColumnExpr("tx_output.id AS tx_output__id").
 		ColumnExpr("tx_output.value AS tx_output__value").
 		ColumnExpr("tx_output__to_address.address AS tx_output__to_address__address").
 		ColumnExpr("tx_output__coin.symbol AS tx_output__coin__symbol").
