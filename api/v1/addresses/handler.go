@@ -5,8 +5,11 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
+	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/reward"
+	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/models"
@@ -23,7 +26,7 @@ type GetAddressesRequest struct {
 }
 
 // TODO: replace string to int
-type GetAddressTransactionsRequest struct {
+type FilterQueryRequest struct {
 	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
 	Page       *string `form:"page"       binding:"omitempty,numeric"`
@@ -96,7 +99,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	// validate request query
-	var requestQuery GetAddressTransactionsRequest
+	var requestQuery FilterQueryRequest
 	err = c.ShouldBindQuery(&requestQuery)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
@@ -113,4 +116,66 @@ func GetTransactions(c *gin.Context) {
 		}, &pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
+}
+
+// Get list of rewards by Minter address
+func GetRewards(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request path
+	var request GetAddressRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var requestQuery FilterQueryRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	rewards := explorer.RewardRepository.GetPaginatedByAddress(events.SelectFilter{
+		Address:    helpers.RemoveMinterPrefix(request.Address),
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, pagination))
+}
+
+// Get list of slashes by Minter address
+func GetSlashes(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request path
+	var request GetAddressRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var requestQuery FilterQueryRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	slashes := explorer.SlashRepository.GetPaginatedByAddress(events.SelectFilter{
+		Address:    helpers.RemoveMinterPrefix(request.Address),
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, pagination))
 }
