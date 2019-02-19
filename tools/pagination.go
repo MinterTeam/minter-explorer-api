@@ -1,13 +1,12 @@
 package tools
 
 import (
-"fmt"
-"github.com/MinterTeam/minter-explorer-api/helpers"
-"github.com/go-pg/pg/orm"
-"github.com/go-pg/pg/urlvalues"
-"math"
-"net/http"
-"strconv"
+	"fmt"
+	"github.com/go-pg/pg/orm"
+	"github.com/go-pg/pg/urlvalues"
+	"math"
+	"net/http"
+	"strconv"
 )
 
 type Pagination struct {
@@ -30,11 +29,8 @@ func NewPagination(request *http.Request) Pagination {
 	}
 }
 
-func (pagination Pagination) ApplyFilter(query *orm.Query) *orm.Query {
-	paginatedQuery, err := pagination.Pager.Pagination(query)
-	helpers.CheckErr(err)
-
-	return paginatedQuery
+func (pagination Pagination) Filter(query *orm.Query) (*orm.Query, error) {
+	return pagination.Pager.Pagination(query)
 }
 
 func (pagination Pagination) GetNextPageLink() *string {

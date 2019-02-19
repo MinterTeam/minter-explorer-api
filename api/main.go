@@ -42,6 +42,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	// Create Swagger UI
 	router.Static("/help", "./help/dist")
 
+	// Register validator for api requests
 	registerApiValidators()
 
 	return router
@@ -59,6 +60,12 @@ func apiMiddleware(db *pg.DB, explorer *core.Explorer) gin.HandlerFunc {
 func registerApiValidators() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("minterAddress", validators.MinterAddress)
+		helpers.CheckErr(err)
+
+		err = v.RegisterValidation("minterTxHash", validators.MinterTxHash)
+		helpers.CheckErr(err)
+
+		err = v.RegisterValidation("minterPubKey", validators.MinterPublicKey)
 		helpers.CheckErr(err)
 	}
 }

@@ -1,5 +1,5 @@
 package helpers
 
-func RemoveMinterAddressPrefix(address string) string {
-	return address[2:42]
+func RemoveMinterPrefix(raw string) string {
+	return raw[2:]
 }

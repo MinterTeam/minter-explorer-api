@@ -34,10 +34,12 @@ func (repository *Repository) GetPaginated(pagination *tools.Pagination) []model
 	var blocks []models.Block
 	var err error
 
-	query := repository.DB.Model(&blocks).Column("Validators")
+	pagination.Total, err = repository.DB.Model(&blocks).
+		Column("Validators").
+		Apply(pagination.Filter).
+		Order("id DESC").
+		SelectAndCount()
 
-	// apply pagination
-	pagination.Total, err = pagination.ApplyFilter(query).Order("id DESC").SelectAndCount()
 	helpers.CheckErr(err)
 
 	return blocks

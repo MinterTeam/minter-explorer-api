@@ -6,7 +6,7 @@ import (
 
 type tCase struct {
 	Address string
-	Valid bool
+	Valid   bool
 }
 
 func TestValidateMinterAddress(t *testing.T) {

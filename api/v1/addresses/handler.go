@@ -2,10 +2,13 @@ package addresses
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
+	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/tools"
+	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,6 +20,13 @@ type GetAddressRequest struct {
 
 type GetAddressesRequest struct {
 	Addresses []string `form:"addresses[]" binding:"required,minterAddress,max=50"`
+}
+
+// TODO: replace string to int
+type GetAddressTransactionsRequest struct {
+	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
+	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
+	Page       *string `form:"page"       binding:"omitempty,numeric"`
 }
 
 // Get list of addresses
@@ -32,9 +42,9 @@ func GetAddresses(c *gin.Context) {
 	}
 
 	// remove Minter wallet prefix from each address
-	var minterAddresses []string
-	for _, addr := range request.Addresses {
-		minterAddresses = append(minterAddresses, helpers.RemoveMinterAddressPrefix(addr))
+	minterAddresses := make([]string, len(request.Addresses))
+	for key, addr := range request.Addresses {
+		minterAddresses[key] = helpers.RemoveMinterPrefix(addr)
 	}
 
 	// fetch addresses
@@ -58,7 +68,7 @@ func GetAddress(c *gin.Context) {
 	}
 
 	// fetch address
-	minterAddress := helpers.RemoveMinterAddressPrefix(request.Address)
+	minterAddress := helpers.RemoveMinterPrefix(request.Address)
 	model := explorer.AddressRepository.GetByAddress(minterAddress)
 
 	// if no models found
@@ -71,4 +81,36 @@ func GetAddress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": new(address.Resource).Transform(*model),
 	})
+}
+
+// Get list of transactions by Minter address
+func GetTransactions(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request path
+	var request GetAddressRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var requestQuery GetAddressTransactionsRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
+		[]string{helpers.RemoveMinterPrefix(request.Address)},
+		blocks.RangeSelectFilter{
+			StartBlock: requestQuery.StartBlock,
+			EndBlock:   requestQuery.EndBlock,
+		}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }

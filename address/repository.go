@@ -33,13 +33,8 @@ func (repository Repository) GetByAddress(minterAddress string) *models.Address 
 func (repository Repository) GetByAddresses(minterAddresses []string) *[]models.Address {
 	var addresses []models.Address
 
-	addressesList := make([]interface{}, len(minterAddresses))
-	for i, address := range minterAddresses {
-		addressesList[i] = address
-	}
-
 	err := repository.DB.Model(&addresses).Column("Balances", "Balances.Coin").
-		WhereIn("address IN (?)", addressesList...).Select()
+		WhereIn("address IN (?)", pg.In(minterAddresses)).Select()
 	helpers.CheckErr(err)
 
 	return &addresses
