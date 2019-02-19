@@ -1,4 +1,4 @@
-package data
+package data_resources
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -6,7 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type CreateCoinResource struct {
+type CreateCoin struct {
 	Name                 string `json:"name"`
 	Symbol               string `json:"symbol"`
 	InitialAmount        string `json:"initial_amount"`
@@ -14,10 +14,10 @@ type CreateCoinResource struct {
 	ConstantReserveRatio string `json:"constant_reserve_ratio"`
 }
 
-func (CreateCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (CreateCoin) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.CreateCoinTxData)
 
-	return CreateCoinResource{
+	return CreateCoin{
 		Name:                 data.Name,
 		Symbol:               data.Symbol,
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),

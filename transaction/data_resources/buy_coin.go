@@ -1,4 +1,4 @@
-package data
+package data_resources
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -6,17 +6,17 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/models"
 )
 
-type BuyCoinResource struct {
+type BuyCoin struct {
 	CoinToBuy          string `json:"coin_to_buy"`
 	ValueToBuy         string `json:"value_to_buy"`
 	CoinToSell         string `json:"coin_to_sell"`
 	MaximumValueToSell string `json:"maximum_value_to_sell"`
 }
 
-func (BuyCoinResource) Transform(txData resource.ItemInterface) resource.Interface {
+func (BuyCoin) Transform(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.BuyCoinTxData)
 
-	return BuyCoinResource{
+	return BuyCoin{
 		CoinToBuy:          data.CoinToBuy,
 		ValueToBuy:         helpers.PipStr2Bip(data.ValueToBuy),
 		CoinToSell:         data.CoinToSell,
