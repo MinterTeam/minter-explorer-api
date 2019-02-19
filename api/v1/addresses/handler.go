@@ -21,6 +21,7 @@ type GetAddressesRequest struct {
 	Addresses []string `form:"addresses[]" binding:"required,minterAddress,max=50"`
 }
 
+// TODO: replace string to int
 type GetAddressTransactionsRequest struct {
 	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`

@@ -12,6 +12,7 @@ import (
 	"net/http"
 )
 
+// TODO: replace string in StartBlock, EndBlock, Page to int
 type GetTransactionsRequest struct {
 	Addresses  []string `form:"addresses[]" binding:"omitempty,minterAddress"`
 	Page       string   `form:"page"        binding:"omitempty,numeric"`

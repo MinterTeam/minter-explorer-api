@@ -6,6 +6,7 @@ import (
 	"github.com/go-pg/pg/orm"
 )
 
+// TODO: replace string in StartBlock, EndBlock to int
 type SelectFilter struct {
 	Addresses       []string
 	BlockId         *uint64

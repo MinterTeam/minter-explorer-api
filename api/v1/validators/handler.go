@@ -15,6 +15,7 @@ type GetValidatorRequest struct {
 	PublicKey string `uri:"publicKey"    binding:"required,minterPubKey"`
 }
 
+// TODO: replace string to int
 type GetValidatorTransactionsRequest struct {
 	Page       string  `form:"page"        binding:"omitempty,numeric"`
 	StartBlock *string `form:"startblock"  binding:"omitempty,numeric"`

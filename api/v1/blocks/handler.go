@@ -13,10 +13,12 @@ import (
 	"strconv"
 )
 
+// TODO: replace string to int
 type GetBlockRequest struct {
 	ID string `uri:"height" binding:"numeric"`
 }
 
+// TODO: replace string to int
 type GetBlocksRequest struct {
 	Page string `form:"page" binding:"omitempty,numeric"`
 }
