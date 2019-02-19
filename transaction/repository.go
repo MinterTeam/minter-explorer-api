@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
@@ -17,8 +18,8 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-// Get paginated list of transactions by select filter
-func (repository Repository) GetPaginatedTxsByFilter(filter SelectFilter, pagination *tools.Pagination) []models.Transaction {
+// Get paginated list of transactions by address filter
+func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter blocks.RangeSelectFilter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 
@@ -34,6 +35,25 @@ func (repository Repository) GetPaginatedTxsByFilter(filter SelectFilter, pagina
 		ColumnExpr("tx_output.value AS tx_output__value").
 		ColumnExpr("tx_output__to_address.address AS tx_output__to_address__address").
 		ColumnExpr("tx_output__coin.symbol AS tx_output__coin__symbol").
+		WhereIn("from_address.address IN (?)", pg.In(addresses)).
+		WhereOr("tx_output__to_address.address IN (?)", pg.In(addresses)).
+		Apply(filter.Filter).
+		Apply(pagination.Filter).
+		Order("transaction.id DESC").
+		SelectAndCount()
+
+	helpers.CheckErr(err)
+
+	return transactions
+}
+
+// Get paginated list of transactions by select filter
+func (repository Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagination *tools.Pagination) []models.Transaction {
+	var transactions []models.Transaction
+	var err error
+
+	pagination.Total, err = repository.db.Model(&transactions).
+		Column("transaction.*", "FromAddress.address").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("transaction.id DESC").
