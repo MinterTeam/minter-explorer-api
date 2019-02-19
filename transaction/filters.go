@@ -16,9 +16,8 @@ type SelectFilter struct {
 
 func (f *SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if len(f.Addresses) > 0 {
-		q = q.Join("JOIN addresses").
-			JoinOn("addresses.id = tx_output.to_address_id OR addresses.id = transaction.from_address_id").
-			WhereIn("addresses.address IN (?)", pg.In(f.Addresses))
+		q = q.WhereIn("from_address.address IN (?)", pg.In(f.Addresses)).
+			WhereOr("tx_output__to_address.address IN (?)", pg.In(f.Addresses))
 	}
 
 	if f.ValidatorPubKey != nil {
