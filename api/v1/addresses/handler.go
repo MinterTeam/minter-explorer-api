@@ -122,60 +122,54 @@ func GetTransactions(c *gin.Context) {
 func GetRewards(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// validate request path
-	var request GetAddressRequest
-	err := c.ShouldBindUri(&request)
-	if err != nil {
-		errors.SetValidationErrorResponse(err, c)
-		return
-	}
-
-	// validate request query
-	var requestQuery FilterQueryRequest
-	err = c.ShouldBindQuery(&requestQuery)
+	filter, pagination, err := prepareEventsRequest(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
 	// fetch data
-	pagination := tools.NewPagination(c.Request)
-	rewards := explorer.RewardRepository.GetPaginatedByAddress(events.SelectFilter{
-		Address:    helpers.RemoveMinterPrefix(request.Address),
-		StartBlock: requestQuery.StartBlock,
-		EndBlock:   requestQuery.EndBlock,
-	}, &pagination)
+	rewards := explorer.RewardRepository.GetPaginatedByAddress(*filter, pagination)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, pagination))
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, *pagination))
 }
 
 // Get list of slashes by Minter address
 func GetSlashes(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// validate request path
-	var request GetAddressRequest
-	err := c.ShouldBindUri(&request)
-	if err != nil {
-		errors.SetValidationErrorResponse(err, c)
-		return
-	}
-
-	// validate request query
-	var requestQuery FilterQueryRequest
-	err = c.ShouldBindQuery(&requestQuery)
+	filter, pagination, err := prepareEventsRequest(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
 	// fetch data
+	slashes := explorer.SlashRepository.GetPaginatedByAddress(*filter, pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, *pagination))
+}
+
+func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Pagination, error) {
+	// validate request path
+	var request GetAddressRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// validate request query
+	var requestQuery FilterQueryRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	pagination := tools.NewPagination(c.Request)
-	slashes := explorer.SlashRepository.GetPaginatedByAddress(events.SelectFilter{
+
+	return &events.SelectFilter{
 		Address:    helpers.RemoveMinterPrefix(request.Address),
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
-	}, &pagination)
-
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, pagination))
+	}, &pagination, nil
 }
