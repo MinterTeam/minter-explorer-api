@@ -7,10 +7,10 @@ import (
 
 // TODO: replace string in StartBlock, EndBlock to int
 type BlockFilter struct {
-	BlockId         *uint64
+	BlockId *uint64
 }
 
-func(f BlockFilter) Filter(q *orm.Query) (*orm.Query, error) {
+func (f BlockFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.BlockId != nil {
 		q = q.Where("transaction.block_id = ?", f.BlockId)
 	}
@@ -25,7 +25,7 @@ type ValidatorFilter struct {
 	EndBlock        *string
 }
 
-func(f ValidatorFilter) Filter(q *orm.Query) (*orm.Query, error) {
+func (f ValidatorFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.ValidatorPubKey != nil {
 		q = q.Join("LEFT JOIN transaction_validator").
 			JoinOn("transaction_validator.transaction_id = transaction.id").

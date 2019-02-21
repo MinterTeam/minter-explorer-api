@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -63,21 +64,19 @@ func GetAddress(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// validate request
-	var request GetAddressRequest
-	err := c.ShouldBindUri(&request)
+	minterAddress, err := getAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
 	// fetch address
-	minterAddress := helpers.RemoveMinterPrefix(request.Address)
-	model := explorer.AddressRepository.GetByAddress(minterAddress)
+	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
 	// if no models found
 	if model == nil {
 		model = &models.Address{
-			Address: minterAddress,
+			Address: *minterAddress,
 		}
 	}
 
@@ -90,9 +89,7 @@ func GetAddress(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// validate request path
-	var request GetAddressRequest
-	err := c.ShouldBindUri(&request)
+	minterAddress, err := getAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -109,7 +106,7 @@ func GetTransactions(c *gin.Context) {
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
-		[]string{helpers.RemoveMinterPrefix(request.Address)},
+		[]string{*minterAddress},
 		blocks.RangeSelectFilter{
 			StartBlock: requestQuery.StartBlock,
 			EndBlock:   requestQuery.EndBlock,
@@ -150,10 +147,26 @@ func GetSlashes(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, *pagination))
 }
 
+// Get list of delegations by Minter address
+func GetDelegations(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	minterAddress, err := getAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	delegations := explorer.StakeRepository.GetByAddress(*minterAddress)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(delegations, delegation.Resource{}),
+	})
+}
+
 func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Pagination, error) {
-	// validate request path
-	var request GetAddressRequest
-	err := c.ShouldBindUri(&request)
+	minterAddress, err := getAddressFromRequestUri(c)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -168,8 +181,22 @@ func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Paginati
 	pagination := tools.NewPagination(c.Request)
 
 	return &events.SelectFilter{
-		Address:    helpers.RemoveMinterPrefix(request.Address),
+		Address:    *minterAddress,
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
 	}, &pagination, nil
+}
+
+// Get minter address from current request uri
+func getAddressFromRequestUri(c *gin.Context) (*string, error) {
+	var request GetAddressRequest
+
+	// validate request
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		return nil, err
+	}
+
+	minterAddress := helpers.RemoveMinterPrefix(request.Address)
+	return &minterAddress, nil
 }

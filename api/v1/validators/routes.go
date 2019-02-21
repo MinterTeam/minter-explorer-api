@@ -4,8 +4,9 @@ import "github.com/gin-gonic/gin"
 
 // ApplyRoutes applies router to the gin Engine
 func ApplyRoutes(r *gin.RouterGroup) {
-	blocks := r.Group("/validators")
+	validators := r.Group("/validators")
 	{
-		blocks.GET("/:publicKey/transactions", GetValidatorTransactions)
+		validators.GET("/:publicKey/transactions", GetValidatorTransactions)
+		validators.GET("/:publicKey", GetValidator)
 	}
 }

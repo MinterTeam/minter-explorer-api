@@ -49,7 +49,7 @@ func GetTransactions(c *gin.Context) {
 
 	var txs []models.Transaction
 	if len(minterAddresses) > 0 {
-		txs = explorer.TransactionRepository.GetPaginatedTxsByAddresses(minterAddresses, blocks.RangeSelectFilter {
+		txs = explorer.TransactionRepository.GetPaginatedTxsByAddresses(minterAddresses, blocks.RangeSelectFilter{
 			StartBlock: request.StartBlock,
 			EndBlock:   request.EndBlock,
 		}, &pagination)
