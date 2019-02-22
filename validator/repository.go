@@ -30,22 +30,31 @@ func (repository Repository) GetByPublicKey(publicKey string) models.Validator {
 	return validator
 }
 
-func (repository Repository) GetTotalStake() string {
+func (repository Repository) GetTotalStakeByActiveValidators(ids []uint64) string {
 	var total string
-	var blockValidator models.BlockValidator
-
-	// get active validators by last block
-	activeValidators := repository.db.Model(&blockValidator).
-		Column("validator_id").
-		Where("block_id = ?", blocks.NewRepository(repository.db).GetLastBlock().ID)
 
 	// get total stake of active validators
 	err := repository.db.Model((*models.Validator)(nil)).
 		ColumnExpr("SUM(total_stake)").
-		Where("id IN (?)", activeValidators).
+		Where("id IN (?)", pg.In(ids)).
 		Select(&total)
 
 	helpers.CheckErr(err)
 
 	return total
+}
+
+func (repository Repository) GetActiveValidatorIds() []uint64 {
+	var blockValidator models.BlockValidator
+	var ids []uint64
+
+	// get active validators by last block
+	err := repository.db.Model(&blockValidator).
+		Column("validator_id").
+		Where("block_id = ?", blocks.NewRepository(repository.db).GetLastBlock().ID).
+		Select(&ids)
+
+	helpers.CheckErr(err)
+
+	return ids
 }

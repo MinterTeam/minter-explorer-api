@@ -7,7 +7,7 @@ import (
 type ItemInterface interface{}
 
 type Interface interface {
-	Transform(model ItemInterface) Interface
+	Transform(model ItemInterface, params ...interface{}) Interface
 }
 
 func TransformCollection(collection interface{}, resource Interface) []Interface {

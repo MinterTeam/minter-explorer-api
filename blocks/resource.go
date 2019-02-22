@@ -18,7 +18,7 @@ type Resource struct {
 	Validators  []*models.Validator `json:"validators"`
 }
 
-func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	block := model.(models.Block)
 
 	return Resource{

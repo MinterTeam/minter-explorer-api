@@ -70,10 +70,10 @@ func GetValidator(c *gin.Context) {
 
 	// fetch data
 	data := explorer.ValidatorRepository.GetByPublicKey(helpers.RemoveMinterPrefix(request.PublicKey))
+	activeValidatorIds := explorer.ValidatorRepository.GetActiveValidatorIds()
+	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIds)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": validator.Resource{
-			TotalStake: explorer.ValidatorRepository.GetTotalStake(),
-		}.Transform(data),
+		"data": validator.Resource{}.Transform(data, activeValidatorIds, totalStake),
 	})
 }

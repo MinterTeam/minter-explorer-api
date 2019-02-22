@@ -14,7 +14,7 @@ type CreateCoin struct {
 	ConstantReserveRatio string `json:"constant_reserve_ratio"`
 }
 
-func (CreateCoin) Transform(txData resource.ItemInterface) resource.Interface {
+func (CreateCoin) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.CreateCoinTxData)
 
 	return CreateCoin{

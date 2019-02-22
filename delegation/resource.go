@@ -12,7 +12,7 @@ type Resource struct {
 	Value  string `json:"value"`
 }
 
-func (resource Resource) Transform(model resource.ItemInterface) resource.Interface {
+func (resource Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	stake := model.(models.Stake)
 
 	return Resource{

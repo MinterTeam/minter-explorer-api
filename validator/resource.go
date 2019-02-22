@@ -13,17 +13,23 @@ type Resource struct {
 	Part           string               `json:"part"`
 	DelegatorCount int                  `json:"delegator_count"`
 	DelegatorList  []resource.Interface `json:"delegator_list"`
-	TotalStake     string               `json:"-"`
 }
 
-func (r Resource) Transform(model resource.ItemInterface) resource.Interface {
+func (r Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	validator := model.(models.Validator)
 	delegators := resource.TransformCollection(validator.Stakes, stake.Resource{})
+	activeValidators := params[0].([]uint64)
+	totalStake := params[1].(string)
+
+	part := "0"
+	if helpers.InArray(validator.ID, activeValidators) {
+		part = helpers.CalculatePercent(*validator.TotalStake, totalStake)
+	}
 
 	return Resource{
 		Status:         *validator.Status,
 		Stake:          helpers.PipStr2Bip(*validator.TotalStake),
-		Part:           helpers.CalculatePercent(*validator.TotalStake, r.TotalStake),
+		Part:           part,
 		DelegatorCount: len(delegators),
 		DelegatorList:  delegators,
 	}

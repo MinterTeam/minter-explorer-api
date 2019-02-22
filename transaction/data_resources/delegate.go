@@ -12,7 +12,7 @@ type Delegate struct {
 	Stake  string `json:"stake"`
 }
 
-func (Delegate) Transform(txData resource.ItemInterface) resource.Interface {
+func (Delegate) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.DelegateTxData)
 
 	return Delegate{
