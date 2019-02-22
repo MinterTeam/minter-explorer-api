@@ -15,6 +15,9 @@ type Resource struct {
 	DelegatorList  []resource.Interface `json:"delegator_list"`
 }
 
+// Required extra params: activeValidatorIds and totalStake.
+// activeValidatorIds: []uint64 active validator ids
+// totalStake: string total stake of current active validator ids (by last block)
 func (r Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	validator := model.(models.Validator)
 	delegators := resource.TransformCollection(validator.Stakes, stake.Resource{})
