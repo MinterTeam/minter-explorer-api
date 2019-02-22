@@ -10,7 +10,7 @@ type RedeemCheck struct {
 	Proof    string `json:"proof"`
 }
 
-func (RedeemCheck) Transform(txData resource.ItemInterface) resource.Interface {
+func (RedeemCheck) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.RedeemCheckTxData)
 
 	return RedeemCheck{

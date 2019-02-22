@@ -14,7 +14,7 @@ type DeclareCandidacy struct {
 	Stake      string `json:"stake"`
 }
 
-func (DeclareCandidacy) Transform(txData resource.ItemInterface) resource.Interface {
+func (DeclareCandidacy) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.DeclareCandidacyTxData)
 
 	return DeclareCandidacy{

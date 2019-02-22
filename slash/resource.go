@@ -16,7 +16,7 @@ type Resource struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	slash := model.(models.Slash)
 
 	return Resource{

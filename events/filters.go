@@ -16,4 +16,3 @@ func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 
 	return q.Where("address.address = ?", f.Address).Apply(blocksRange.Filter), nil
 }
-

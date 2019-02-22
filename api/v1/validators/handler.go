@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
+	"github.com/MinterTeam/minter-explorer-api/validator"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -53,4 +54,26 @@ func GetValidatorTransactions(c *gin.Context) {
 	}, &pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
+}
+
+// Get validator detail by public key
+func GetValidator(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var request GetValidatorRequest
+	err := c.ShouldBindUri(&request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	data := explorer.ValidatorRepository.GetByPublicKey(helpers.RemoveMinterPrefix(request.PublicKey))
+	activeValidatorIds := explorer.ValidatorRepository.GetActiveValidatorIds()
+	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIds)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": validator.Resource{}.Transform(data, activeValidatorIds, totalStake),
+	})
 }

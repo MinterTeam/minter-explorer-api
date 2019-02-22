@@ -1,4 +1,4 @@
-package balance
+package stake
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -7,15 +7,17 @@ import (
 )
 
 type Resource struct {
-	Coin   string `json:"coin"`
-	Amount string `json:"amount"`
+	Coin    string `json:"coin"`
+	Address string `json:"address"`
+	Value   string `json:"value"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
-	balance := model.(models.Balance)
+	stake := model.(models.Stake)
 
 	return Resource{
-		Coin:   balance.Coin.Symbol,
-		Amount: helpers.PipStr2Bip(balance.Value),
+		Coin:    stake.Coin.Symbol,
+		Address: stake.OwnerAddress.GetAddress(),
+		Value:   helpers.PipStr2Bip(stake.Value),
 	}
 }

@@ -12,7 +12,7 @@ type Send struct {
 	Value string `json:"value"`
 }
 
-func (Send) Transform(txData resource.ItemInterface) resource.Interface {
+func (Send) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.SendTxData)
 
 	return Send{

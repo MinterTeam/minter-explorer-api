@@ -15,7 +15,7 @@ type Resource struct {
 	From      string    `json:"from"`
 }
 
-func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	tx := model.(models.InvalidTransaction)
 
 	return Resource{

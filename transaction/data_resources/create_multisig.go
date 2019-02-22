@@ -11,7 +11,7 @@ type CreateMultisig struct {
 	Addresses []string `json:"addresses"`
 }
 
-func (CreateMultisig) Transform(txData resource.ItemInterface) resource.Interface {
+func (CreateMultisig) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.CreateMultisigTxData)
 
 	return CreateMultisig{

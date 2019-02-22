@@ -24,3 +24,15 @@ func PipStr2Bip(value string) string {
 func Fee2Bip(value uint64) string {
 	return PipStr2Bip(strconv.FormatUint(value*feeDefaultMultiplier, 10))
 }
+
+func CalculatePercent(part string, total string) string {
+	v1, err := new(big.Float).SetString(part)
+	CheckErrBool(err)
+
+	v2, err := new(big.Float).SetString(total)
+	CheckErrBool(err)
+
+	v1 = new(big.Float).Mul(v1, big.NewFloat(100))
+
+	return new(big.Float).Quo(v1, v2).String()
+}

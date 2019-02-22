@@ -11,7 +11,7 @@ type Resource struct {
 	Balances []resource.Interface `json:"balances"`
 }
 
-func (Resource) Transform(model resource.ItemInterface) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	address := model.(models.Address)
 
 	return Resource{

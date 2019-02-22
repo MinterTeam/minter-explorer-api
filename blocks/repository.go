@@ -18,7 +18,7 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get block by height (id)
-func (repository *Repository) GetById(id uint64) *models.Block {
+func (repository Repository) GetById(id uint64) *models.Block {
 	var block models.Block
 
 	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id).Select()
@@ -30,7 +30,7 @@ func (repository *Repository) GetById(id uint64) *models.Block {
 }
 
 // Get paginated list of blocks
-func (repository *Repository) GetPaginated(pagination *tools.Pagination) []models.Block {
+func (repository Repository) GetPaginated(pagination *tools.Pagination) []models.Block {
 	var blocks []models.Block
 	var err error
 
@@ -43,4 +43,14 @@ func (repository *Repository) GetPaginated(pagination *tools.Pagination) []model
 	helpers.CheckErr(err)
 
 	return blocks
+}
+
+// Get last block
+func (repository Repository) GetLastBlock() models.Block {
+	var block models.Block
+
+	err := repository.DB.Model(&block).Last()
+	helpers.CheckErr(err)
+
+	return block
 }
