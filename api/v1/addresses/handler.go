@@ -3,6 +3,7 @@ package addresses
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
+	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
@@ -31,6 +32,12 @@ type FilterQueryRequest struct {
 	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
 	Page       *string `form:"page"       binding:"omitempty,numeric"`
+}
+
+type StatisticsQueryRequest struct {
+	Scale     string `form:"scale" binding:"eq=minute|eq=hour|eq=day"`
+	StartTime string `form:"startTime" binding:""`
+	EndTime   string `form:"endTime" binding:""`
 }
 
 // Get list of addresses
@@ -162,6 +169,33 @@ func GetDelegations(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(delegations, delegation.Resource{}),
+	})
+}
+
+// Get rewards statistics by minter address
+func GetRewardsStatistics(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	minterAddress, err := getAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var requestQuery StatisticsQueryRequest
+	err = c.ShouldBindQuery(&requestQuery)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	chartData := explorer.RewardRepository.GetChartData(*minterAddress, requestQuery.Scale,
+		requestQuery.StartTime, requestQuery.EndTime)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(chartData, chart.RewardResource{}),
 	})
 }
 
