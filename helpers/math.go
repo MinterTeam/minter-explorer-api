@@ -32,7 +32,7 @@ func CalculatePercent(part string, total string) string {
 	v2, err := new(big.Float).SetString(total)
 	CheckErrBool(err)
 
-	percent := new(big.Float).Quo(v1, v2)
+	v1 = new(big.Float).Mul(v1, big.NewFloat(100))
 
-	return new(big.Float).Mul(percent, big.NewFloat(100)).String()
+	return new(big.Float).Quo(v1, v2).String()
 }
