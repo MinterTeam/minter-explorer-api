@@ -35,9 +35,9 @@ type FilterQueryRequest struct {
 }
 
 type StatisticsQueryRequest struct {
-	Scale     *string `form:"scale" binding:"omitempty,eq=minute|eq=hour|eq=day"`
+	Scale     *string `form:"scale"     binding:"omitempty,eq=minute|eq=hour|eq=day"`
 	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
-	EndTime   *string `form:"endTime" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
 }
 
 // Get list of addresses
