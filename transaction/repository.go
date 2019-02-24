@@ -75,3 +75,23 @@ func (repository Repository) GetTxByHash(hash string) *models.Transaction {
 
 	return &transaction
 }
+
+type TxCountChartData struct {
+	Time  string
+	Count uint64
+}
+
+// Get list of transactions counts filtered by created_at
+func (repository Repository) GetTxCountChartDataByFilter(filter tools.Filter) []TxCountChartData {
+	var tx models.Transaction
+	var data []TxCountChartData
+
+	err := repository.db.Model(&tx).
+		ColumnExpr("COUNT(*) as count").
+		Apply(filter.Filter).
+		Select(&data)
+
+	helpers.CheckErr(err)
+
+	return data
+}

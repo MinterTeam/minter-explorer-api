@@ -35,9 +35,9 @@ type FilterQueryRequest struct {
 }
 
 type StatisticsQueryRequest struct {
-	Scale     string `form:"scale" binding:"eq=minute|eq=hour|eq=day"`
-	StartTime string `form:"startTime" binding:""`
-	EndTime   string `form:"endTime" binding:""`
+	Scale     *string `form:"scale" binding:"omitempty,eq=minute|eq=hour|eq=day"`
+	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"endTime" binding:"omitempty,timestamp"`
 }
 
 // Get list of addresses
@@ -190,9 +190,18 @@ func GetRewardsStatistics(c *gin.Context) {
 		return
 	}
 
+	// set scale instead of default if exists
+	scale := "day"
+	if requestQuery.Scale != nil {
+		scale = *requestQuery.Scale
+	}
+
 	// fetch data
-	chartData := explorer.RewardRepository.GetChartData(*minterAddress, requestQuery.Scale,
-		requestQuery.StartTime, requestQuery.EndTime)
+	chartData := explorer.RewardRepository.GetChartData(*minterAddress, chart.SelectFilter{
+		Scale:     scale,
+		StartTime: requestQuery.StartTime,
+		EndTime:   requestQuery.EndTime,
+	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(chartData, chart.RewardResource{}),

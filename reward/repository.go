@@ -40,19 +40,16 @@ type ChartData struct {
 	Amount string
 }
 
-func (repository Repository) GetChartData(address string, scale string, startTime string, endTime string) []ChartData {
+// Get filtered chart data by Minter address
+func (repository Repository) GetChartData(address string, filter tools.Filter) []ChartData {
 	var rewards models.Reward
 	var chartData []ChartData
 
 	err := repository.db.Model(&rewards).
 		Column("Address._", "Block._").
-		ColumnExpr("date_trunc(?, block.created_at) as time", scale).
 		ColumnExpr("SUM(amount) as amount").
 		Where("address.address = ?", address).
-		Where("block.created_at >= ?", startTime).
-		Where("block.created_at <= ?", endTime).
-		Group("time").
-		Order("time").
+		Apply(filter.Filter).
 		Select(&chartData)
 
 	helpers.CheckErr(err)
