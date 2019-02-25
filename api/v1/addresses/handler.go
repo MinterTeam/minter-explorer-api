@@ -191,7 +191,7 @@ func GetRewardsStatistics(c *gin.Context) {
 	// set scale instead of default if exists
 	scale := helpers.DefaultStatisticsScale
 	if requestQuery.Scale != nil {
-		scale = *requestQuery.Scale // TODO: validate scale input
+		scale = *requestQuery.Scale
 	}
 
 	// fetch data

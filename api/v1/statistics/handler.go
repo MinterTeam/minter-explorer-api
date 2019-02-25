@@ -29,7 +29,7 @@ func GetTransactions(c *gin.Context) {
 	// set default scale
 	scale := helpers.DefaultStatisticsScale
 	if request.Scale != nil {
-		scale = *request.Scale // TODO: validate scale input
+		scale = *request.Scale
 	}
 
 	// set default start time
