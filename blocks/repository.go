@@ -54,3 +54,14 @@ func (repository Repository) GetLastBlock() models.Block {
 
 	return block
 }
+
+// Get average block time
+func (repository Repository) GetAverageBlockTime() float64 {
+	var block models.Block
+	var time float64
+
+	err := repository.DB.Model(&block).ColumnExpr("AVG(block_time)").Select(&time)
+	helpers.CheckErr(err)
+
+	return time
+}

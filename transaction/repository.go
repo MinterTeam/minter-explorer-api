@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
@@ -94,4 +95,20 @@ func (repository Repository) GetTxCountChartDataByFilter(filter tools.Filter) []
 	helpers.CheckErr(err)
 
 	return data
+}
+
+// Get total transaction count
+func (repository Repository) GetTotalTransactionCount(startTime *string) int {
+	var tx models.Transaction
+
+	query := repository.db.Model(&tx)
+	if startTime != nil {
+		fmt.Println(*startTime)
+		query = query.Where("created_at >= ?", *startTime)
+	}
+
+	count, err := query.Count()
+	helpers.CheckErr(err)
+
+	return count
 }
