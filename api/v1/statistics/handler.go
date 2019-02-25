@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
+	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,22 +20,20 @@ type GetTransactionsRequest struct {
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// validate request
 	var request GetTransactionsRequest
-	err := c.ShouldBindQuery(&request)
-	if err != nil {
+	if err := c.ShouldBindQuery(&request); err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
 	// set default scale
-	scale := "day"
+	scale := helpers.DefaultStatisticsScale
 	if request.Scale != nil {
-		scale = *request.Scale
+		scale = *request.Scale // TODO: validate scale input
 	}
 
 	// set default start time
-	startTime := time.Now().AddDate(0, 0, -14).Format("2006-01-02 15:04:05")
+	startTime := time.Now().AddDate(0, 0, helpers.DefaultStatisticsDayDelta).Format("2006-01-02 15:04:05")
 	if request.StartTime != nil {
 		startTime = *request.StartTime
 	}

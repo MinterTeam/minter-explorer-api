@@ -182,18 +182,16 @@ func GetRewardsStatistics(c *gin.Context) {
 		return
 	}
 
-	// validate request query
 	var requestQuery StatisticsQueryRequest
-	err = c.ShouldBindQuery(&requestQuery)
-	if err != nil {
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
 	// set scale instead of default if exists
-	scale := "day"
+	scale := helpers.DefaultStatisticsScale
 	if requestQuery.Scale != nil {
-		scale = *requestQuery.Scale
+		scale = *requestQuery.Scale // TODO: validate scale input
 	}
 
 	// fetch data
@@ -214,10 +212,8 @@ func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Paginati
 		return nil, nil, err
 	}
 
-	// validate request query
 	var requestQuery FilterQueryRequest
-	err = c.ShouldBindQuery(&requestQuery)
-	if err != nil {
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
 		return nil, nil, err
 	}
 
@@ -233,10 +229,7 @@ func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Paginati
 // Get minter address from current request uri
 func getAddressFromRequestUri(c *gin.Context) (*string, error) {
 	var request GetAddressRequest
-
-	// validate request
-	err := c.ShouldBindUri(&request)
-	if err != nil {
+	if err := c.ShouldBindUri(&request); err != nil {
 		return nil, err
 	}
 
