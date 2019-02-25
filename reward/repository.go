@@ -46,7 +46,7 @@ func (repository Repository) GetChartData(address string, filter tools.Filter) [
 	var chartData []ChartData
 
 	err := repository.db.Model(&rewards).
-		Column("Address._", "Block._").
+		Column("Address._").
 		ColumnExpr("SUM(amount) as amount").
 		Where("address.address = ?", address).
 		Apply(filter.Filter).
