@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/gin-gonic/gin"
@@ -26,12 +27,13 @@ func GetStatus(c *gin.Context) {
 	go getAverageBlockTime(explorer, avgTimeCh)
 
 	txCount24h, lastBlock, txCountTotal, avgBlockTime := <-totalCount24hCh, <-lastBlockCh, <-totalCountCh, <-avgTimeCh
+	price := tools.GetCurrentFiatPrice(explorer.Enviroment.BaseCoin, "USD")
 
 	c.JSON(http.StatusOK, gin.H{
-		"bipPriceUsd":           0.07,                     //TODO: поменять значения, как станет ясно откуда брать
+		"bipPriceUsd":           price,                    //TODO: поменять значения, как станет ясно откуда брать
 		"bipPriceBtc":           0.0000015883176063418346, //TODO: поменять значения, как станет ясно откуда брать
 		"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
-		"marketCap":             "",
+		"marketCap":             getMarketCap(lastBlock.ID, price),
 		"latestBlockHeight":     lastBlock.ID,
 		"latestBlockTime":       lastBlock.CreatedAt,
 		"totalTransactions":     txCountTotal,
@@ -127,4 +129,8 @@ func calculateUptime(total int, slow int) float64 {
 
 func isActive(lastBlock models.Block) bool {
 	return time.Now().Unix()-lastBlock.CreatedAt.Unix() <= config.NetworkActivePeriod
+}
+
+func getMarketCap(blockId uint64, fiatPrice float64) float64 {
+	return float64(helpers.CalculateEmission(blockId)) * fiatPrice
 }

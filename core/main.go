@@ -23,9 +23,10 @@ type Explorer struct {
 	SlashRepository              slash.Repository
 	ValidatorRepository          validator.Repository
 	StakeRepository              stake.Repository
+	Enviroment                   Environment
 }
 
-func NewExplorer(db *pg.DB) *Explorer {
+func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	return &Explorer{
 		CoinRepository:               *coins.NewRepository(db),
 		BlockRepository:              *blocks.NewRepository(db),
@@ -36,5 +37,6 @@ func NewExplorer(db *pg.DB) *Explorer {
 		SlashRepository:              *slash.NewRepository(db),
 		ValidatorRepository:          *validator.NewRepository(db),
 		StakeRepository:              *stake.NewRepository(db),
+		Enviroment:                   *env,
 	}
 }
