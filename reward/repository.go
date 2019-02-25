@@ -18,6 +18,7 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
+// Get filtered list of rewards by Minter address
 func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, pagination *tools.Pagination) []models.Reward {
 	var rewards []models.Reward
 	var err error
@@ -32,4 +33,26 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	helpers.CheckErr(err)
 
 	return rewards
+}
+
+type ChartData struct {
+	Time   string
+	Amount string
+}
+
+// Get filtered chart data by Minter address
+func (repository Repository) GetChartData(address string, filter tools.Filter) []ChartData {
+	var rewards models.Reward
+	var chartData []ChartData
+
+	err := repository.db.Model(&rewards).
+		Column("Address._").
+		ColumnExpr("SUM(amount) as amount").
+		Where("address.address = ?", address).
+		Apply(filter.Filter).
+		Select(&chartData)
+
+	helpers.CheckErr(err)
+
+	return chartData
 }

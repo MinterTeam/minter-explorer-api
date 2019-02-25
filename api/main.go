@@ -67,5 +67,8 @@ func registerApiValidators() {
 
 		err = v.RegisterValidation("minterPubKey", validators.MinterPublicKey)
 		helpers.CheckErr(err)
+
+		err = v.RegisterValidation("timestamp", validators.Timestamp)
+		helpers.CheckErr(err)
 	}
 }

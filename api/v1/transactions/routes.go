@@ -4,9 +4,10 @@ import "github.com/gin-gonic/gin"
 
 // ApplyRoutes applies router to the gin Engine
 func ApplyRoutes(r *gin.RouterGroup) {
-	blocks := r.Group("/transactions")
+	transactions := r.Group("/transactions")
 	{
-		blocks.GET("", GetTransactions)
-		blocks.GET("/:hash", GetTransaction)
+		transactions.GET("", GetTransactions)
+		transactions.GET("/:hash", GetTransaction)
+
 	}
 }

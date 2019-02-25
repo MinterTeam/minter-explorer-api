@@ -3,6 +3,7 @@ package addresses
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
+	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
@@ -31,6 +32,12 @@ type FilterQueryRequest struct {
 	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
 	Page       *string `form:"page"       binding:"omitempty,numeric"`
+}
+
+type StatisticsQueryRequest struct {
+	Scale     *string `form:"scale"     binding:"omitempty,eq=minute|eq=hour|eq=day"`
+	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
 }
 
 // Get list of addresses
@@ -165,16 +172,48 @@ func GetDelegations(c *gin.Context) {
 	})
 }
 
+// Get rewards statistics by minter address
+func GetRewardsStatistics(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	minterAddress, err := getAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	var requestQuery StatisticsQueryRequest
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// set scale instead of default if exists
+	scale := helpers.DefaultStatisticsScale
+	if requestQuery.Scale != nil {
+		scale = *requestQuery.Scale
+	}
+
+	// fetch data
+	chartData := explorer.RewardRepository.GetChartData(*minterAddress, chart.SelectFilter{
+		Scale:     scale,
+		StartTime: requestQuery.StartTime,
+		EndTime:   requestQuery.EndTime,
+	})
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(chartData, chart.RewardResource{}),
+	})
+}
+
 func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Pagination, error) {
 	minterAddress, err := getAddressFromRequestUri(c)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// validate request query
 	var requestQuery FilterQueryRequest
-	err = c.ShouldBindQuery(&requestQuery)
-	if err != nil {
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
 		return nil, nil, err
 	}
 
@@ -190,10 +229,7 @@ func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Paginati
 // Get minter address from current request uri
 func getAddressFromRequestUri(c *gin.Context) (*string, error) {
 	var request GetAddressRequest
-
-	// validate request
-	err := c.ShouldBindUri(&request)
-	if err != nil {
+	if err := c.ShouldBindUri(&request); err != nil {
 		return nil, err
 	}
 
