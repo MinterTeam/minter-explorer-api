@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/events"
@@ -189,7 +190,7 @@ func GetRewardsStatistics(c *gin.Context) {
 	}
 
 	// set scale instead of default if exists
-	scale := helpers.DefaultStatisticsScale
+	scale := config.DefaultStatisticsScale
 	if requestQuery.Scale != nil {
 		scale = *requestQuery.Scale
 	}
