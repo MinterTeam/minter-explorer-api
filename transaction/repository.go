@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
+	"time"
 )
 
 type Repository struct {
@@ -111,4 +112,25 @@ func (repository Repository) GetTotalTransactionCount(startTime *string) int {
 	helpers.CheckErr(err)
 
 	return count
+}
+
+type Tx24hData struct {
+	FeeSum   uint64
+	Count    int
+	FeeAvg   float64
+}
+
+// Get transactions data by last 24 hours
+func (repository Repository) Get24hTransactionsData() Tx24hData {
+	var tx models.Transaction
+	var data Tx24hData
+
+	err := repository.db.Model(&tx).
+		ColumnExpr("COUNT(*) as count, SUM(gas) as fee_sum, AVG(gas) as fee_avg").
+		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")).
+		Select(&data)
+
+	helpers.CheckErr(err)
+
+	return data
 }

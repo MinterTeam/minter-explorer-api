@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
+	"time"
 )
 
 type Repository struct {
@@ -64,4 +65,18 @@ func (repository Repository) GetAverageBlockTime() float64 {
 	helpers.CheckErr(err)
 
 	return time
+}
+
+// Get slow blocks count by last 24 hours
+func (repository Repository) GetSlowBlocksCountBy24h() int {
+	var block models.Block
+
+	count, err := repository.DB.Model(&block).
+		Where("block_time >= 10").
+		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")).
+		Count()
+
+	helpers.CheckErr(err)
+
+	return count
 }
