@@ -115,9 +115,9 @@ func (repository Repository) GetTotalTransactionCount(startTime *string) int {
 }
 
 type Tx24hData struct {
-	FeeSum   uint64
-	Count    int
-	FeeAvg   float64
+	FeeSum uint64
+	Count  int
+	FeeAvg float64
 }
 
 // Get transactions data by last 24 hours

@@ -122,9 +122,9 @@ func calculateUptime(total int, slow int) float64 {
 		return 0
 	}
 
-	return float64((1 - float64(slow) / float64(total)) * 100)
+	return float64((1 - float64(slow)/float64(total)) * 100)
 }
 
 func isActive(lastBlock models.Block) bool {
-	return time.Now().Unix() - lastBlock.CreatedAt.Unix() <= config.NetworkActivePeriod
+	return time.Now().Unix()-lastBlock.CreatedAt.Unix() <= config.NetworkActivePeriod
 }
