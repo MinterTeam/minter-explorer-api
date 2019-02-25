@@ -34,7 +34,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	// set default start time
-	startTime := time.Now().AddDate(0, -14, 0).Format("2006-01-02 15:04:05")
+	startTime := time.Now().AddDate(0, 0, -14).Format("2006-01-02 15:04:05")
 	if request.StartTime != nil {
 		startTime = *request.StartTime
 	}
