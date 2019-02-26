@@ -1,7 +1,6 @@
 package transaction
 
 import (
-	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
@@ -104,8 +103,7 @@ func (repository Repository) GetTotalTransactionCount(startTime *string) int {
 
 	query := repository.db.Model(&tx)
 	if startTime != nil {
-		fmt.Println(*startTime)
-		query = query.Where("created_at >= ?", *startTime)
+		query = query.Column("Block._").Where("block.created_at >= ?", *startTime)
 	}
 
 	count, err := query.Count()
@@ -126,8 +124,9 @@ func (repository Repository) Get24hTransactionsData() Tx24hData {
 	var data Tx24hData
 
 	err := repository.db.Model(&tx).
+		Column("Block._").
 		ColumnExpr("COUNT(*) as count, SUM(gas) as fee_sum, AVG(gas) as fee_avg").
-		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")).
+		Where("block.created_at >= ?", time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")).
 		Select(&data)
 
 	helpers.CheckErr(err)
