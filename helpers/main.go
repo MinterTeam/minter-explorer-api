@@ -4,9 +4,6 @@ import (
 	"reflect"
 )
 
-const DefaultStatisticsScale = "day"  // TODO: move to a better place, may be config?
-const DefaultStatisticsDayDelta = -14 // TODO: move to a better place, may be config?
-
 func InArray(needle interface{}, haystack interface{}) bool {
 	switch reflect.TypeOf(haystack).Kind() {
 	case reflect.Slice:

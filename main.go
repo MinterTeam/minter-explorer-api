@@ -15,7 +15,7 @@ func main() {
 	defer database.Close(db)
 
 	// create explorer
-	explorer := core.NewExplorer(db)
+	explorer := core.NewExplorer(db, env)
 
 	// run api
 	api.Run(db, explorer)

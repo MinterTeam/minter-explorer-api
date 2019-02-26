@@ -58,3 +58,16 @@ func (repository Repository) GetActiveValidatorIds() []uint64 {
 
 	return ids
 }
+
+// Get active candidates count
+func (repository Repository) GetActiveCandidatesCount() int {
+	var validator models.Validator
+
+	count, err := repository.db.Model(&validator).
+		Where("status = ?", models.ValidatorStatusReady).
+		Count()
+
+	helpers.CheckErr(err)
+
+	return count
+}

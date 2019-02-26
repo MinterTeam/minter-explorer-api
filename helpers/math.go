@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"math"
 	"math/big"
 	"strconv"
 )
@@ -35,4 +36,8 @@ func CalculatePercent(part string, total string) string {
 	v1 = new(big.Float).Mul(v1, big.NewFloat(100))
 
 	return new(big.Float).Quo(v1, v2).String()
+}
+
+func Round(value float64, precision int) float64 {
+	return math.Round(value*math.Pow10(precision)) / math.Pow10(precision)
 }
