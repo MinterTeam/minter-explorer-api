@@ -8,9 +8,9 @@ import (
 )
 
 type Resource struct {
-	Status         uint8                `json:"status"`
-	Stake          string               `json:"stake"`
-	Part           string               `json:"part"`
+	Status         *uint8               `json:"status"`
+	Stake          *string              `json:"stake"`
+	Part           *string              `json:"part"`
 	DelegatorCount int                  `json:"delegator_count"`
 	DelegatorList  []resource.Interface `json:"delegator_list"`
 }
@@ -24,15 +24,20 @@ func (r Resource) Transform(model resource.ItemInterface, params ...interface{})
 	activeValidators := params[0].([]uint64)
 	totalStake := params[1].(string)
 
-	part := "0"
-	if helpers.InArray(validator.ID, activeValidators) {
+	var part string
+	if helpers.InArray(validator.ID, activeValidators) && validator.TotalStake != nil {
 		part = helpers.CalculatePercent(*validator.TotalStake, totalStake)
 	}
 
+	var stake string
+	if validator.TotalStake != nil {
+		stake = helpers.PipStr2Bip(*validator.TotalStake)
+	}
+
 	return Resource{
-		Status:         *validator.Status,
-		Stake:          helpers.PipStr2Bip(*validator.TotalStake),
-		Part:           part,
+		Status:         validator.Status,
+		Stake:          &stake,
+		Part:           &part,
 		DelegatorCount: len(delegators),
 		DelegatorList:  delegators,
 	}
