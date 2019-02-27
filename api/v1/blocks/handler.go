@@ -8,7 +8,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
-	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -31,11 +30,6 @@ func GetBlocks(c *gin.Context) {
 	// fetch blocks
 	pagination := tools.NewPagination(c.Request)
 	blockModels := explorer.BlockRepository.GetPaginated(&pagination)
-
-	// make response as empty array if no models
-	if len(blockModels) == 0 {
-		blockModels = make([]models.Block, 0)
-	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(blockModels, blocks.Resource{}, pagination))
 }
