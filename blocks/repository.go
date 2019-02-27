@@ -1,7 +1,6 @@
 package blocks
 
 import (
-	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
@@ -29,7 +28,6 @@ func (repository Repository) GetById(id uint64) *models.Block {
 		Select()
 
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 
