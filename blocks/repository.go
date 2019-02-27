@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
@@ -22,8 +23,13 @@ func NewRepository(db *pg.DB) *Repository {
 func (repository Repository) GetById(id uint64) *models.Block {
 	var block models.Block
 
-	err := repository.DB.Model(&block).Column("Validators").Where("ID = ?", id).Select()
+	err := repository.DB.Model(&block).
+		Column("BlockValidators", "BlockValidators.Validator").
+		Where("block.id = ?", id).
+		Select()
+
 	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 
@@ -36,7 +42,10 @@ func (repository Repository) GetPaginated(pagination *tools.Pagination) []models
 	var err error
 
 	pagination.Total, err = repository.DB.Model(&blocks).
-		Column("Validators").
+		Column("BlockValidators", "BlockValidators.Validator.public_key").
+		//Relation("Validators", func(q *orm.Query) (*orm.Query, error) {
+		//	return q.Column("Validator.public_key"), nil
+		//}).
 		Apply(pagination.Filter).
 		Order("id DESC").
 		SelectAndCount()
@@ -61,7 +70,7 @@ func (repository Repository) GetAverageBlockTime() float64 {
 	var block models.Block
 	var time float64
 
-	err := repository.DB.Model(&block).ColumnExpr("AVG(block_time)").Select(&time)
+	err := repository.DB.Model(&block).ColumnExpr("AVG(block_time / 1000000000)").Select(&time)
 	helpers.CheckErr(err)
 
 	return time

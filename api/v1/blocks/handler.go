@@ -59,8 +59,11 @@ func GetBlock(c *gin.Context) {
 		return
 	}
 
+	// fetch last block
+	lastBlockId := explorer.BlockRepository.GetLastBlock().ID
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(blocks.Resource).Transform(*block),
+		"data": new(blocks.Resource).Transform(*block, &lastBlockId),
 	})
 }
 
