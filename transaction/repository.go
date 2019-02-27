@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/orm"
 	"time"
 )
 
@@ -36,8 +37,10 @@ func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filt
 		ColumnExpr("tx_output.value AS tx_output__value").
 		ColumnExpr("tx_output__to_address.address AS tx_output__to_address__address").
 		ColumnExpr("tx_output__coin.symbol AS tx_output__coin__symbol").
-		WhereIn("from_address.address IN (?)", pg.In(addresses)).
-		WhereOr("tx_output__to_address.address IN (?)", pg.In(addresses)).
+		WhereGroup(func(q *orm.Query) (*orm.Query, error) {
+			return q.WhereIn("from_address.address IN (?)", pg.In(addresses)).
+				WhereOr("tx_output__to_address.address IN (?)", pg.In(addresses)), nil
+		}).
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("transaction.id DESC").

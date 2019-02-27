@@ -29,16 +29,9 @@ func GetBlocks(c *gin.Context) {
 
 	// fetch blocks
 	pagination := tools.NewPagination(c.Request)
-	models := explorer.BlockRepository.GetPaginated(&pagination)
+	blockModels := explorer.BlockRepository.GetPaginated(&pagination)
 
-	// make response as empty array if no models
-	if len(models) == 0 {
-		empty := make([]blocks.Resource, 0)
-		c.JSON(http.StatusOK, gin.H{"data": empty})
-		return
-	}
-
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(models, blocks.Resource{}, pagination))
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(blockModels, blocks.Resource{}, pagination))
 }
 
 // Get block detail

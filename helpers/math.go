@@ -16,10 +16,10 @@ func PipStr2Bip(value string) string {
 		return value
 	}
 
-	floatValue, err := new(big.Float).SetString(value)
+	floatValue, err := new(big.Float).SetPrec(500).SetString(value)
 	CheckErrBool(err)
 
-	return new(big.Float).Quo(floatValue, pipInBip).String()
+	return new(big.Float).SetPrec(500).Quo(floatValue, pipInBip).Text('f', 18)
 }
 
 func Fee2Bip(value uint64) string {
