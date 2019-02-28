@@ -1,0 +1,10 @@
+{
+  "name": "Minter Explorer Api",
+  "debug": true,
+  "baseCoin": "MNT",
+  "database": {
+    "user": "",
+    "password": "",
+    "name": ""
+  }
+}
