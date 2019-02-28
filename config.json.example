@@ -1,10 +1,11 @@
 {
   "name": "Minter Explorer Api",
-  "debug": true,
-  "baseCoin": "MNT",
+  "debug": ME_DEBUG,
+  "baseCoin": "ME_BASE_COIN",
   "database": {
-    "user": "",
-    "password": "",
-    "name": ""
+    "host": "ME_DB_HOST",
+    "name": "ME_DB_NAME",
+    "user": "ME_DB_USER",
+    "password": "ME_DB_PASSWORD"
   }
 }
