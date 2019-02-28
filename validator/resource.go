@@ -19,7 +19,7 @@ type Resource struct {
 // activeValidatorIds: []uint64 active validator ids
 // totalStake: string total stake of current active validator ids (by last block)
 func (r Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
-	validator := model.(models.Validator)
+	validator := model.(*models.Validator)
 	delegators := resource.TransformCollection(validator.Stakes, stake.Resource{})
 	activeValidators := params[0].([]uint64)
 	totalStake := params[1].(string)

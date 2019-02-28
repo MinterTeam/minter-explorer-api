@@ -321,6 +321,207 @@
         }
       }
     },
+    "/api/v1/addresses/{address}/events/rewards": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "summary": "Get rewards list by Minter address",
+        "operationId": "getAddressRewards",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "description": "Minter address",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "startblock",
+            "in": "query",
+            "description": "Start block id",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endblock",
+            "in": "query",
+            "description": "End block id",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of rewards",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardPaginatedCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/addresses/{address}/events/slashes": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "summary": "Get slashes list by Minter address",
+        "operationId": "getAddressSlashes",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "description": "Minter address",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "startblock",
+            "in": "query",
+            "description": "Start block id",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endblock",
+            "in": "query",
+            "description": "End block id",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of slashes",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlashPaginatedCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/addresses/{address}/statistics/rewards": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "summary": "Get reward statistics by Minter address",
+        "operationId": "getAddressStatisticRewards",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "description": "Minter address",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scale",
+            "in": "query",
+            "description": "Chart scale. Possible variants: minute | hour | day. Default is day",
+            "schema": {
+              "type": "string"
+            },
+            "example": "minute"
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "Chart start time. Formats: YYYY-MM-DD | YYYY-MM-DD HH:MM:SS",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endtime",
+            "in": "query",
+            "description": "Chart end time. Formats: YYYY-MM-DD | YYYY-MM-DD HH:MM:SS",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chart data",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardStatisticCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/addresses/{address}/delegations": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "summary": "Get list of delegations by Minter address",
+        "operationId": "getAddressDelegations",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "description": "Minter address",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegations list",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelegationCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/transactions": {
       "get": {
         "tags": [
@@ -431,6 +632,63 @@
         }
       }
     },
+    "/api/v1/validators/{pubKey}": {
+      "get": {
+        "tags": [
+          "Validators"
+        ],
+        "summary": "Get validator detail by public key",
+        "operationId": "getValidator",
+        "parameters": [
+          {
+            "name": "pubKey",
+            "in": "path",
+            "description": "Validator public key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validator detail",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Validator not found",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "integer",
+                          "example": 404
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "Validator not found."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/validators/{pubKey}/transactions": {
       "get": {
         "tags": [
@@ -486,6 +744,96 @@
           }
         }
       }
+    },
+    "/api/v1/statistics/transactions": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Transaction statistics",
+        "operationId": "getStatistics",
+        "parameters": [
+          {
+            "name": "scale",
+            "in": "query",
+            "description": "Chart scale. Possible variants: minute | hour | day. Default is day",
+            "schema": {
+              "type": "string"
+            },
+            "example": "minute"
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "Chart start time. Formats: YYYY-MM-DD | YYYY-MM-DD HH:MM:SS. Default is 14 days before.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endtime",
+            "in": "query",
+            "description": "Chart end time. Formats: YYYY-MM-DD | YYYY-MM-DD HH:MM:SS",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chart data",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatisticCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Network status",
+        "operationId": "getStatus",
+        "responses": {
+          "200": {
+            "description": "Network data",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/status-page": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Network status page",
+        "operationId": "getStatusPage",
+        "responses": {
+          "200": {
+            "description": "Network data",
+            "content": {
+              "application-json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusPageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -526,6 +874,13 @@
             "description": "Block hash",
             "type": "string",
             "example": "ITHA0XQPS5XTOY6NTTOOJX5VAVZQHTRIZJDHQKKUPUQDNX7JYVDE4UO5LFFCWSVA"
+          },
+          "validators": {
+            "description": "Block validators",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockValidatorResponse"
+            }
           }
         },
         "type": "object"
@@ -694,7 +1049,7 @@
           "fee": {
             "description": "Transaction fee",
             "type": "string",
-            "example": 0.2
+            "example": "10.000000000000000000"
           },
           "type": {
             "description": "Transaction type",
@@ -728,7 +1083,7 @@
               "amount": {
                 "description": "Amount of coins",
                 "type": "string",
-                "example": 12.34654
+                "example": "12.34654"
               }
             }
           }
@@ -780,6 +1135,373 @@
           }
         },
         "type": "object"
+      },
+      "BlockValidatorResponse": {
+        "properties": {
+          "publicKey": {
+            "description": "Validator public key",
+            "type": "string",
+            "example": "Mp8f053f3802d33f5e7092bb01ca99ae77606f4faf759c72560d5ee69b8e191a56"
+          },
+          "signed": {
+            "description": "Is block signed by validator",
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "SlashPaginatedCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Slashes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlashResponse"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinksResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaResponse"
+          }
+        },
+        "type": "object"
+      },
+      "SlashResponse": {
+        "properties": {
+          "block": {
+            "description": "Block height",
+            "type": "integer",
+            "example": 215
+          },
+          "coin": {
+            "description": "Slash coin",
+            "type": "string",
+            "example": "MNT"
+          },
+          "amount": {
+            "description": "Slash amount",
+            "type": "string",
+            "example": "0.000000000000000001"
+          },
+          "address": {
+            "description": "Minter address",
+            "type": "string",
+            "example": "Mxee81347211c72524338f9680072af90744333146"
+          },
+          "validator": {
+            "description": "Validator public key",
+            "type": "string",
+            "example": "Mp738da41ba6a7b7d69b7294afa158b89c5a1b410cbf0c2443c85c5fe24ad1dd1c"
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "string",
+            "example": "2019-02-18T12:16:37.192183+03:00"
+          }
+        }
+      },
+      "RewardPaginatedCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Slashes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RewardResponse"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinksResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaResponse"
+          }
+        },
+        "type": "object"
+      },
+      "RewardResponse": {
+        "properties": {
+          "block": {
+            "description": "Block height",
+            "type": "integer",
+            "example": 215
+          },
+          "role": {
+            "description": "Role",
+            "type": "string",
+            "example": "Developers"
+          },
+          "amount": {
+            "description": "Reward amount",
+            "type": "string",
+            "example": "155.764917315250067002"
+          },
+          "address": {
+            "description": "Minter address",
+            "type": "string",
+            "example": "Mxee81347211c72524338f9680072af90744333146"
+          },
+          "validator": {
+            "description": "Validator public key",
+            "type": "string",
+            "example": "Mp738da41ba6a7b7d69b7294afa158b89c5a1b410cbf0c2443c85c5fe24ad1dd1c"
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "string",
+            "example": "2019-02-18T12:16:37.192183+03:00"
+          }
+        }
+      },
+      "RewardStatisticCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Chart data",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RewardStatisticResponse"
+            }
+          }
+        }
+      },
+      "RewardStatisticResponse": {
+        "properties": {
+          "time": {
+            "description": "Timestamp",
+            "type": "string",
+            "example": "2019-02-18 00:00:00+03"
+          },
+          "amount": {
+            "description": "Sum of reward amount",
+            "type": "string",
+            "example": "38602.071957527232491487"
+          }
+        }
+      },
+      "DelegationCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Delegations data",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DelegationResponse"
+            }
+          }
+        }
+      },
+      "DelegationResponse": {
+        "properties": {
+          "coin": {
+            "description": "Coin",
+            "type": "string",
+            "example": "MNT"
+          },
+          "pub_key": {
+            "description": "Validator public key",
+            "type": "string",
+            "example": "Mpc8c6834da8ba2b0b24f7e5ab67049509278e709cde925f14184586f74dcc9d0b"
+          },
+          "value": {
+            "description": "Amount",
+            "type": "string",
+            "example": "38602.071957527232491487"
+          }
+        }
+      },
+      "ValidatorResponse": {
+        "properties": {
+          "data": {
+            "description": "Validator data",
+            "type": "object",
+            "properties": {
+              "status": {
+                "description": "Validator status. 1 - not ready, 2 - ready",
+                "type": "integer",
+                "example": 2
+              },
+              "stake": {
+                "description": "Validator stake",
+                "type": "string",
+                "example": "2456.78543535"
+              },
+              "part": {
+                "description": "Validator stake part of total stake",
+                "type": "string",
+                "example": "0.33"
+              },
+              "delegator_count": {
+                "description": "Delegators count",
+                "type": "integer",
+                "example": 12
+              },
+              "delegator_list": {
+                "description": "List of delegators",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/StakeResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "StakeResponse": {
+        "properties": {
+          "coin": {
+            "description": "Coin",
+            "type": "string",
+            "example": "MNT"
+          },
+          "address": {
+            "description": "Minter address",
+            "type": "string",
+            "example": "Mxe449e9fd85fd553fa45d245b62e30253bce29cc7"
+          },
+          "value": {
+            "description": "Amount",
+            "type": "string",
+            "example": "38602.071957527232491487"
+          }
+        }
+      },
+      "StatisticCollectionResponse": {
+        "properties": {
+          "data": {
+            "description": "Delegations data",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DelegationResponse"
+            }
+          }
+        }
+      },
+      "StatisticResponse": {
+        "properties": {
+          "date": {
+            "description": "Timestamp",
+            "type": "string",
+            "example": "2019-02-18 00:00:00+03"
+          },
+          "txCount": {
+            "description": "Transaction count",
+            "type": "integer",
+            "example": 356
+          }
+        }
+      },
+      "StatusResponse": {
+        "properties": {
+          "averageBlockTime": {
+            "description": "Average block time in seconds.",
+            "type": "integer",
+            "example": 5.1676245210727965
+          },
+          "bipPriceBtc": {
+            "description": "Bip price in BTC",
+            "type": "integer",
+            "example": 0.0000015883176063418346
+          },
+          "bipPriceChange": {
+            "description": "Bip price change",
+            "type": "integer",
+            "example": 10
+          },
+          "bipPriceUsd": {
+            "description": "Bip price in USD",
+            "type": "integer",
+            "example": 0.07
+          },
+          "latestBlockHeight": {
+            "description": "Latest block height",
+            "type": "integer",
+            "example": 1245
+          },
+          "latestBlockTime": {
+            "description": "Latest block time",
+            "type": "string",
+            "example": "2019-02-18T13:41:50.756605+03:00"
+          },
+          "marketCap": {
+            "description": "Market cap",
+            "type": "integer",
+            "example": 24335.640000000003
+          },
+          "totalTransactions": {
+            "description": "Total transaction count",
+            "type": "integer",
+            "example": 120546
+          },
+          "transactionsPerSecond": {
+            "description": "Transactions per second by last 24 hours",
+            "type": "integer",
+            "example": 2.5678
+          }
+        }
+      },
+      "StatusPageResponse": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "activeCandidates": {
+                "description": "Active candidates.",
+                "type": "integer",
+                "example": 10
+              },
+              "activeValidators": {
+                "description": "Active validators.",
+                "type": "integer",
+                "example": 16
+              },
+              "averageTxCommission": {
+                "description": "Average transaction commission.",
+                "type": "integer",
+                "example": 0
+              },
+              "blockSpeed24h": {
+                "description": "Average block time in seconds by last 24 hours.",
+                "type": "integer",
+                "example": 5.1676245210727965
+              },
+              "numberOfBlocks": {
+                "description": "Blocks count.",
+                "type": "integer",
+                "example": 1044
+              },
+              "status": {
+                "description": "Explorer status. Can be: down | active",
+                "type": "string",
+                "example": "active"
+              },
+              "totalCommission": {
+                "description": "Total transaction commission",
+                "type": "integer",
+                "example": 10
+              },
+              "tx24hCount": {
+                "description": "Transaction count by last 24 hours.",
+                "type": "integer",
+                "example": 1246
+              },
+              "txPerSecond": {
+                "description": "Transaction speed per second by last 24 hours",
+                "type": "integer",
+                "example": 2.5
+              },
+              "txTotal": {
+                "description": "Total transaction count",
+                "type": "integer",
+                "example": 20435
+              },
+              "uptime": {
+                "description": "Network uptime",
+                "type": "integer",
+                "example": 99
+              }
+            }
+          }
+        }
       }
     }
   }
