@@ -24,7 +24,7 @@ func Run(db *pg.DB, explorer *core.Explorer) {
 func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	router := gin.Default()
 	router.Use(gin.ErrorLogger())           // print all errors
-	router.Use(gin.Recovery())              // returns 500 on any code panics
+	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// Default handler 404
@@ -57,6 +57,7 @@ func apiMiddleware(db *pg.DB, explorer *core.Explorer) gin.HandlerFunc {
 	}
 }
 
+// Register request validators
 func registerApiValidators() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("minterAddress", validators.MinterAddress)
@@ -71,4 +72,15 @@ func registerApiValidators() {
 		err = v.RegisterValidation("timestamp", validators.Timestamp)
 		helpers.CheckErr(err)
 	}
+}
+
+// Send 500 status and JSON response
+func apiRecovery(c *gin.Context) {
+	defer func(c *gin.Context) {
+		if rec := recover(); rec != nil {
+			errors.SetErrorResponse(http.StatusInternalServerError, -1, "Internal server error", c)
+		}
+	}(c)
+
+	c.Next()
 }
