@@ -11,6 +11,7 @@ type Environment struct {
 	DbPoolSize int
 	BaseCoin   string
 	ServerPort string
+	IsDebug    bool
 }
 
 func NewEnvironment() *Environment {
@@ -23,6 +24,7 @@ func NewEnvironment() *Environment {
 		DbPoolSize: cfg.GetInt("database.poolSize"),
 		BaseCoin:   cfg.GetString("baseCoin"),
 		ServerPort: cfg.GetString("server.port"),
+		IsDebug:    cfg.GetBool("debug"),
 	}
 
 	return &env
