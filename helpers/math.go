@@ -43,5 +43,5 @@ func Round(value float64, precision int) float64 {
 }
 
 func Nano2Seconds(nano uint64) float64 {
-	return float64(nano) / 1000000000
+	return float64(nano) / float64(1000000000)
 }
