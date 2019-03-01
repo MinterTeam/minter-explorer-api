@@ -16,7 +16,7 @@ import (
 // Run API
 func Run(db *pg.DB, explorer *core.Explorer) {
 	router := SetupRouter(db, explorer)
-	err := router.Run()
+	err := router.Run(explorer.Enviroment.ServerPort)
 	helpers.CheckErr(err)
 }
 

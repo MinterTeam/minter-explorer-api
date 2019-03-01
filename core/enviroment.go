@@ -9,6 +9,7 @@ type Environment struct {
 	DbUser     string
 	DbPassword string
 	BaseCoin   string
+	ServerPort string
 }
 
 func NewEnvironment() *Environment {
@@ -19,6 +20,7 @@ func NewEnvironment() *Environment {
 		DbUser:     cfg.GetString("database.user"),
 		DbPassword: cfg.GetString("database.password"),
 		BaseCoin:   cfg.GetString("baseCoin"),
+		ServerPort: cfg.GetString("server.port"),
 	}
 
 	return &env
