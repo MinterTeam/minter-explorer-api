@@ -30,15 +30,17 @@ func GetStatus(c *gin.Context) {
 	price := tools.GetCurrentFiatPrice(explorer.Enviroment.BaseCoin, "USD")
 
 	c.JSON(http.StatusOK, gin.H{
-		"bipPriceUsd":           price,                    //TODO: поменять значения, как станет ясно откуда брать
-		"bipPriceBtc":           0.0000015883176063418346, //TODO: поменять значения, как станет ясно откуда брать
-		"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
-		"marketCap":             getMarketCap(lastBlock.ID, price),
-		"latestBlockHeight":     lastBlock.ID,
-		"latestBlockTime":       lastBlock.CreatedAt,
-		"totalTransactions":     txCountTotal,
-		"transactionsPerSecond": getTransactionSpeed(txCount24h),
-		"averageBlockTime":      avgBlockTime,
+		"data": gin.H{
+			"bipPriceUsd":           price,                    //TODO: поменять значения, как станет ясно откуда брать
+			"bipPriceBtc":           0.0000015883176063418346, //TODO: поменять значения, как станет ясно откуда брать
+			"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
+			"marketCap":             getMarketCap(lastBlock.ID, price),
+			"latestBlockHeight":     lastBlock.ID,
+			"latestBlockTime":       lastBlock.CreatedAt,
+			"totalTransactions":     txCountTotal,
+			"transactionsPerSecond": getTransactionSpeed(txCount24h),
+			"averageBlockTime":      avgBlockTime,
+		},
 	})
 }
 
