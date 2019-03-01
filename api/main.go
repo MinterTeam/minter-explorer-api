@@ -16,21 +16,22 @@ import (
 // Run API
 func Run(db *pg.DB, explorer *core.Explorer) {
 	router := SetupRouter(db, explorer)
-	err := router.Run(explorer.Enviroment.ServerPort)
+	appAddress := ":" + explorer.Enviroment.ServerPort
+	err := router.Run(appAddress)
 	helpers.CheckErr(err)
 }
 
 // Setup router
 func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
-	router := gin.Default()
-	router.Use(gin.ErrorLogger())           // print all errors
-	router.Use(apiRecovery)                 // returns 500 on any code panics
-	router.Use(apiMiddleware(db, explorer)) // init global context
-
 	// Set release mode
 	if !explorer.Enviroment.IsDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
+	router := gin.Default()
+	router.Use(gin.ErrorLogger())           // print all errors
+	router.Use(apiRecovery)                 // returns 500 on any code panics
+	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
