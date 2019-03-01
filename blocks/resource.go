@@ -11,7 +11,7 @@ type Resource struct {
 	ID          uint64               `json:"height"`
 	Size        uint64               `json:"size"`
 	NumTxs      uint32               `json:"txCount"`
-	BlockTime   uint64               `json:"blockTime"`
+	BlockTime   float64              `json:"blockTime"`
 	Timestamp   time.Time            `json:"timestamp"`
 	BlockReward string               `json:"reward"`
 	Hash        string               `json:"hash"`
@@ -26,7 +26,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		ID:          block.ID,
 		Size:        block.Size,
 		NumTxs:      block.NumTxs,
-		BlockTime:   uint64(block.BlockTime),
+		BlockTime:   helpers.Nano2Seconds(block.BlockTime),
 		Timestamp:   block.CreatedAt,
 		BlockReward: helpers.PipStr2Bip(block.BlockReward),
 		Hash:        block.GetHash(),
