@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/big"
 	"strconv"
+	"time"
 )
 
 // default amount of pips in 1 bip
@@ -43,5 +44,5 @@ func Round(value float64, precision int) float64 {
 }
 
 func Nano2Seconds(nano uint64) float64 {
-	return float64(nano) / 1000000000
+	return float64(nano) / float64(time.Second)
 }
