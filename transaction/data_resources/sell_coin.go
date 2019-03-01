@@ -8,18 +8,21 @@ import (
 
 type SellCoin struct {
 	CoinToSell        string `json:"coin_to_sell"`
-	ValueToSell       string `json:"value_to_sell"`
 	CoinToBuy         string `json:"coin_to_buy"`
+	ValueToSell       string `json:"value_to_sell"`
+	ValueToBuy        string `json:"value_to_buy"`
 	MinimumValueToBuy string `json:"minimum_value_to_buy"`
 }
 
 func (SellCoin) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
 	data := txData.(*models.SellCoinTxData)
+	model := params[0].(models.Transaction)
 
 	return SellCoin{
 		CoinToSell:        data.CoinToSell,
-		ValueToSell:       helpers.PipStr2Bip(data.ValueToSell),
 		CoinToBuy:         data.CoinToSell,
+		ValueToSell:       helpers.PipStr2Bip(data.ValueToSell),
+		ValueToBuy:        helpers.PipStr2Bip(model.Tags["tx.return"]),
 		MinimumValueToBuy: helpers.PipStr2Bip(data.MinimumValueToBuy),
 	}
 }

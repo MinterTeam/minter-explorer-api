@@ -76,7 +76,7 @@ func TransformTxData(tx models.Transaction) resource.Interface {
 	err := json.Unmarshal(tx.Data, val)
 	helpers.CheckErr(err)
 
-	return config.Resource.Transform(val)
+	return config.Resource.Transform(val, tx)
 }
 
 func GetTypeAsText(txType uint8) string {
