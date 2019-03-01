@@ -19,7 +19,11 @@ func NewRepository(db *pg.DB) *Repository {
 func (repository Repository) GetByAddress(address string) []models.Stake {
 	var stakes []models.Stake
 
-	err := repository.db.Model(&stakes).Column("Coin.symbol", "Validator.public_key").Select()
+	err := repository.db.Model(&stakes).
+		Column("Coin.symbol", "Validator.public_key", "OwnerAddress._").
+		Where("owner_address.address = ?", address).
+		Select()
+
 	helpers.CheckErr(err)
 
 	return stakes
