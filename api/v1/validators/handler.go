@@ -70,6 +70,13 @@ func GetValidator(c *gin.Context) {
 
 	// fetch data
 	data := explorer.ValidatorRepository.GetByPublicKey(helpers.RemoveMinterPrefix(request.PublicKey))
+
+	// check validator to existing
+	if data == nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		return
+	}
+
 	activeValidatorIds := explorer.ValidatorRepository.GetActiveValidatorIds()
 	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIds)
 

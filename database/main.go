@@ -11,6 +11,7 @@ func Connect(env *core.Environment) *pg.DB {
 		User:     env.DbUser,
 		Password: env.DbPassword,
 		Database: env.DbName,
+		PoolSize: env.DbPoolSize,
 	}
 
 	db := pg.Connect(options)

@@ -17,7 +17,7 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-func (repository Repository) GetByPublicKey(publicKey string) models.Validator {
+func (repository Repository) GetByPublicKey(publicKey string) *models.Validator {
 	var validator models.Validator
 
 	err := repository.db.Model(&validator).
@@ -25,9 +25,11 @@ func (repository Repository) GetByPublicKey(publicKey string) models.Validator {
 		Where("public_key = ?", publicKey).
 		Select()
 
-	helpers.CheckErr(err)
+	if err != nil {
+		return nil
+	}
 
-	return validator
+	return &validator
 }
 
 func (repository Repository) GetTotalStakeByActiveValidators(ids []uint64) string {
