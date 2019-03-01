@@ -6,7 +6,8 @@
     "host": "ME_DB_HOST",
     "name": "ME_DB_NAME",
     "user": "ME_DB_USER",
-    "password": "ME_DB_PASSWORD"
+    "password": "ME_DB_PASSWORD",
+    "poolSize": ME_DB_POOL_SIZE
   },
   "server": {
     "port": "ME_SRV_PORT"
