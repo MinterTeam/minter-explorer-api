@@ -67,11 +67,6 @@ var transformConfig = map[uint8]TransformTxConfig{
 func TransformTxData(tx models.Transaction) resource.Interface {
 	config := transformConfig[tx.Type]
 
-	// handle special case
-	if tx.Type == models.TxTypeMultiSend && tx.TxOutput != nil {
-		return new(data_resources.Multisend).TransformByTxOutput(tx.TxOutput)
-	}
-
 	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface()
 	err := json.Unmarshal(tx.Data, val)
 	helpers.CheckErr(err)
