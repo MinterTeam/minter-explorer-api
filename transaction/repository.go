@@ -26,12 +26,8 @@ func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filt
 	var err error
 
 	pagination.Total, err = repository.db.Model(&transactions).
-		Join("LEFT JOIN transaction_outputs AS tx_output").
-		JoinOn("tx_output.transaction_id = transaction.id").
-		Join("LEFT JOIN addresses AS tx_output__to_address").
-		JoinOn("tx_output__to_address.id = tx_output.to_address_id").
 		ColumnExpr("DISTINCT transaction.id").
-		Column("transaction.*", "FromAddress.address").
+		Column("transaction.*", "FromAddress.address", "TxOutput._", "TxOutput.ToAddress._").
 		WhereGroup(func(q *orm.Query) (*orm.Query, error) {
 			return q.WhereIn("from_address.address IN (?)", pg.In(addresses)).
 				WhereOr("tx_output__to_address.address IN (?)", pg.In(addresses)), nil
