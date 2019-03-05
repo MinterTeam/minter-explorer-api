@@ -36,7 +36,7 @@ func GetStatus(c *gin.Context) {
 			"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
 			"marketCap":             getMarketCap(lastBlock.ID, price),
 			"latestBlockHeight":     lastBlock.ID,
-			"latestBlockTime":       lastBlock.CreatedAt,
+			"latestBlockTime":       lastBlock.CreatedAt.Format(time.RFC3339),
 			"totalTransactions":     txCountTotal,
 			"transactionsPerSecond": getTransactionSpeed(txCount24h),
 			"averageBlockTime":      avgBlockTime,

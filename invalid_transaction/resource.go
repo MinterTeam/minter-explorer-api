@@ -8,11 +8,11 @@ import (
 )
 
 type Resource struct {
-	Hash      string    `json:"hash"`
-	Block     uint64    `json:"block"`
-	Timestamp time.Time `json:"timestamp"`
-	Type      string    `json:"type"`
-	From      string    `json:"from"`
+	Hash      string `json:"hash"`
+	Block     uint64 `json:"block"`
+	Timestamp string `json:"timestamp"`
+	Type      string `json:"type"`
+	From      string `json:"from"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
@@ -21,7 +21,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 	return Resource{
 		Hash:      tx.GetHash(),
 		Block:     tx.BlockID,
-		Timestamp: tx.CreatedAt,
+		Timestamp: tx.CreatedAt.Format(time.RFC3339),
 		Type:      transaction.GetTypeAsText(tx.Type),
 		From:      tx.FromAddress.Address,
 	}

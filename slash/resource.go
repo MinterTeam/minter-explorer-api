@@ -8,12 +8,12 @@ import (
 )
 
 type Resource struct {
-	BlockID   uint64    `json:"block"`
-	Coin      string    `json:"coin"`
-	Amount    string    `json:"amount"`
-	Address   string    `json:"address"`
-	Validator string    `json:"validator"`
-	Timestamp time.Time `json:"timestamp"`
+	BlockID   uint64 `json:"block"`
+	Coin      string `json:"coin"`
+	Amount    string `json:"amount"`
+	Address   string `json:"address"`
+	Validator string `json:"validator"`
+	Timestamp string `json:"timestamp"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
@@ -25,6 +25,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		Amount:    helpers.PipStr2Bip(slash.Amount),
 		Address:   slash.Address.GetAddress(),
 		Validator: slash.Validator.GetPublicKey(),
-		Timestamp: slash.Block.CreatedAt,
+		Timestamp: slash.Block.CreatedAt.Format(time.RFC3339),
 	}
 }
