@@ -83,8 +83,8 @@ func GetStatusPage(c *gin.Context) {
 			"txPerSecond":         getTransactionSpeed(tx24hData.Count),
 			"activeValidators":    activeValidators,
 			"activeCandidates":    activeCandidates,
-			"averageTxCommission": tx24hData.FeeAvg,
-			"totalCommission":     tx24hData.FeeSum,
+			"averageTxCommission": helpers.Unit2Bip(tx24hData.FeeAvg),
+			"totalCommission":     helpers.Unit2Bip(tx24hData.FeeSum),
 		},
 	})
 }
