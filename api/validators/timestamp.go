@@ -21,5 +21,10 @@ func Timestamp(
 		return true
 	}
 
+	_, err = time.Parse(time.RFC3339, timestamp)
+	if err == nil {
+		return true
+	}
+
 	return false
 }
