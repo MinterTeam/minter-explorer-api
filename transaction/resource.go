@@ -16,7 +16,7 @@ type Resource struct {
 	Hash      string                 `json:"hash"`
 	Nonce     uint64                 `json:"nonce"`
 	Block     uint64                 `json:"block"`
-	Timestamp time.Time              `json:"timestamp"`
+	Timestamp string                 `json:"timestamp"`
 	Fee       string                 `json:"fee"`
 	Type      string                 `json:"type"`
 	Payload   string                 `json:"payload"`
@@ -32,7 +32,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		Hash:      tx.GetHash(),
 		Nonce:     tx.Nonce,
 		Block:     tx.BlockID,
-		Timestamp: tx.CreatedAt,
+		Timestamp: tx.CreatedAt.Format(time.RFC3339),
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
 		Type:      GetTypeAsText(tx.Type),
 		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
