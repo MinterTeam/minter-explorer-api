@@ -55,3 +55,7 @@ func Nano2Seconds(nano uint64) float64 {
 func Unit2Bip(units float64) float64 {
 	return units / unitInBip
 }
+
+func Seconds2Nano(sec int) float64 {
+	return float64(sec) * float64(time.Second)
+}

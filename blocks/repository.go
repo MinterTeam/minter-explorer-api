@@ -63,20 +63,20 @@ func (repository Repository) GetLastBlock() models.Block {
 // Get average block time
 func (repository Repository) GetAverageBlockTime() float64 {
 	var block models.Block
-	var time float64
+	var blockTime float64
 
-	err := repository.DB.Model(&block).ColumnExpr("AVG(block_time / 1000000000)").Select(&time)
+	err := repository.DB.Model(&block).ColumnExpr("AVG(block_time / ?)", time.Second).Select(&blockTime)
 	helpers.CheckErr(err)
 
-	return time
+	return blockTime
 }
 
 // Get slow blocks count by last 24 hours
 func (repository Repository) GetSlowBlocksCountBy24h() int {
 	var block models.Block
-
+	
 	count, err := repository.DB.Model(&block).
-		Where("block_time >= 10").
+		Where("block_time >= ?", helpers.Seconds2Nano(10)).
 		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")).
 		Count()
 
