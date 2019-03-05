@@ -1,6 +1,7 @@
 package chart
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 )
@@ -14,7 +15,7 @@ func (TransactionResource) Transform(model resource.ItemInterface, params ...int
 	data := model.(transaction.TxCountChartData)
 
 	return TransactionResource{
-		Date:    data.Time.Format("2006-01-02T15:04:05.999999-07:00"),
+		Date:    data.Time.Format(config.DefaultResponseDateFormat),
 		TxCount: data.Count,
 	}
 }
