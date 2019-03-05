@@ -1,6 +1,7 @@
 package chart
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/reward"
@@ -15,7 +16,7 @@ func (RewardResource) Transform(model resource.ItemInterface, params ...interfac
 	data := model.(reward.ChartData)
 
 	return RewardResource{
-		Time:   data.Time,
+		Time:   data.Time.Format(config.DefaultResponseDateFormat),
 		Amount: helpers.PipStr2Bip(data.Amount),
 	}
 }

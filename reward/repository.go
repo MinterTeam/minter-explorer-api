@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/models"
 	"github.com/go-pg/pg"
+	"time"
 )
 
 type Repository struct {
@@ -36,7 +37,7 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 }
 
 type ChartData struct {
-	Time   string
+	Time   time.Time
 	Amount string
 }
 

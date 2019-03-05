@@ -12,6 +12,9 @@ var pipInBip = big.NewFloat(1000000000000000000)
 
 var feeDefaultMultiplier = uint64(1000000000000000)
 
+// default amount of unit in one bip
+const unitInBip = 1000
+
 func PipStr2Bip(value string) string {
 	if value == "" {
 		return value
@@ -45,4 +48,12 @@ func Round(value float64, precision int) float64 {
 
 func Nano2Seconds(nano uint64) float64 {
 	return float64(nano) / float64(time.Second)
+}
+
+func Unit2Bip(units float64) float64 {
+	return units / unitInBip
+}
+
+func Seconds2Nano(sec int) float64 {
+	return float64(sec) * float64(time.Second)
 }
