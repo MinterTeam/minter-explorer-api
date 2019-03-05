@@ -72,7 +72,7 @@ func (repository Repository) GetTxByHash(hash string) *models.Transaction {
 }
 
 type TxCountChartData struct {
-	Time  string
+	Time  time.Time
 	Count uint64
 }
 

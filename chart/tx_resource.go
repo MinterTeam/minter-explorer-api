@@ -14,7 +14,7 @@ func (TransactionResource) Transform(model resource.ItemInterface, params ...int
 	data := model.(transaction.TxCountChartData)
 
 	return TransactionResource{
-		Date:    data.Time,
+		Date:    data.Time.Format("2006-01-02T15:04:05.999999-07:00"),
 		TxCount: data.Count,
 	}
 }

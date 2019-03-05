@@ -15,7 +15,7 @@ func (RewardResource) Transform(model resource.ItemInterface, params ...interfac
 	data := model.(reward.ChartData)
 
 	return RewardResource{
-		Time:   data.Time,
+		Time:   data.Time.Format("2006-01-02T15:04:05.999999-07:00"),
 		Amount: helpers.PipStr2Bip(data.Amount),
 	}
 }

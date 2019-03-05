@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg"
@@ -29,6 +30,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	}
 
 	router := gin.Default()
+	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
