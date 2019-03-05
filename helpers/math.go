@@ -46,8 +46,6 @@ func Round(value float64, precision int) float64 {
 	return math.Round(value*math.Pow10(precision)) / math.Pow10(precision)
 }
 
-
-
 func Nano2Seconds(nano uint64) float64 {
 	return float64(nano) / float64(time.Second)
 }
