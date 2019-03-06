@@ -19,7 +19,9 @@ func Connect(env *core.Environment) *pg.DB {
 		panic("Could not connect to database")
 	}
 
-	db.AddQueryHook(dbLogger{})
+	if env.IsDebug {
+		db.AddQueryHook(dbLogger{})
+	}
 
 	return db
 }
