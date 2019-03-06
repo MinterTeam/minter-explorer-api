@@ -91,7 +91,7 @@ func GetBlockTransactions(c *gin.Context) {
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.BlockFilter{
-		BlockId: &blockId,
+		BlockId: blockId,
 	}, &pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))

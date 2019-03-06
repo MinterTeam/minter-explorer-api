@@ -48,7 +48,7 @@ func GetValidatorTransactions(c *gin.Context) {
 	publicKey := helpers.RemoveMinterPrefix(validatorRequest.PublicKey)
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.ValidatorFilter{
-		ValidatorPubKey: &publicKey,
+		ValidatorPubKey: publicKey,
 		StartBlock:      request.StartBlock,
 		EndBlock:        request.EndBlock,
 	}, &pagination)

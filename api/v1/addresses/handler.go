@@ -62,8 +62,19 @@ func GetAddresses(c *gin.Context) {
 	// fetch addresses
 	addresses := explorer.AddressRepository.GetByAddresses(minterAddresses)
 
+	// extend the model array with empty model if not exists
+	if len(addresses) != len(minterAddresses) {
+		for _, item := range minterAddresses {
+			if isModelsContainAddress(item, addresses) {
+				continue
+			}
+
+			addresses = append(addresses, *makeEmptyAddressModel(item, explorer.Enviroment.BaseCoin))
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollection(*addresses, address.Resource{}),
+		"data": resource.TransformCollection(addresses, address.Resource{}),
 	})
 }
 
@@ -83,9 +94,7 @@ func GetAddress(c *gin.Context) {
 
 	// if no models found
 	if model == nil {
-		model = &models.Address{
-			Address: *minterAddress,
-		}
+		model = makeEmptyAddressModel(*minterAddress, explorer.Enviroment.BaseCoin)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -236,4 +245,28 @@ func getAddressFromRequestUri(c *gin.Context) (*string, error) {
 
 	minterAddress := helpers.RemoveMinterPrefix(request.Address)
 	return &minterAddress, nil
+}
+
+// Return model address with zero base coin
+func makeEmptyAddressModel(minterAddress string, baseCoin string) *models.Address {
+	return &models.Address{
+		Address: minterAddress,
+		Balances: []*models.Balance{{
+			Coin: &models.Coin{
+				Symbol: baseCoin,
+			},
+			Value: "0",
+		}},
+	}
+}
+
+// Check that array of address models contain exact minter address
+func isModelsContainAddress(minterAddress string, models []models.Address) bool {
+	for _, item := range models {
+		if item.Address == minterAddress {
+			return true
+		}
+	}
+
+	return false
 }
