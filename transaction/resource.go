@@ -18,7 +18,7 @@ type Resource struct {
 	Block     uint64                 `json:"block"`
 	Timestamp string                 `json:"timestamp"`
 	Fee       string                 `json:"fee"`
-	Type      string                 `json:"type"`
+	Type      uint8                  `json:"type"`
 	Payload   string                 `json:"payload"`
 	From      string                 `json:"from"`
 	Data      resource.ItemInterface `json:"data"`
@@ -34,7 +34,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt.Format(time.RFC3339),
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
-		Type:      GetTypeAsText(tx.Type),
+		Type:      tx.Type,
 		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
 		Data:      TransformTxData(tx),
@@ -44,24 +44,23 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 type TransformTxConfig struct {
 	Model    resource.ItemInterface
 	Resource resource.Interface
-	TypeText string
 }
 
 var transformConfig = map[uint8]TransformTxConfig{
-	models.TxTypeSend:                {Model: new(models.SendTxData), Resource: data_resources.Send{}, TypeText: "send"},
-	models.TxTypeSellCoin:            {Model: new(models.SellCoinTxData), Resource: data_resources.SellCoin{}, TypeText: "sellCoin"},
-	models.TxTypeSellAllCoin:         {Model: new(models.SellAllCoinTxData), Resource: data_resources.SellAllCoin{}, TypeText: "sellAllCoin"},
-	models.TxTypeBuyCoin:             {Model: new(models.BuyCoinTxData), Resource: data_resources.BuyCoin{}, TypeText: "buyCoin"},
-	models.TxTypeCreateCoin:          {Model: new(models.CreateCoinTxData), Resource: data_resources.CreateCoin{}, TypeText: "createCoin"},
-	models.TxTypeDeclareCandidacy:    {Model: new(models.DeclareCandidacyTxData), Resource: data_resources.DeclareCandidacy{}, TypeText: "declareCandidacy"},
-	models.TxTypeDelegate:            {Model: new(models.DelegateTxData), Resource: data_resources.Delegate{}, TypeText: "delegate"},
-	models.TxTypeUnbound:             {Model: new(models.UnbondTxData), Resource: data_resources.Unbond{}, TypeText: "unbond"},
-	models.TxTypeRedeemCheck:         {Model: new(models.RedeemCheckTxData), Resource: data_resources.RedeemCheck{}, TypeText: "redeemCheckData"},
-	models.TxTypeMultiSig:            {Model: new(models.CreateMultisigTxData), Resource: data_resources.CreateMultisig{}, TypeText: "multiSig"},
-	models.TxTypeMultiSend:           {Model: new(models.MultiSendTxData), Resource: data_resources.Multisend{}, TypeText: "multiSend"},
-	models.TxTypeEditCandidate:       {Model: new(models.EditCandidateTxData), Resource: data_resources.EditCandidate{}, TypeText: "editCandidate"},
-	models.TxTypeSetCandidateOnline:  {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}, TypeText: "setCandidateOnData"},
-	models.TxTypeSetCandidateOffline: {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}, TypeText: "setCandidateOffData"},
+	models.TxTypeSend:                {Model: new(models.SendTxData), Resource: data_resources.Send{}},
+	models.TxTypeSellCoin:            {Model: new(models.SellCoinTxData), Resource: data_resources.SellCoin{}},
+	models.TxTypeSellAllCoin:         {Model: new(models.SellAllCoinTxData), Resource: data_resources.SellAllCoin{}},
+	models.TxTypeBuyCoin:             {Model: new(models.BuyCoinTxData), Resource: data_resources.BuyCoin{}},
+	models.TxTypeCreateCoin:          {Model: new(models.CreateCoinTxData), Resource: data_resources.CreateCoin{}},
+	models.TxTypeDeclareCandidacy:    {Model: new(models.DeclareCandidacyTxData), Resource: data_resources.DeclareCandidacy{}},
+	models.TxTypeDelegate:            {Model: new(models.DelegateTxData), Resource: data_resources.Delegate{}},
+	models.TxTypeUnbound:             {Model: new(models.UnbondTxData), Resource: data_resources.Unbond{}},
+	models.TxTypeRedeemCheck:         {Model: new(models.RedeemCheckTxData), Resource: data_resources.RedeemCheck{}},
+	models.TxTypeMultiSig:            {Model: new(models.CreateMultisigTxData), Resource: data_resources.CreateMultisig{}},
+	models.TxTypeMultiSend:           {Model: new(models.MultiSendTxData), Resource: data_resources.Multisend{}},
+	models.TxTypeEditCandidate:       {Model: new(models.EditCandidateTxData), Resource: data_resources.EditCandidate{}},
+	models.TxTypeSetCandidateOnline:  {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}},
+	models.TxTypeSetCandidateOffline: {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {
@@ -72,8 +71,4 @@ func TransformTxData(tx models.Transaction) resource.Interface {
 	helpers.CheckErr(err)
 
 	return config.Resource.Transform(val, tx)
-}
-
-func GetTypeAsText(txType uint8) string {
-	return transformConfig[txType].TypeText
 }
