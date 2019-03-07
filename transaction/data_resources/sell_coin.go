@@ -20,7 +20,7 @@ func (SellCoin) Transform(txData resource.ItemInterface, params ...interface{}) 
 
 	return SellCoin{
 		CoinToSell:        data.CoinToSell,
-		CoinToBuy:         data.CoinToSell,
+		CoinToBuy:         data.CoinToBuy,
 		ValueToSell:       helpers.PipStr2Bip(data.ValueToSell),
 		ValueToBuy:        helpers.PipStr2Bip(model.Tags["tx.return"]),
 		MinimumValueToBuy: helpers.PipStr2Bip(data.MinimumValueToBuy),
