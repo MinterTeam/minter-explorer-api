@@ -43,7 +43,7 @@
 
 [[constraint]]
   name = "github.com/MinterTeam/minter-explorer-extender"
-  revision = "83dfdfeb5bbbc2d36e442c51237e7bc48539b55a"
+  revision = "8b07276a81cce7e35fc584480a4e612e12965821"
 
 [[constraint]]
   name = "github.com/spf13/viper"
