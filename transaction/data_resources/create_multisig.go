@@ -7,7 +7,7 @@ import (
 
 type CreateMultisig struct {
 	Threshold string   `json:"threshold"`
-	Weights   string   `json:"weights"`
+	Weights   []uint   `json:"weights"`
 	Addresses []string `json:"addresses"`
 }
 

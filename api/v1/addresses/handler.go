@@ -175,11 +175,10 @@ func GetDelegations(c *gin.Context) {
 	}
 
 	// fetch data
-	delegations := explorer.StakeRepository.GetByAddress(*minterAddress)
+	pagination := tools.NewPagination(c.Request)
+	delegations := explorer.StakeRepository.GetByAddress(*minterAddress, &pagination)
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollection(delegations, delegation.Resource{}),
-	})
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(delegations, delegation.Resource{}, pagination))
 }
 
 // Get rewards statistics by minter address

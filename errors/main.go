@@ -36,7 +36,7 @@ func SetValidationErrorResponse(err error, c *gin.Context) {
 		errorFieldsList[err.Field] = validationErrorToText(err)
 	}
 
-	c.JSON(http.StatusInternalServerError, Response{
+	c.JSON(http.StatusUnprocessableEntity, Response{
 		Error{
 			Code:    1,
 			Message: "Validation failed.",
