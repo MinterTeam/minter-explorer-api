@@ -2,11 +2,11 @@
 
 
 [[projects]]
-  digest = "1:7187fdd0819126bfb41c1484196ddd57c5917c40a6351ceb6f70cc8b88de3ab7"
-  name = "github.com/MinterTeam/minter-explorer-extender"
+  digest = "1:aeeb339ca6d4bfc6a79fb40676b9e4871a6bafd77ffa2c71097a14b3f7829036"
+  name = "github.com/MinterTeam/minter-explorer-tools"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "8b07276a81cce7e35fc584480a4e612e12965821"
+  revision = "968d04cde02c44da2cab68adcaceaa324b648212"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -265,7 +265,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/MinterTeam/minter-explorer-extender/models",
+    "github.com/MinterTeam/minter-explorer-tools/models",
     "github.com/gin-contrib/cors",
     "github.com/gin-gonic/gin",
     "github.com/gin-gonic/gin/binding",

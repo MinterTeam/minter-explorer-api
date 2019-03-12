@@ -3,7 +3,7 @@ package coins
 import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-extender/models"
+	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/go-pg/pg"
 )
 
