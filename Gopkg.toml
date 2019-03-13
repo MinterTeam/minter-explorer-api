@@ -51,4 +51,4 @@
 
 [[constraint]]
   name = "github.com/MinterTeam/minter-explorer-tools"
-  revision = "968d04cde02c44da2cab68adcaceaa324b648212"
+  version = "1.0.3"
