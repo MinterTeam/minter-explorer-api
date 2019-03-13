@@ -35,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8284c199bc9f5c75da71578c0c68481f465d075c4f2faf8fd2756eee0b4f2f6d"
+  digest = "1:688084a58bc631d91530dcb3ae5b1da8ad5d39373ef7dab43e3d99c79dcc0959"
   name = "github.com/gin-gonic/gin"
   packages = [
     ".",
@@ -44,11 +44,10 @@
     "render",
   ]
   pruneopts = "UT"
-  revision = "5acf6601170bb49a1958c055d66d54ba152dc34b"
+  revision = "e5261480fde106ac5385f00fb00f9bc6b4035485"
 
 [[projects]]
-  branch = "master"
-  digest = "1:74a84193fae8d96971a8da9785c2ecec166cd0269b68a5d0a28b97fa2b26efbc"
+  digest = "1:92c2d57d6acd613d34e7998eac1f820fd72b8cf00365ed3939f5852568020622"
   name = "github.com/go-pg/pg"
   packages = [
     ".",
@@ -63,7 +62,8 @@
     "urlvalues",
   ]
   pruneopts = "UT"
-  revision = "1a74278419c6197a44cf1b666ab3ab495580ccc8"
+  revision = "3aa3c0bd0a7e1567ffe8735b10fb012759870261"
+  version = "v8.0.2"
 
 [[projects]]
   digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
