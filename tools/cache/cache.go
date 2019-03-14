@@ -21,8 +21,6 @@ func NewCache() *ExplorerCache {
 		items:       new(sync.Map),
 	}
 
-	go cache.ExpirationCheck()
-
 	return cache
 }
 
@@ -62,23 +60,21 @@ func (c *ExplorerCache) Store(key interface{}, value interface{}, ttl interface{
 
 // loop for checking items expiration
 func (c *ExplorerCache) ExpirationCheck() {
-	for {
-		c.items.Range(func(key, value interface{}) bool {
-			item := value.(*CacheItem)
-			if item.IsExpired(c.lastBlockId) {
-				c.items.Delete(key)
-			}
+	c.items.Range(func(key, value interface{}) bool {
+		item := value.(*CacheItem)
+		if item.IsExpired(c.lastBlockId) {
+			c.items.Delete(key)
+		}
 
-			return true
-		})
-
-		time.Sleep(100 * time.Millisecond)
-	}
+		return true
+	})
 }
 
 // set new last block id
 func (c *ExplorerCache) SetBlockId(id uint64) {
 	c.lastBlockId = id
+	// clean expired items
+	go c.ExpirationCheck()
 }
 
 // update last block id by ws data
