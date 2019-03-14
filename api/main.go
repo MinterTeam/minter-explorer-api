@@ -17,7 +17,7 @@ import (
 // Run API
 func Run(db *pg.DB, explorer *core.Explorer) {
 	router := SetupRouter(db, explorer)
-	appAddress := ":" + explorer.Enviroment.ServerPort
+	appAddress := ":" + explorer.Environment.ServerPort
 	err := router.Run(appAddress)
 	helpers.CheckErr(err)
 }
@@ -25,7 +25,7 @@ func Run(db *pg.DB, explorer *core.Explorer) {
 // Setup router
 func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	// Set release mode
-	if !explorer.Enviroment.IsDebug {
+	if !explorer.Environment.IsDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 

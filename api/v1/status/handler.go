@@ -1,6 +1,7 @@
 package status
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -14,20 +15,19 @@ import (
 
 func GetStatus(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
-	startTime := time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
 
 	totalCountCh := make(chan int)
 	avgTimeCh := make(chan float64)
 	totalCount24hCh := make(chan int)
 	lastBlockCh := make(chan models.Block)
 
-	go getTotalTxCount(explorer, totalCount24hCh, &startTime)
-	go getTotalTxCount(explorer, totalCountCh, nil)
+	go getTotalTxCountByLastDay(explorer, totalCount24hCh)
+	go getTotalTxCount(explorer, totalCountCh)
 	go getLastBlock(explorer, lastBlockCh)
 	go getAverageBlockTime(explorer, avgTimeCh)
 
 	txCount24h, lastBlock, txCountTotal, avgBlockTime := <-totalCount24hCh, <-lastBlockCh, <-totalCountCh, <-avgTimeCh
-	price := tools.GetCurrentFiatPrice(explorer.Enviroment.BaseCoin, "USD")
+	price := tools.GetCurrentFiatPrice(explorer.Environment.BaseCoin, "USD")
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
@@ -56,7 +56,7 @@ func GetStatusPage(c *gin.Context) {
 	tx24hDataCh := make(chan transaction.Tx24hData)
 
 	go getTransactionsDataBy24h(explorer, tx24hDataCh)
-	go getTotalTxCount(explorer, txTotalCountCh, nil)
+	go getTotalTxCount(explorer, txTotalCountCh)
 	go getActiveValidatorsCount(explorer, activeValidatorsCh)
 	go getActiveCandidatesCount(explorer, activeCandidatesCh)
 	go getAverageBlockTime(explorer, avgTimeCh)
@@ -89,32 +89,53 @@ func GetStatusPage(c *gin.Context) {
 	})
 }
 
-func getTotalTxCount(explorer *core.Explorer, ch chan int, startTime *string) {
-	ch <- explorer.TransactionRepository.GetTotalTransactionCount(startTime)
+func getTotalTxCount(explorer *core.Explorer, ch chan int) {
+	ch <- explorer.Cache.Get(fmt.Sprintf("total_tx_count"), func() interface{} {
+		return explorer.TransactionRepository.GetTotalTransactionCount(nil)
+	}, 1).(int)
 }
 
 func getLastBlock(explorer *core.Explorer, ch chan models.Block) {
-	ch <- explorer.BlockRepository.GetLastBlock()
-}
-
-func getAverageBlockTime(explorer *core.Explorer, ch chan float64) {
-	ch <- explorer.BlockRepository.GetAverageBlockTime()
+	ch <- explorer.Cache.Get("last_block", func() interface{} {
+		return explorer.BlockRepository.GetLastBlock()
+	}, 1).(models.Block)
 }
 
 func getActiveCandidatesCount(explorer *core.Explorer, ch chan int) {
-	ch <- explorer.ValidatorRepository.GetActiveCandidatesCount()
+	ch <- explorer.Cache.Get("active_candidates_count", func() interface{} {
+		return explorer.ValidatorRepository.GetActiveCandidatesCount()
+	}, 1).(int)
 }
 
 func getActiveValidatorsCount(explorer *core.Explorer, ch chan int) {
-	ch <- len(explorer.ValidatorRepository.GetActiveValidatorIds())
+	ch <- explorer.Cache.Get("active_validators_count", func() interface{} {
+		return len(explorer.ValidatorRepository.GetActiveValidatorIds())
+	}, 1).(int)
+}
+
+func getAverageBlockTime(explorer *core.Explorer, ch chan float64) {
+	ch <- explorer.Cache.Get("avg_block_time", func() interface{} {
+		return explorer.BlockRepository.GetAverageBlockTime()
+	}, time.Duration(60)).(float64)
 }
 
 func getSlowBlocksCount(explorer *core.Explorer, ch chan int) {
-	ch <- explorer.BlockRepository.GetSlowBlocksCountBy24h()
+	ch <- explorer.Cache.Get("slow_blocks_count", func() interface{} {
+		return explorer.BlockRepository.GetSlowBlocksCountBy24h()
+	}, time.Duration(60)).(int)
 }
 
 func getTransactionsDataBy24h(explorer *core.Explorer, ch chan transaction.Tx24hData) {
-	ch <- explorer.TransactionRepository.Get24hTransactionsData()
+	ch <- explorer.Cache.Get("tx_24h_data", func() interface{} {
+		return explorer.TransactionRepository.Get24hTransactionsData()
+	}, time.Duration(60)).(transaction.Tx24hData)
+}
+
+func getTotalTxCountByLastDay(explorer *core.Explorer, ch chan int) {
+	startTime := time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
+	ch <- explorer.Cache.Get("last_day_total_tx_count", func() interface{} {
+		return explorer.TransactionRepository.GetTotalTransactionCount(&startTime)
+	}, time.Duration(60)).(int)
 }
 
 func getTransactionSpeed(total int) float64 {

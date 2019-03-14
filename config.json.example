@@ -11,5 +11,11 @@
   },
   "server": {
     "port": "ME_SRV_PORT"
+  },
+  "extender": {
+    "ws": {
+        "address": "ME_EXTENDER_WS_ADDRESS",
+        "channel_blocks": "ME_EXTENDER_WS_CHANNEL_BLOCKS"
+    }
   }
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/reward"
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/stake"
+	"github.com/MinterTeam/minter-explorer-api/tools/cache"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-api/validator"
 	"github.com/go-pg/pg"
@@ -23,7 +24,8 @@ type Explorer struct {
 	SlashRepository              slash.Repository
 	ValidatorRepository          validator.Repository
 	StakeRepository              stake.Repository
-	Enviroment                   Environment
+	Environment                  Environment
+	Cache                        *cache.ExplorerCache
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -37,6 +39,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		SlashRepository:              *slash.NewRepository(db),
 		ValidatorRepository:          *validator.NewRepository(db),
 		StakeRepository:              *stake.NewRepository(db),
-		Enviroment:                   *env,
+		Environment:                  *env,
+		Cache:                        cache.NewCache(),
 	}
 }
