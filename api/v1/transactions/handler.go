@@ -26,6 +26,8 @@ type GetTransactionRequest struct {
 	Hash string `uri:"hash" binding:"minterTxHash"`
 }
 
+const CacheBlocksCount = 1
+
 // Get list of transactions
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -54,10 +56,20 @@ func GetTransactions(c *gin.Context) {
 			EndBlock:   request.EndBlock,
 		}, &pagination)
 	} else {
-		txs = explorer.TransactionRepository.GetPaginatedTxsByFilter(blocks.RangeSelectFilter{
-			StartBlock: request.StartBlock,
-			EndBlock:   request.EndBlock,
-		}, &pagination)
+		// prepare retrieving models
+		getTxsFunc := func() interface{} {
+			return explorer.TransactionRepository.GetPaginatedTxsByFilter(blocks.RangeSelectFilter{
+				StartBlock: request.StartBlock,
+				EndBlock:   request.EndBlock,
+			}, &pagination)
+		}
+
+		// cache last transactions
+		if len(c.Request.URL.Query()) == 0 {
+			txs = explorer.Cache.Get("transactions", getTxsFunc, CacheBlocksCount).([]models.Transaction)
+		} else {
+			txs = getTxsFunc().([]models.Transaction)
+		}
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))

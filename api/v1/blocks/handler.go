@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
+	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -23,13 +24,24 @@ type GetBlocksRequest struct {
 	Page string `form:"page" binding:"omitempty,numeric"`
 }
 
+const CacheBlocksCount = 1
+
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
+	var blockModels []models.Block
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// fetch blocks
 	pagination := tools.NewPagination(c.Request)
-	blockModels := explorer.BlockRepository.GetPaginated(&pagination)
+
+	// cache last blocks
+	if pagination.GetCurrentPage() == 1 {
+		blockModels = explorer.Cache.Get("blocks", func() interface{} {
+			return explorer.BlockRepository.GetPaginated(&pagination)
+		}, CacheBlocksCount).([]models.Block)
+	} else {
+		blockModels = explorer.BlockRepository.GetPaginated(&pagination)
+	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(blockModels, blocks.Resource{}, pagination))
 }
