@@ -9,6 +9,8 @@ import (
 	"net/http"
 )
 
+const CacheBlocksCount = 1
+
 // Get list of coins
 func GetCoins(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -18,7 +20,9 @@ func GetCoins(c *gin.Context) {
 
 	if symbol == "" {
 		// fetch coins resource
-		data = explorer.CoinRepository.GetCoins()
+		data = explorer.Cache.Get("coins", func() interface{} {
+			return explorer.CoinRepository.GetCoins()
+		}, CacheBlocksCount).([]models.Coin)
 	} else {
 		// fetch coins by symbol
 		data = explorer.CoinRepository.GetBySymbol(symbol)
