@@ -26,17 +26,16 @@ func NewCache() *ExplorerCache {
 
 // create new cache item
 func (c *ExplorerCache) newCacheItem(value interface{}, ttl interface{}) *CacheItem {
-	if t, ok := ttl.(time.Duration); ok {
+	switch t:= ttl.(type) {
+	case time.Duration:
 		ttl := time.Now().Add(t * time.Second)
 		return &CacheItem{value: value, ttl: &ttl}
-	}
-
-	if t, ok := ttl.(int); ok {
+	case int:
 		ttl := c.lastBlockId + uint64(t)
 		return &CacheItem{value: value, btl: &ttl}
 	}
 
-	return nil
+	panic("Invalid cache ttl type.")
 }
 
 // get or store value from cache
