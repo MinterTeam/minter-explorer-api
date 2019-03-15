@@ -1,7 +1,6 @@
 package transaction
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-tools/models"
@@ -20,7 +19,7 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get paginated list of transactions by address filter
-func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter blocks.RangeSelectFilter, pagination *tools.Pagination) []models.Transaction {
+func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter BlocksRangeSelectFilter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 

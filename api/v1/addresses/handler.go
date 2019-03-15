@@ -2,7 +2,6 @@ package addresses
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
-	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
@@ -124,7 +123,7 @@ func GetTransactions(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
 		[]string{*minterAddress},
-		blocks.RangeSelectFilter{
+		transaction.BlocksRangeSelectFilter{
 			StartBlock: requestQuery.StartBlock,
 			EndBlock:   requestQuery.EndBlock,
 		}, &pagination)
