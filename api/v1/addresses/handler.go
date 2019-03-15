@@ -69,7 +69,7 @@ func GetAddresses(c *gin.Context) {
 				continue
 			}
 
-			addresses = append(addresses, *makeEmptyAddressModel(item, explorer.Enviroment.BaseCoin))
+			addresses = append(addresses, *makeEmptyAddressModel(item, explorer.Environment.BaseCoin))
 		}
 	}
 
@@ -94,7 +94,7 @@ func GetAddress(c *gin.Context) {
 
 	// if no models found
 	if model == nil {
-		model = makeEmptyAddressModel(*minterAddress, explorer.Enviroment.BaseCoin)
+		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

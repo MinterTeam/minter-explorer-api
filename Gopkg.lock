@@ -10,6 +10,17 @@
   version = "v1.0.3"
 
 [[projects]]
+  digest = "1:24395a295e7694973a9eccc4030f1dcd4dc4ea9a484004ed39bb41cda645f97b"
+  name = "github.com/centrifugal/centrifuge-go"
+  packages = [
+    ".",
+    "internal/proto",
+  ]
+  pruneopts = "UT"
+  revision = "11a07e2e8b36da0626a3f3468175e6edfb6c300c"
+  version = "v0.2.3"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -66,12 +77,32 @@
   version = "v8.0.2"
 
 [[projects]]
+  digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "gogoproto",
+    "proto",
+    "protoc-gen-gogo/descriptor",
+  ]
+  pruneopts = "UT"
+  revision = "ba06b47c162d49f2af050fb4c75bcbc86a159d5c"
+  version = "v1.2.1"
+
+[[projects]]
   digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
@@ -99,6 +130,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "04140366298a54a039076d798123ffa108fff46c"
+
+[[projects]]
+  digest = "1:b6bbd2f9e0724bd81890c8644259f920c6d61c08453978faff0bebd25f3e7d3e"
+  name = "github.com/jpillora/backoff"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8eab2debe79d12b7bd3d10653910df25fa9552ba"
+  version = "1.0.0"
 
 [[projects]]
   digest = "1:3e551bbb3a7c0ab2a2bf4660e7fcad16db089fdcfbb44b0199e62838038623ea"
@@ -267,6 +306,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/MinterTeam/minter-explorer-tools/models",
+    "github.com/centrifugal/centrifuge-go",
     "github.com/gin-contrib/cors",
     "github.com/gin-gonic/gin",
     "github.com/gin-gonic/gin/binding",
