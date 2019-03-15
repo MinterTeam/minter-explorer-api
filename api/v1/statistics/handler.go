@@ -18,7 +18,7 @@ type GetTransactionsRequest struct {
 }
 
 // statistics cache time
-const CacheTime = time.Duration(10)
+const CacheTime = time.Duration(600)
 
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
