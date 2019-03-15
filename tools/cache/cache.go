@@ -25,7 +25,7 @@ func NewCache() *ExplorerCache {
 }
 
 // create new cache item
-func (c *ExplorerCache) NewCacheItem(value interface{}, ttl interface{}) *CacheItem {
+func (c *ExplorerCache) newCacheItem(value interface{}, ttl interface{}) *CacheItem {
 	if t, ok := ttl.(time.Duration); ok {
 		ttl := time.Now().Add(t * time.Second)
 		return &CacheItem{value: value, ttl: &ttl}
@@ -54,7 +54,7 @@ func (c *ExplorerCache) Get(key interface{}, callback func() interface{}, ttl in
 
 // save value to cache
 func (c *ExplorerCache) Store(key interface{}, value interface{}, ttl interface{}) interface{} {
-	c.items.Store(key, c.NewCacheItem(value, ttl))
+	c.items.Store(key, c.newCacheItem(value, ttl))
 	return value
 }
 

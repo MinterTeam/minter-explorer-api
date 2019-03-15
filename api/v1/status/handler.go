@@ -13,9 +13,9 @@ import (
 	"time"
 )
 
-const LAST_DAY_DATA_CACHE_TIME = time.Duration(60)
-const SLOW_AVG_BLOCKS_CACHE_TIME = time.Duration(300)
-const STATUS_PAGE_CACHE_BLOCKS_COUNT = 1
+const LastDataDataCacheTime = time.Duration(60)
+const SlowAvgBlocksCacheTime = time.Duration(300)
+const StatusPageCacheTime = 1
 
 func GetStatus(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -96,50 +96,50 @@ func GetStatusPage(c *gin.Context) {
 func getTotalTxCount(explorer *core.Explorer, ch chan int) {
 	ch <- explorer.Cache.Get(fmt.Sprintf("total_tx_count"), func() interface{} {
 		return explorer.TransactionRepository.GetTotalTransactionCount(nil)
-	}, STATUS_PAGE_CACHE_BLOCKS_COUNT).(int)
+	}, StatusPageCacheTime).(int)
 }
 
 func getLastBlock(explorer *core.Explorer, ch chan models.Block) {
 	ch <- explorer.Cache.Get("last_block", func() interface{} {
 		return explorer.BlockRepository.GetLastBlock()
-	}, STATUS_PAGE_CACHE_BLOCKS_COUNT).(models.Block)
+	}, StatusPageCacheTime).(models.Block)
 }
 
 func getActiveCandidatesCount(explorer *core.Explorer, ch chan int) {
 	ch <- explorer.Cache.Get("active_candidates_count", func() interface{} {
 		return explorer.ValidatorRepository.GetActiveCandidatesCount()
-	}, STATUS_PAGE_CACHE_BLOCKS_COUNT).(int)
+	}, StatusPageCacheTime).(int)
 }
 
 func getActiveValidatorsCount(explorer *core.Explorer, ch chan int) {
 	ch <- explorer.Cache.Get("active_validators_count", func() interface{} {
 		return len(explorer.ValidatorRepository.GetActiveValidatorIds())
-	}, STATUS_PAGE_CACHE_BLOCKS_COUNT).(int)
+	}, StatusPageCacheTime).(int)
 }
 
 func getAverageBlockTime(explorer *core.Explorer, ch chan float64) {
 	ch <- explorer.Cache.Get("avg_block_time", func() interface{} {
 		return explorer.BlockRepository.GetAverageBlockTime()
-	}, SLOW_AVG_BLOCKS_CACHE_TIME).(float64)
+	}, SlowAvgBlocksCacheTime).(float64)
 }
 
 func getSlowBlocksCount(explorer *core.Explorer, ch chan int) {
 	ch <- explorer.Cache.Get("slow_blocks_count", func() interface{} {
 		return explorer.BlockRepository.GetSlowBlocksCountBy24h()
-	}, SLOW_AVG_BLOCKS_CACHE_TIME).(int)
+	}, SlowAvgBlocksCacheTime).(int)
 }
 
 func getTransactionsDataBy24h(explorer *core.Explorer, ch chan transaction.Tx24hData) {
 	ch <- explorer.Cache.Get("tx_24h_data", func() interface{} {
 		return explorer.TransactionRepository.Get24hTransactionsData()
-	}, LAST_DAY_DATA_CACHE_TIME).(transaction.Tx24hData)
+	}, LastDataDataCacheTime).(transaction.Tx24hData)
 }
 
 func getTotalTxCountByLastDay(explorer *core.Explorer, ch chan int) {
 	startTime := time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
 	ch <- explorer.Cache.Get("last_day_total_tx_count", func() interface{} {
 		return explorer.TransactionRepository.GetTotalTransactionCount(&startTime)
-	}, LAST_DAY_DATA_CACHE_TIME).(int)
+	}, LastDataDataCacheTime).(int)
 }
 
 func getTransactionSpeed(total int) float64 {

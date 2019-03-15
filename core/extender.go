@@ -5,22 +5,22 @@ import (
 	"github.com/centrifugal/centrifuge-go"
 )
 
-type Extender struct {
+type ExtenderWsClient struct {
 	client *centrifuge.Client
 }
 
 // create new extender connection
-func NewExtender(explorer *Explorer) *Extender {
+func NewExtenderWsCleint(explorer *Explorer) *ExtenderWsClient {
 	c := centrifuge.New(explorer.Environment.WsServer, centrifuge.DefaultConfig())
 
 	err := c.Connect()
 	helpers.CheckErr(err)
 
-	return &Extender{c}
+	return &ExtenderWsClient{c}
 }
 
 // create new subscription to channel
-func (e *Extender) CreateSubscription(channel string) *centrifuge.Subscription {
+func (e *ExtenderWsClient) CreateSubscription(channel string) *centrifuge.Subscription {
 	sub, err := e.client.NewSubscription(channel)
 	helpers.CheckErr(err)
 
@@ -28,13 +28,13 @@ func (e *Extender) CreateSubscription(channel string) *centrifuge.Subscription {
 }
 
 // subscribe to channel
-func (e Extender) Subscribe(sub *centrifuge.Subscription) {
+func (e ExtenderWsClient) Subscribe(sub *centrifuge.Subscription) {
 	err := sub.Subscribe()
 	helpers.CheckErr(err)
 }
 
 // close ws connection
-func (e *Extender) Close() {
+func (e *ExtenderWsClient) Close() {
 	err := e.client.Close()
 	helpers.CheckErr(err)
 }
