@@ -17,6 +17,9 @@ type GetTransactionsRequest struct {
 	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
 }
 
+// statistics cache time
+const CacheTime = time.Duration(10)
+
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -38,12 +41,21 @@ func GetTransactions(c *gin.Context) {
 		startTime = *request.StartTime
 	}
 
-	// fetch data
-	txs := explorer.TransactionRepository.GetTxCountChartDataByFilter(chart.SelectFilter{
-		Scale:     scale,
-		StartTime: &startTime,
-		EndTime:   request.EndTime,
-	})
+	txFunc := func() interface{} {
+		return explorer.TransactionRepository.GetTxCountChartDataByFilter(chart.SelectFilter{
+			Scale:     scale,
+			StartTime: &startTime,
+			EndTime:   request.EndTime,
+		})
+	}
+
+	// cache request without query parameters
+	var txs interface{}
+	if len(c.Request.URL.Query()) == 0 {
+		txs = explorer.Cache.Get("tx_statistics", txFunc, CacheTime)
+	} else {
+		txs = txFunc()
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(txs, chart.TransactionResource{}),
