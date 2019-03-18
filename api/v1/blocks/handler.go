@@ -24,7 +24,13 @@ type GetBlocksRequest struct {
 	Page string `form:"page" binding:"omitempty,numeric"`
 }
 
+// Blocks cache helpers
 const CacheBlocksCount = 1
+
+type CacheBlocksData struct {
+	Blocks     []models.Block
+	Pagination tools.Pagination
+}
 
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
@@ -34,13 +40,20 @@ func GetBlocks(c *gin.Context) {
 	// fetch blocks
 	pagination := tools.NewPagination(c.Request)
 
+	getBlocks := func() []models.Block {
+		return explorer.BlockRepository.GetPaginated(&pagination)
+	}
+
 	// cache last blocks
 	if pagination.GetCurrentPage() == 1 && pagination.GetPerPage() == tools.DefaultLimit {
-		blockModels = explorer.Cache.Get("blocks", func() interface{} {
-			return explorer.BlockRepository.GetPaginated(&pagination)
-		}, CacheBlocksCount).([]models.Block)
+		cached := explorer.Cache.Get("blocks", func() interface{} {
+			return CacheBlocksData{getBlocks(), pagination}
+		}, CacheBlocksCount).(CacheBlocksData)
+
+		blockModels = cached.Blocks
+		pagination = cached.Pagination
 	} else {
-		blockModels = explorer.BlockRepository.GetPaginated(&pagination)
+		blockModels = getBlocks()
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(blockModels, blocks.Resource{}, pagination))
