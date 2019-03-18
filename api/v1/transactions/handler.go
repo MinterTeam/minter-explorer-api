@@ -26,7 +26,13 @@ type GetTransactionRequest struct {
 	Hash string `uri:"hash" binding:"minterTxHash"`
 }
 
+// Transaction cache helpers
 const CacheBlocksCount = 1
+
+type CacheTxData struct {
+	Transactions []models.Transaction
+	Pagination   tools.Pagination
+}
 
 // Get list of transactions
 func GetTransactions(c *gin.Context) {
@@ -57,7 +63,7 @@ func GetTransactions(c *gin.Context) {
 		}, &pagination)
 	} else {
 		// prepare retrieving models
-		getTxsFunc := func() interface{} {
+		getTxsFunc := func() []models.Transaction {
 			return explorer.TransactionRepository.GetPaginatedTxsByFilter(blocks.RangeSelectFilter{
 				StartBlock: request.StartBlock,
 				EndBlock:   request.EndBlock,
@@ -66,9 +72,14 @@ func GetTransactions(c *gin.Context) {
 
 		// cache last transactions
 		if len(c.Request.URL.Query()) == 0 {
-			txs = explorer.Cache.Get("transactions", getTxsFunc, CacheBlocksCount).([]models.Transaction)
+			cached := explorer.Cache.Get("transactions", func() interface{} {
+				return CacheTxData{getTxsFunc(), pagination}
+			}, CacheBlocksCount).(CacheTxData)
+
+			txs = cached.Transactions
+			pagination = cached.Pagination
 		} else {
-			txs = getTxsFunc().([]models.Transaction)
+			txs = getTxsFunc()
 		}
 	}
 
