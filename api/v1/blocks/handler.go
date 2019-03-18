@@ -35,7 +35,7 @@ func GetBlocks(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 
 	// cache last blocks
-	if pagination.GetCurrentPage() == 1 {
+	if pagination.GetCurrentPage() == 1 && pagination.GetPerPage() == tools.DefaultLimit {
 		blockModels = explorer.Cache.Get("blocks", func() interface{} {
 			return explorer.BlockRepository.GetPaginated(&pagination)
 		}, CacheBlocksCount).([]models.Block)
