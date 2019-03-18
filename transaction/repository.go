@@ -1,12 +1,10 @@
 package transaction
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/orm"
 	"time"
 )
 
@@ -21,17 +19,18 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get paginated list of transactions by address filter
-func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter blocks.RangeSelectFilter, pagination *tools.Pagination) []models.Transaction {
+func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter BlocksRangeSelectFilter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 
 	pagination.Total, err = repository.db.Model(&transactions).
+		Join("INNER JOIN index_transaction_by_address AS ind").
+		JoinOn("ind.transaction_id = transaction.id").
+		Join("INNER JOIN addresses AS a").
+		JoinOn("a.id = ind.address_id").
 		ColumnExpr("DISTINCT transaction.id").
-		Column("transaction.*", "FromAddress.address", "TxOutput._", "TxOutput.ToAddress._").
-		WhereGroup(func(q *orm.Query) (*orm.Query, error) {
-			return q.WhereIn("from_address.address IN (?)", pg.In(addresses)).
-				WhereOr("tx_output__to_address.address IN (?)", pg.In(addresses)), nil
-		}).
+		Column("transaction.*", "FromAddress.address").
+		Where("a.address IN (?)", pg.In(addresses)).
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("transaction.id DESC").

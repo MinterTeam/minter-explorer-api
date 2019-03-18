@@ -35,3 +35,20 @@ func (f ValidatorFilter) Filter(q *orm.Query) (*orm.Query, error) {
 
 	return q, nil
 }
+
+type BlocksRangeSelectFilter struct {
+	StartBlock *string
+	EndBlock   *string
+}
+
+func (f BlocksRangeSelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
+	if f.StartBlock != nil {
+		q = q.Where("ind.block_id >= ?", f.StartBlock)
+	}
+
+	if f.EndBlock != nil {
+		q = q.Where("ind.block_id <= ?", f.EndBlock)
+	}
+
+	return q, nil
+}
