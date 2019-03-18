@@ -36,7 +36,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 
 type ValidatorResource struct {
 	PublicKey string `json:"publicKey"`
-	Signed    *bool  `json:"signed"`
+	Signed    bool   `json:"signed"`
 }
 
 func (ValidatorResource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {

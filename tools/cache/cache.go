@@ -26,7 +26,7 @@ func NewCache() *ExplorerCache {
 
 // create new cache item
 func (c *ExplorerCache) newCacheItem(value interface{}, ttl interface{}) *CacheItem {
-	switch t:= ttl.(type) {
+	switch t := ttl.(type) {
 	case time.Duration:
 		ttl := time.Now().Add(t * time.Second)
 		return &CacheItem{value: value, ttl: &ttl}
