@@ -76,8 +76,8 @@ func (repository Repository) GetSlowBlocksCountBy24h() int {
 	var block models.Block
 
 	count, err := repository.DB.Model(&block).
-		Where("block_time >= ?", helpers.Seconds2Nano(10)).
-		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")).
+		Where("block_time >= ?", helpers.Seconds2Nano(6)).
+		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
 		Count()
 
 	helpers.CheckErr(err)
