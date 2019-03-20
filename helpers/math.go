@@ -3,14 +3,13 @@ package helpers
 import (
 	"math"
 	"math/big"
-	"strconv"
 	"time"
 )
 
 // default amount of pips in 1 bip
 var pipInBip = big.NewFloat(1000000000000000000)
 
-var feeDefaultMultiplier = uint64(1000000000000000)
+var feeDefaultMultiplier = big.NewInt(1000000000000000)
 
 // default amount of unit in one bip
 const unitInBip = 1000
@@ -27,7 +26,7 @@ func PipStr2Bip(value string) string {
 }
 
 func Fee2Bip(value uint64) string {
-	return PipStr2Bip(strconv.FormatUint(value*feeDefaultMultiplier, 10))
+	return PipStr2Bip(new(big.Int).Mul(feeDefaultMultiplier, new(big.Int).SetUint64(value)).String())
 }
 
 func CalculatePercent(part string, total string) string {

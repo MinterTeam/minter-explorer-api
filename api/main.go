@@ -47,9 +47,6 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 		apiV1.ApplyRoutes(api)
 	}
 
-	// Create Swagger UI
-	router.Static("/help", "./help/dist")
-
 	// Register validator for api requests
 	registerApiValidators()
 
