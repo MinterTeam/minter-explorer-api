@@ -26,7 +26,7 @@ func PipStr2Bip(value string) string {
 }
 
 func Fee2Bip(value uint64) string {
-	return PipStr2Bip(new(big.Int).Mul(feeDefaultMultiplier, big.NewInt(int64(value))).String())
+	return PipStr2Bip(new(big.Int).Mul(feeDefaultMultiplier, new(big.Int).SetUint64(value)).String())
 }
 
 func CalculatePercent(part string, total string) string {
