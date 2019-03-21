@@ -10,6 +10,29 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:fc20d4c60b0597aff13a64ec1721feabce77a25887ba45bc878f0ba00dc878ea"
+  name = "github.com/MinterTeam/minter-go-node"
+  packages = [
+    "core/check",
+    "core/types",
+    "crypto",
+    "crypto/sha3",
+    "hexutil",
+    "math",
+    "rlp",
+  ]
+  pruneopts = "UT"
+  revision = "19084d38d33c9c310aa2ee9fff416d9370314e13"
+  version = "v0.14.3"
+
+[[projects]]
+  digest = "1:093bf93a65962e8191e3e8cd8fc6c363f83d43caca9739c906531ba7210a9904"
+  name = "github.com/btcsuite/btcd"
+  packages = ["btcec"]
+  pruneopts = "UT"
+  revision = "ed77733ec07dfc8a513741138419b8d9d3de9d2d"
+
+[[projects]]
   digest = "1:24395a295e7694973a9eccc4030f1dcd4dc4ea9a484004ed39bb41cda645f97b"
   name = "github.com/centrifugal/centrifuge-go"
   packages = [
@@ -306,6 +329,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/MinterTeam/minter-explorer-tools/models",
+    "github.com/MinterTeam/minter-go-node/core/check",
     "github.com/centrifugal/centrifuge-go",
     "github.com/gin-contrib/cors",
     "github.com/gin-gonic/gin",
