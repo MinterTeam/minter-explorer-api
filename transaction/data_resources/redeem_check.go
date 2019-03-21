@@ -33,9 +33,14 @@ func (RedeemCheck) Transform(txData resource.ItemInterface, params ...interface{
 }
 
 func TransformCheckData(raw string) CheckData {
-	decoded, _ := base64.StdEncoding.DecodeString(raw)
-	data, _ := check.DecodeFromBytes(decoded)
-	sender, _ := data.Sender()
+	decoded, err := base64.StdEncoding.DecodeString(raw)
+	helpers.CheckErr(err)
+
+	data, err := check.DecodeFromBytes(decoded)
+	helpers.CheckErr(err)
+
+	sender, err := data.Sender()
+	helpers.CheckErr(err)
 
 	return CheckData{
 		Coin:     data.Coin.String(),
