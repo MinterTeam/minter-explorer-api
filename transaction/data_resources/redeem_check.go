@@ -11,7 +11,7 @@ import (
 type RedeemCheck struct {
 	RawCheck string    `json:"raw_check"`
 	Proof    string    `json:"proof"`
-	Data     CheckData `json:"data"`
+	Check    CheckData `json:"check"`
 }
 
 type CheckData struct {
@@ -28,7 +28,7 @@ func (RedeemCheck) Transform(txData resource.ItemInterface, params ...interface{
 	return RedeemCheck{
 		RawCheck: data.RawCheck,
 		Proof:    data.Proof,
-		Data:     TransformCheckData(data.RawCheck),
+		Check:    TransformCheckData(data.RawCheck),
 	}
 }
 
