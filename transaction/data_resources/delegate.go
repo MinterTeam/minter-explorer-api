@@ -9,7 +9,7 @@ import (
 type Delegate struct {
 	PubKey string `json:"pub_key"`
 	Coin   string `json:"coin"`
-	Stake  string `json:"stake"`
+	Value  string `json:"value"`
 }
 
 func (Delegate) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
@@ -18,6 +18,6 @@ func (Delegate) Transform(txData resource.ItemInterface, params ...interface{}) 
 	return Delegate{
 		PubKey: data.PubKey,
 		Coin:   data.Coin,
-		Stake:  helpers.PipStr2Bip(data.Stake),
+		Value:  helpers.PipStr2Bip(data.Value),
 	}
 }
