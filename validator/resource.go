@@ -24,20 +24,22 @@ func (r Resource) Transform(model resource.ItemInterface, params ...interface{})
 	activeValidators := params[0].([]uint64)
 	totalStake := params[1].(string)
 
-	var part string
+	var part *string
 	if helpers.InArray(validator.ID, activeValidators) && validator.TotalStake != nil {
-		part = helpers.CalculatePercent(*validator.TotalStake, totalStake)
+		val := helpers.CalculatePercent(*validator.TotalStake, totalStake)
+		part = &val
 	}
 
-	var stake string
+	var stake *string
 	if validator.TotalStake != nil {
-		stake = helpers.PipStr2Bip(*validator.TotalStake)
+		val := helpers.PipStr2Bip(*validator.TotalStake)
+		stake = &val
 	}
 
 	return Resource{
 		Status:         validator.Status,
-		Stake:          &stake,
-		Part:           &part,
+		Stake:          stake,
+		Part:           part,
 		DelegatorCount: len(delegators),
 		DelegatorList:  delegators,
 	}
