@@ -10,7 +10,7 @@
   version = "v1.5.1"
 
 [[projects]]
-  digest = "1:fc20d4c60b0597aff13a64ec1721feabce77a25887ba45bc878f0ba00dc878ea"
+  digest = "1:00ee81331f08036600b9f637d73b3280c676babed9e40f3bce80591446c123ee"
   name = "github.com/MinterTeam/minter-go-node"
   packages = [
     "core/check",
@@ -22,8 +22,8 @@
     "rlp",
   ]
   pruneopts = "UT"
-  revision = "19084d38d33c9c310aa2ee9fff416d9370314e13"
-  version = "v0.14.3"
+  revision = "10703fe1f50ddfadafdd6cf7ba10ff451ec92308"
+  version = "v0.15.0"
 
 [[projects]]
   digest = "1:093bf93a65962e8191e3e8cd8fc6c363f83d43caca9739c906531ba7210a9904"
