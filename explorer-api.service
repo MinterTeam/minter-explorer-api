@@ -10,7 +10,7 @@ TimeoutStartSec=10
 Restart=always
 RestartSec=15s
 WorkingDirectory=/opt/minter/explorer/current
-ExecStart=/opt/minter/explorer/current/explorer -config=config.json
+ExecStart=/opt/minter/explorer/current/explorer -config=/opt/minter/explorer/current/config.json
 
 User=minter
 Group=minter
