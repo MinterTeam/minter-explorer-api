@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:0511551e7bb69d4b38e6c92922319fad92ecbb6908875ae13efc54dbcbc1b2c9"
+  digest = "1:f975e88db969390493ae11302404e3b8e2dd058107837e8718e387e6d31e3bf2"
   name = "github.com/MinterTeam/minter-explorer-tools"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "8169a3525029fca905d0ce15f68f84a36a348968"
-  version = "v1.5.1"
+  revision = "df5e2e7566ed63bcd27120ad7c704fb5408b9e56"
+  version = "v2.0.2"
 
 [[projects]]
   digest = "1:00ee81331f08036600b9f637d73b3280c676babed9e40f3bce80591446c123ee"
