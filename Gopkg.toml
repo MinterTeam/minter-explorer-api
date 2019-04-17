@@ -59,4 +59,4 @@
 
 [[constraint]]
   name = "github.com/MinterTeam/minter-go-node"
-  version = "0.15.0"
+  version = "0.18.2"
