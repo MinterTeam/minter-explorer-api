@@ -2,28 +2,29 @@
 
 
 [[projects]]
-  digest = "1:f975e88db969390493ae11302404e3b8e2dd058107837e8718e387e6d31e3bf2"
+  digest = "1:4fc542eaea308269f3c53a82c27518ef5ca4c045c2bb22d34a866ea771b4600f"
   name = "github.com/MinterTeam/minter-explorer-tools"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "df5e2e7566ed63bcd27120ad7c704fb5408b9e56"
-  version = "v2.0.2"
+  revision = "a0237f1d3b9606f75a19afb3d384ae28d5e82842"
+  version = "v2.0.4"
 
 [[projects]]
-  digest = "1:00ee81331f08036600b9f637d73b3280c676babed9e40f3bce80591446c123ee"
+  digest = "1:29c687cfd7e988c2666eec9fa372ae61ad6beeec5719465dcca0b2c5998d053b"
   name = "github.com/MinterTeam/minter-go-node"
   packages = [
     "core/check",
     "core/types",
     "crypto",
+    "crypto/secp256k1",
     "crypto/sha3",
     "hexutil",
     "math",
     "rlp",
   ]
   pruneopts = "UT"
-  revision = "10703fe1f50ddfadafdd6cf7ba10ff451ec92308"
-  version = "v0.15.0"
+  revision = "91a268f0067d762be06a1ae5e9d4369099e0f59f"
+  version = "v0.19.0"
 
 [[projects]]
   digest = "1:093bf93a65962e8191e3e8cd8fc6c363f83d43caca9739c906531ba7210a9904"
@@ -271,9 +272,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
+  digest = "1:8c2c2c7c44fefb75e7c57ea831018010258a0b3ecdabcd658ee604e443302565"
   name = "golang.org/x/crypto"
-  packages = ["pbkdf2"]
+  packages = [
+    "pbkdf2",
+    "sha3",
+  ]
   pruneopts = "UT"
   revision = "b8fe1690c61389d7d2a8074a507d1d40c5d30448"
 
