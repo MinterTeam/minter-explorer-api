@@ -8,7 +8,7 @@ func RemoveMinterPrefix(raw string) string {
 
 const firstReward = 333
 const blocksPerReward = 200000
-const premineValue = 0 // in the mainnet the real value is 100 * 1000000
+const premineValue = 200 * 1000000 // in the mainnet the real value is 200 * 1000000
 
 func CalculateEmission(blockId uint64) uint64 {
 	sum := uint64(premineValue)
