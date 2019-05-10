@@ -9,6 +9,7 @@ type Environment struct {
 	DbUser          string
 	DbPassword      string
 	DbPoolSize      int
+	DbHost          string
 	BaseCoin        string
 	ServerPort      string
 	IsDebug         bool
@@ -24,6 +25,7 @@ func NewEnvironment() *Environment {
 		DbUser:          cfg.GetString("database.user"),
 		DbPassword:      cfg.GetString("database.password"),
 		DbPoolSize:      cfg.GetInt("database.poolSize"),
+		DbHost:          cfg.GetString("database.host"),
 		BaseCoin:        cfg.GetString("baseCoin"),
 		ServerPort:      cfg.GetString("server.port"),
 		IsDebug:         cfg.GetBool("debug"),
