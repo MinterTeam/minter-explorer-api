@@ -10,7 +10,7 @@ type ExtenderWsClient struct {
 }
 
 // create new extender connection
-func NewExtenderWsCleint(explorer *Explorer) *ExtenderWsClient {
+func NewExtenderWsClient(explorer *Explorer) *ExtenderWsClient {
 	c := centrifuge.New(explorer.Environment.WsServer, centrifuge.DefaultConfig())
 
 	err := c.Connect()
