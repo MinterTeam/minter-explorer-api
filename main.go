@@ -18,7 +18,7 @@ func main() {
 	explorer := core.NewExplorer(db, env)
 
 	// create ws extender
-	extender := core.NewExtenderWsCleint(explorer)
+	extender := core.NewExtenderWsClient(explorer)
 	defer extender.Close()
 
 	// subscribe to channel and add cache handler
