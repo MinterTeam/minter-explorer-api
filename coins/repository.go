@@ -8,12 +8,14 @@ import (
 )
 
 type Repository struct {
-	DB *pg.DB
+	DB             *pg.DB
+	baseCoinSymbol string
 }
 
-func NewRepository(db *pg.DB) *Repository {
+func NewRepository(db *pg.DB, baseCoinSymbol string) *Repository {
 	return &Repository{
-		DB: db,
+		DB:             db,
+		baseCoinSymbol: baseCoinSymbol,
 	}
 }
 
@@ -39,4 +41,14 @@ func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
 	helpers.CheckErr(err)
 
 	return coins
+}
+
+func (repository *Repository) GetCustomCoinsReserveSum() (string, error) {
+	var sum string
+	err := repository.DB.
+		Model(&models.Coin{}).
+		ColumnExpr("SUM(reserve_balance)").
+		Where("symbol != ?", repository.baseCoinSymbol).
+		Select(&sum)
+	return sum, err
 }

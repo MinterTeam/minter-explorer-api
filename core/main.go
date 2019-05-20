@@ -30,7 +30,7 @@ type Explorer struct {
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	return &Explorer{
-		CoinRepository:               *coins.NewRepository(db),
+		CoinRepository:               *coins.NewRepository(db, env.BaseCoin),
 		BlockRepository:              *blocks.NewRepository(db),
 		AddressRepository:            *address.NewRepository(db),
 		TransactionRepository:        *transaction.NewRepository(db),

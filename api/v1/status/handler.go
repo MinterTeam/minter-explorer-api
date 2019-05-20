@@ -10,6 +10,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -58,6 +59,8 @@ func GetStatusPage(c *gin.Context) {
 	activeCandidatesCh := make(chan int)
 	lastBlockCh := make(chan models.Block)
 	tx24hDataCh := make(chan transaction.Tx24hData)
+	stakesSumCh := make(chan string)
+	customCoinsSumCh := make(chan string)
 
 	go getTransactionsDataBy24h(explorer, tx24hDataCh)
 	go getTotalTxCount(explorer, txTotalCountCh)
@@ -66,10 +69,13 @@ func GetStatusPage(c *gin.Context) {
 	go getAverageBlockTime(explorer, avgTimeCh)
 	go getLastBlock(explorer, lastBlockCh)
 	go getSlowBlocksCount(explorer, slowBlocksCountCh)
+	go getStakesSum(explorer, stakesSumCh)
+	go getCustomCoinsSum(explorer, customCoinsSumCh)
 
 	tx24hData, txTotalCount := <-tx24hDataCh, <-txTotalCountCh
 	activeValidators, activeCandidates := <-activeValidatorsCh, <-activeCandidatesCh
 	avgBlockTime, lastBlock, slowBlocksCount := <-avgTimeCh, <-lastBlockCh, <-slowBlocksCountCh
+	stakesSum, customCoinsSum := <-stakesSumCh, <-customCoinsSumCh
 
 	status := "down"
 	if isActive(lastBlock) {
@@ -89,6 +95,9 @@ func GetStatusPage(c *gin.Context) {
 			"activeCandidates":    activeCandidates,
 			"averageTxCommission": helpers.Unit2Bip(tx24hData.FeeAvg),
 			"totalCommission":     helpers.Unit2Bip(tx24hData.FeeSum),
+			"stakesSum":           stakesSum,
+			"customCoinsSum":      customCoinsSum,
+			"freeBipSum":          getFreeBipSum(stakesSum, lastBlock.ID),
 		},
 	})
 }
@@ -140,6 +149,30 @@ func getTotalTxCountByLastDay(explorer *core.Explorer, ch chan int) {
 	ch <- explorer.Cache.Get("last_day_total_tx_count", func() interface{} {
 		return explorer.TransactionRepository.GetTotalTransactionCount(&startTime)
 	}, LastDataDataCacheTime).(int)
+}
+
+func getStakesSum(explorer *core.Explorer, ch chan string) {
+	ch <- explorer.Cache.Get(fmt.Sprintf("stakes_sum"), func() interface{} {
+		sum, err := explorer.StakeRepository.GetSumInBipValue()
+		helpers.CheckErr(err)
+
+		return helpers.PipStr2Bip(sum)
+	}, StatusPageCacheTime).(string)
+}
+
+func getCustomCoinsSum(explorer *core.Explorer, ch chan string) {
+	ch <- explorer.Cache.Get(fmt.Sprintf("custom_coins_sum"), func() interface{} {
+		sum, err := explorer.CoinRepository.GetCustomCoinsReserveSum()
+		helpers.CheckErr(err)
+
+		return helpers.PipStr2Bip(sum)
+	}, StatusPageCacheTime).(string)
+}
+
+func getFreeBipSum(stakesSum string, lastBlockId uint64) float64 {
+	stakes, err := strconv.ParseFloat(stakesSum, 64)
+	helpers.CheckErr(err)
+	return float64(helpers.CalculateEmission(lastBlockId)) - stakes
 }
 
 func getTransactionSpeed(total int) float64 {

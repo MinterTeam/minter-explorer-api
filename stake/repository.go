@@ -32,3 +32,9 @@ func (repository Repository) GetByAddress(address string, pagination *tools.Pagi
 
 	return stakes
 }
+
+func (repository Repository) GetSumInBipValue() (string, error) {
+	var sum string
+	err := repository.db.Model(&models.Stake{}).ColumnExpr("SUM(bip_value)").Select(&sum)
+	return sum, err
+}
