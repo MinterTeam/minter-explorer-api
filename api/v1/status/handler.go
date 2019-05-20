@@ -5,7 +5,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
@@ -32,7 +31,8 @@ func GetStatus(c *gin.Context) {
 	go getAverageBlockTime(explorer, avgTimeCh)
 
 	txCount24h, lastBlock, txCountTotal, avgBlockTime := <-totalCount24hCh, <-lastBlockCh, <-totalCountCh, <-avgTimeCh
-	price := tools.GetCurrentFiatPrice(explorer.Environment.BaseCoin, "USD")
+	// TODO: replace with tools.GetCurrentFiatPrice(explorer.Environment.BaseCoin, "USD")
+	price := explorer.Environment.StartPriceUSD
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{

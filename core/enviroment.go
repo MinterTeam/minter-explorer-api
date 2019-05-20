@@ -15,6 +15,7 @@ type Environment struct {
 	IsDebug         bool
 	WsServer        string
 	WsBlocksChannel string
+	StartPriceUSD   float64
 }
 
 func NewEnvironment() *Environment {
@@ -31,6 +32,7 @@ func NewEnvironment() *Environment {
 		IsDebug:         cfg.GetBool("debug"),
 		WsServer:        cfg.GetString("extender.ws.address"),
 		WsBlocksChannel: cfg.GetString("extender.ws.channel_blocks"),
+		StartPriceUSD:   cfg.GetFloat64("startUsdPrice"),
 	}
 
 	return &env
