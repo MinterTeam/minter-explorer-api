@@ -177,7 +177,15 @@ func GetDelegations(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 	delegations := explorer.StakeRepository.GetByAddress(*minterAddress, &pagination)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(delegations, delegation.Resource{}, pagination))
+	// fetch total delegated sum
+	totalDelegated, err := explorer.StakeRepository.GetSumInBipValueByAddress(*minterAddress)
+	helpers.CheckErr(err)
+
+	// create additional field
+	additionalFields := map[string]interface{}{"total_delegated_bip_value": helpers.PipStr2Bip(totalDelegated)}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithAdditionalFields(
+		delegations, delegation.Resource{}, pagination, additionalFields))
 }
 
 // Get rewards statistics by minter address
