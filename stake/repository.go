@@ -32,3 +32,15 @@ func (repository Repository) GetByAddress(address string, pagination *tools.Pagi
 
 	return stakes
 }
+
+// Get total delegated sum by address
+func (repository Repository) GetSumInBipValueByAddress(address string) (string, error) {
+	var sum string
+	err := repository.db.Model(&models.Stake{}).
+		Column("OwnerAddress._").
+		ColumnExpr("SUM(bip_value)").
+		Where("owner_address.address = ?", address).
+		Select(&sum)
+
+	return sum, err
+}
