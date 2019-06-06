@@ -43,12 +43,20 @@ func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
 	return coins
 }
 
-func (repository *Repository) GetCustomCoinsReserveSum() (string, error) {
-	var sum string
+type CustomCoinsStatusData struct {
+	ReserveSum string
+	Count      uint
+}
+
+// Get custom coins data for status page
+func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData, error) {
+	var data CustomCoinsStatusData
+
 	err := repository.DB.
 		Model(&models.Coin{}).
-		ColumnExpr("SUM(reserve_balance)").
+		ColumnExpr("SUM(reserve_balance) as reserve_sum, COUNT(*) as count").
 		Where("symbol != ?", repository.baseCoinSymbol).
-		Select(&sum)
-	return sum, err
+		Select(&data)
+
+	return data, err
 }
