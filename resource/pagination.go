@@ -18,14 +18,23 @@ type PaginationLinksResource struct {
 }
 
 type PaginationMetaResource struct {
-	CurrentPage int    `json:"current_page"`
-	LastPage    int    `json:"last_page"`
-	Path        string `json:"path"`
-	PerPage     int    `json:"per_page"`
-	Total       int    `json:"total"`
+	CurrentPage int                    `json:"current_page"`
+	LastPage    int                    `json:"last_page"`
+	Path        string                 `json:"path"`
+	PerPage     int                    `json:"per_page"`
+	Total       int                    `json:"total"`
+	Additional  map[string]interface{} `json:"additional,omitempty"`
 }
 
 func TransformPaginatedCollection(collection interface{}, resource Interface, pagination tools.Pagination) PaginationResource {
+	return transformPaginatedCollection(collection, resource, pagination, nil)
+}
+
+func TransformPaginatedCollectionWithAdditionalFields(collection interface{}, resource Interface, pagination tools.Pagination, additional map[string]interface{}) PaginationResource {
+	return transformPaginatedCollection(collection, resource, pagination, additional)
+}
+
+func transformPaginatedCollection(collection interface{}, resource Interface, pagination tools.Pagination, additional map[string]interface{}) PaginationResource {
 	result := TransformCollection(collection, resource)
 
 	return PaginationResource{
@@ -42,6 +51,7 @@ func TransformPaginatedCollection(collection interface{}, resource Interface, pa
 			Path:        pagination.GetPath(),
 			PerPage:     pagination.GetPerPage(),
 			Total:       pagination.Total,
+			Additional:  additional,
 		},
 	}
 }

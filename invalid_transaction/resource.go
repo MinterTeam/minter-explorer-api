@@ -22,6 +22,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt.Format(time.RFC3339),
 		Type:      tx.Type,
-		From:      tx.FromAddress.Address,
+		From:      tx.FromAddress.GetAddress(),
 	}
 }

@@ -65,7 +65,11 @@ func (repository Repository) GetAverageBlockTime() float64 {
 	var block models.Block
 	var blockTime float64
 
-	err := repository.DB.Model(&block).ColumnExpr("AVG(block_time) / ?", time.Second).Select(&blockTime)
+	err := repository.DB.Model(&block).
+		ColumnExpr("AVG(block_time) / ?", time.Second).
+		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
+		Select(&blockTime)
+
 	helpers.CheckErr(err)
 
 	return blockTime
