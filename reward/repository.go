@@ -24,13 +24,24 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	var rewards []models.Reward
 	var err error
 
+	// get count of rewards
 	pagination.Total, err = repository.db.Model(&rewards).
+		Column("Address.address").
+		Apply(filter.Filter).
+		Count()
+	helpers.CheckErr(err)
+
+	if pagination.Total == 0 {
+		return nil
+	}
+
+	// get rewards
+	err = repository.db.Model(&rewards).
 		Column("Address.address", "Validator.public_key", "Block.created_at").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
-		SelectAndCount()
-
+		Select()
 	helpers.CheckErr(err)
 
 	return rewards
