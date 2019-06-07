@@ -38,9 +38,8 @@ func GetStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"bipPriceUsd":           price,                    //TODO: поменять значения, как станет ясно откуда брать
-			"bipPriceBtc":           0.0000015883176063418346, //TODO: поменять значения, как станет ясно откуда брать
 			"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
-			"marketCap":             getMarketCap(lastBlock.ID, price),
+			"marketCap":             getMarketCap(helpers.CalculateEmission(lastBlock.ID), price),
 			"latestBlockHeight":     lastBlock.ID,
 			"latestBlockTime":       lastBlock.CreatedAt.Format(time.RFC3339),
 			"totalTransactions":     txCountTotal,
@@ -100,6 +99,7 @@ func GetStatusPage(c *gin.Context) {
 			"customCoinsSum":      helpers.PipStr2Bip(customCoinsData.ReserveSum),
 			"customCoinsCount":    customCoinsData.Count,
 			"freeFloatBip":        getFreeBipSum(stakesSum, lastBlock.ID),
+			"bipEmission":         helpers.CalculateEmission(lastBlock.ID),
 		},
 	})
 }
@@ -193,6 +193,6 @@ func isActive(lastBlock models.Block) bool {
 	return time.Now().Unix()-lastBlock.CreatedAt.Unix() <= config.NetworkActivePeriod
 }
 
-func getMarketCap(blockId uint64, fiatPrice float64) float64 {
-	return float64(helpers.CalculateEmission(blockId)) * fiatPrice
+func getMarketCap(bipCount uint64, fiatPrice float64) float64 {
+	return float64(bipCount) * fiatPrice
 }
