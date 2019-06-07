@@ -40,7 +40,7 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 		Column("Address.address", "Validator.public_key", "Block.created_at").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
-		Order("block_id DESC").
+		Order("block.id DESC").
 		Select()
 	helpers.CheckErr(err)
 
