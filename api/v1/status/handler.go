@@ -2,14 +2,15 @@ package status
 
 import (
 	"fmt"
+	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -31,14 +32,14 @@ func GetStatus(c *gin.Context) {
 	go getAverageBlockTime(explorer, avgTimeCh)
 
 	txCount24h, lastBlock, txCountTotal, avgBlockTime := <-totalCount24hCh, <-lastBlockCh, <-totalCountCh, <-avgTimeCh
-	price := tools.GetCurrentFiatPrice(explorer.Environment.BaseCoin, "USD")
+	// TODO: replace with tools.GetCurrentFiatPrice(explorer.Environment.BaseCoin, "USD")
+	price := explorer.Environment.StartPriceUSD
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"bipPriceUsd":           price,                    //TODO: поменять значения, как станет ясно откуда брать
-			"bipPriceBtc":           0.0000015883176063418346, //TODO: поменять значения, как станет ясно откуда брать
 			"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
-			"marketCap":             getMarketCap(lastBlock.ID, price),
+			"marketCap":             getMarketCap(helpers.CalculateEmission(lastBlock.ID), price),
 			"latestBlockHeight":     lastBlock.ID,
 			"latestBlockTime":       lastBlock.CreatedAt.Format(time.RFC3339),
 			"totalTransactions":     txCountTotal,
@@ -58,6 +59,8 @@ func GetStatusPage(c *gin.Context) {
 	activeCandidatesCh := make(chan int)
 	lastBlockCh := make(chan models.Block)
 	tx24hDataCh := make(chan transaction.Tx24hData)
+	stakesSumCh := make(chan string)
+	customCoinsDataCh := make(chan coins.CustomCoinsStatusData)
 
 	go getTransactionsDataBy24h(explorer, tx24hDataCh)
 	go getTotalTxCount(explorer, txTotalCountCh)
@@ -66,10 +69,13 @@ func GetStatusPage(c *gin.Context) {
 	go getAverageBlockTime(explorer, avgTimeCh)
 	go getLastBlock(explorer, lastBlockCh)
 	go getSlowBlocksCount(explorer, slowBlocksCountCh)
+	go getStakesSum(explorer, stakesSumCh)
+	go getCustomCoinsData(explorer, customCoinsDataCh)
 
 	tx24hData, txTotalCount := <-tx24hDataCh, <-txTotalCountCh
 	activeValidators, activeCandidates := <-activeValidatorsCh, <-activeCandidatesCh
 	avgBlockTime, lastBlock, slowBlocksCount := <-avgTimeCh, <-lastBlockCh, <-slowBlocksCountCh
+	stakesSum, customCoinsData := <-stakesSumCh, <-customCoinsDataCh
 
 	status := "down"
 	if isActive(lastBlock) {
@@ -89,6 +95,11 @@ func GetStatusPage(c *gin.Context) {
 			"activeCandidates":    activeCandidates,
 			"averageTxCommission": helpers.Unit2Bip(tx24hData.FeeAvg),
 			"totalCommission":     helpers.Unit2Bip(tx24hData.FeeSum),
+			"totalDelegatedBip":   stakesSum,
+			"customCoinsSum":      helpers.PipStr2Bip(customCoinsData.ReserveSum),
+			"customCoinsCount":    customCoinsData.Count,
+			"freeFloatBip":        getFreeBipSum(stakesSum, lastBlock.ID),
+			"bipEmission":         helpers.CalculateEmission(lastBlock.ID),
 		},
 	})
 }
@@ -142,6 +153,30 @@ func getTotalTxCountByLastDay(explorer *core.Explorer, ch chan int) {
 	}, LastDataDataCacheTime).(int)
 }
 
+func getStakesSum(explorer *core.Explorer, ch chan string) {
+	ch <- explorer.Cache.Get(fmt.Sprintf("stakes_sum"), func() interface{} {
+		sum, err := explorer.StakeRepository.GetSumInBipValue()
+		helpers.CheckErr(err)
+
+		return helpers.PipStr2Bip(sum)
+	}, StatusPageCacheTime).(string)
+}
+
+func getCustomCoinsData(explorer *core.Explorer, ch chan coins.CustomCoinsStatusData) {
+	ch <- explorer.Cache.Get(fmt.Sprintf("custom_coins_data"), func() interface{} {
+		data, err := explorer.CoinRepository.GetCustomCoinsStatusData()
+		helpers.CheckErr(err)
+
+		return data
+	}, StatusPageCacheTime).(coins.CustomCoinsStatusData)
+}
+
+func getFreeBipSum(stakesSum string, lastBlockId uint64) float64 {
+	stakes, err := strconv.ParseFloat(stakesSum, 64)
+	helpers.CheckErr(err)
+	return float64(helpers.CalculateEmission(lastBlockId)) - stakes
+}
+
 func getTransactionSpeed(total int) float64 {
 	return helpers.Round(float64(total)/float64(86400), 8)
 }
@@ -158,6 +193,6 @@ func isActive(lastBlock models.Block) bool {
 	return time.Now().Unix()-lastBlock.CreatedAt.Unix() <= config.NetworkActivePeriod
 }
 
-func getMarketCap(blockId uint64, fiatPrice float64) float64 {
-	return float64(helpers.CalculateEmission(blockId)) * fiatPrice
+func getMarketCap(bipCount uint64, fiatPrice float64) float64 {
+	return float64(bipCount) * fiatPrice
 }

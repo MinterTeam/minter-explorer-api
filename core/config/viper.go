@@ -10,6 +10,7 @@ type Config interface {
 	GetString(key string) string
 	GetInt(key string) int
 	GetBool(key string) bool
+	GetFloat64(key string) float64
 	Init()
 }
 
@@ -41,6 +42,10 @@ func (v *viperConfig) GetInt(key string) int {
 
 func (v *viperConfig) GetBool(key string) bool {
 	return viper.GetBool(key)
+}
+
+func (v *viperConfig) GetFloat64(key string) float64 {
+	return viper.GetFloat64(key)
 }
 
 func NewViperConfig() Config {

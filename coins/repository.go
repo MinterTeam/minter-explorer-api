@@ -8,12 +8,14 @@ import (
 )
 
 type Repository struct {
-	DB *pg.DB
+	DB             *pg.DB
+	baseCoinSymbol string
 }
 
-func NewRepository(db *pg.DB) *Repository {
+func NewRepository(db *pg.DB, baseCoinSymbol string) *Repository {
 	return &Repository{
-		DB: db,
+		DB:             db,
+		baseCoinSymbol: baseCoinSymbol,
 	}
 }
 
@@ -39,4 +41,22 @@ func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
 	helpers.CheckErr(err)
 
 	return coins
+}
+
+type CustomCoinsStatusData struct {
+	ReserveSum string
+	Count      uint
+}
+
+// Get custom coins data for status page
+func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData, error) {
+	var data CustomCoinsStatusData
+
+	err := repository.DB.
+		Model(&models.Coin{}).
+		ColumnExpr("SUM(reserve_balance) as reserve_sum, COUNT(*) as count").
+		Where("symbol != ?", repository.baseCoinSymbol).
+		Select(&data)
+
+	return data, err
 }
