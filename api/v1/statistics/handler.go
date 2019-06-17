@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/errors"
+	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -36,7 +37,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	// set default start time
-	startTime := time.Now().AddDate(0, 0, config.DefaultStatisticsDayDelta).Format("2006-01-02 15:04:05")
+	startTime := helpers.StartOfTheDay(time.Now().AddDate(0, 0, config.DefaultStatisticsDayDelta)).Format("2006-01-02 15:04:05")
 	if request.StartTime != nil {
 		startTime = *request.StartTime
 	}
