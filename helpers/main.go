@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"reflect"
+	"time"
 )
 
 func InArray(needle interface{}, haystack interface{}) bool {
@@ -16,4 +17,8 @@ func InArray(needle interface{}, haystack interface{}) bool {
 	}
 
 	return false
+}
+
+func StartOfTheDay(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
