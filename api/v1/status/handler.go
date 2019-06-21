@@ -9,6 +9,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -54,7 +55,7 @@ func GetStatusPage(c *gin.Context) {
 
 	avgTimeCh := make(chan float64)
 	txTotalCountCh := make(chan int)
-	slowBlocksCountCh := make(chan int)
+	slowBlocksTimeSumCh := make(chan float64)
 	activeValidatorsCh := make(chan int)
 	activeCandidatesCh := make(chan int)
 	lastBlockCh := make(chan models.Block)
@@ -68,13 +69,13 @@ func GetStatusPage(c *gin.Context) {
 	go getActiveCandidatesCount(explorer, activeCandidatesCh)
 	go getAverageBlockTime(explorer, avgTimeCh)
 	go getLastBlock(explorer, lastBlockCh)
-	go getSlowBlocksCount(explorer, slowBlocksCountCh)
+	go getSumSlowBlocksTime(explorer, slowBlocksTimeSumCh)
 	go getStakesSum(explorer, stakesSumCh)
 	go getCustomCoinsData(explorer, customCoinsDataCh)
 
 	tx24hData, txTotalCount := <-tx24hDataCh, <-txTotalCountCh
 	activeValidators, activeCandidates := <-activeValidatorsCh, <-activeCandidatesCh
-	avgBlockTime, lastBlock, slowBlocksCount := <-avgTimeCh, <-lastBlockCh, <-slowBlocksCountCh
+	avgBlockTime, lastBlock, slowBlocksTimeSum := <-avgTimeCh, <-lastBlockCh, <-slowBlocksTimeSumCh
 	stakesSum, customCoinsData := <-stakesSumCh, <-customCoinsDataCh
 
 	status := "down"
@@ -85,7 +86,7 @@ func GetStatusPage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"status":              status,
-			"uptime":              calculateUptime(tx24hData.Count, slowBlocksCount),
+			"uptime":              calculateUptime(slowBlocksTimeSum),
 			"numberOfBlocks":      lastBlock.ID,
 			"blockSpeed24h":       avgBlockTime,
 			"txTotalCount":        txTotalCount,
@@ -134,10 +135,10 @@ func getAverageBlockTime(explorer *core.Explorer, ch chan float64) {
 	}, SlowAvgBlocksCacheTime).(float64)
 }
 
-func getSlowBlocksCount(explorer *core.Explorer, ch chan int) {
+func getSumSlowBlocksTime(explorer *core.Explorer, ch chan float64) {
 	ch <- explorer.Cache.Get("slow_blocks_count", func() interface{} {
-		return explorer.BlockRepository.GetSlowBlocksCountBy24h()
-	}, SlowAvgBlocksCacheTime).(int)
+		return explorer.BlockRepository.GetSumSlowBlocksTimeBy24h()
+	}, SlowAvgBlocksCacheTime).(float64)
 }
 
 func getTransactionsDataBy24h(explorer *core.Explorer, ch chan transaction.Tx24hData) {
@@ -181,12 +182,8 @@ func getTransactionSpeed(total int) float64 {
 	return helpers.Round(float64(total)/float64(86400), 8)
 }
 
-func calculateUptime(total int, slow int) float64 {
-	if total == 0 {
-		return 0
-	}
-
-	return float64((1 - float64(slow)/float64(total)) * 100)
+func calculateUptime(slow float64) float64 {
+	return math.Round(((1 - (slow / 86400)) * 100) * 100) / 100
 }
 
 func isActive(lastBlock models.Block) bool {

@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-tools/models"
@@ -75,16 +76,18 @@ func (repository Repository) GetAverageBlockTime() float64 {
 	return blockTime
 }
 
-// Get slow blocks count by last 24 hours
-func (repository Repository) GetSlowBlocksCountBy24h() int {
+// Get sum of delta slow time
+func (repository Repository) GetSumSlowBlocksTimeBy24h() float64 {
 	var block models.Block
+	var sum float64
 
-	count, err := repository.DB.Model(&block).
-		Where("block_time >= ?", helpers.Seconds2Nano(6)).
+	err := repository.DB.Model(&block).
+		ColumnExpr("SUM(block_time - ?) / ?", helpers.Seconds2Nano(config.SlowBlocksMaxTimeInSec), helpers.Seconds2Nano(1)).
+		Where("block_time >= ?", helpers.Seconds2Nano(config.SlowBlocksMaxTimeInSec)).
 		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
-		Count()
+		Select(&sum)
 
 	helpers.CheckErr(err)
 
-	return count
+	return sum
 }
