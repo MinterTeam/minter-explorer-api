@@ -41,6 +41,7 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block.id DESC").
+		Order("reward.amount").
 		Select()
 	helpers.CheckErr(err)
 
