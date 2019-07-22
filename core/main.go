@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
+	"github.com/MinterTeam/minter-explorer-api/bipdev"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/invalid_transaction"
@@ -9,6 +10,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/stake"
 	"github.com/MinterTeam/minter-explorer-api/tools/cache"
+	"github.com/MinterTeam/minter-explorer-api/tools/market"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-api/validator"
 	"github.com/go-pg/pg"
@@ -26,6 +28,7 @@ type Explorer struct {
 	StakeRepository              stake.Repository
 	Environment                  Environment
 	Cache                        *cache.ExplorerCache
+	MarketService                *market.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -41,5 +44,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		StakeRepository:              *stake.NewRepository(db),
 		Environment:                  *env,
 		Cache:                        cache.NewCache(),
+		MarketService:                market.NewService(bipdev.NewApi(env.BipdevApiHost), env.BaseCoin),
 	}
 }

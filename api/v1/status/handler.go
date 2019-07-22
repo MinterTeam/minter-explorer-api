@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/tools/market"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
@@ -15,8 +16,9 @@ import (
 	"time"
 )
 
-const LastDataDataCacheTime = time.Duration(60)
+const LastDataCacheTime = time.Duration(60)
 const SlowAvgBlocksCacheTime = time.Duration(300)
+const BipPriceCacheTime = time.Duration(300)
 const StatusPageCacheTime = 1
 
 func GetStatus(c *gin.Context) {
@@ -26,21 +28,22 @@ func GetStatus(c *gin.Context) {
 	avgTimeCh := make(chan float64)
 	totalCount24hCh := make(chan int)
 	lastBlockCh := make(chan models.Block)
+	priceChangeCh := make(chan market.PriceChange)
 
 	go getTotalTxCountByLastDay(explorer, totalCount24hCh)
 	go getTotalTxCount(explorer, totalCountCh)
 	go getLastBlock(explorer, lastBlockCh)
 	go getAverageBlockTime(explorer, avgTimeCh)
+	go getMarketPriceChange(explorer, priceChangeCh)
 
-	txCount24h, lastBlock, txCountTotal, avgBlockTime := <-totalCount24hCh, <-lastBlockCh, <-totalCountCh, <-avgTimeCh
-	// TODO: replace with tools.GetCurrentFiatPrice(explorer.Environment.BaseCoin, "USD")
-	price := explorer.Environment.StartPriceUSD
+	txCount24h, lastBlock, txCountTotal, avgBlockTime, priceChange := <-totalCount24hCh, <-lastBlockCh,
+		<-totalCountCh, <-avgTimeCh, <-priceChangeCh
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"bipPriceUsd":           price,                    //TODO: поменять значения, как станет ясно откуда брать
-			"bipPriceChange":        10,                       //TODO: поменять значения, как станет ясно откуда брать
-			"marketCap":             getMarketCap(helpers.CalculateEmission(lastBlock.ID), price),
+			"bipPriceUsd":           priceChange.Price,
+			"bipPriceChange":        priceChange.Change,
+			"marketCap":             getMarketCap(helpers.CalculateEmission(lastBlock.ID), priceChange.Price),
 			"latestBlockHeight":     lastBlock.ID,
 			"latestBlockTime":       lastBlock.CreatedAt.Format(time.RFC3339),
 			"totalTransactions":     txCountTotal,
@@ -144,14 +147,14 @@ func getSumSlowBlocksTime(explorer *core.Explorer, ch chan float64) {
 func getTransactionsDataBy24h(explorer *core.Explorer, ch chan transaction.Tx24hData) {
 	ch <- explorer.Cache.Get("tx_24h_data", func() interface{} {
 		return explorer.TransactionRepository.Get24hTransactionsData()
-	}, LastDataDataCacheTime).(transaction.Tx24hData)
+	}, LastDataCacheTime).(transaction.Tx24hData)
 }
 
 func getTotalTxCountByLastDay(explorer *core.Explorer, ch chan int) {
 	startTime := time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
 	ch <- explorer.Cache.Get("last_day_total_tx_count", func() interface{} {
 		return explorer.TransactionRepository.GetTotalTransactionCount(&startTime)
-	}, LastDataDataCacheTime).(int)
+	}, LastDataCacheTime).(int)
 }
 
 func getStakesSum(explorer *core.Explorer, ch chan string) {
@@ -182,8 +185,19 @@ func getTransactionSpeed(total int) float64 {
 	return helpers.Round(float64(total)/float64(86400), 8)
 }
 
+func getMarketPriceChange(explorer *core.Explorer, ch chan market.PriceChange) {
+	ch <- explorer.Cache.Get(fmt.Sprintf("bip_price"), func() interface{} {
+		data, err := explorer.MarketService.GetCurrentFiatPriceChange(explorer.Environment.BaseCoin, "USD")
+		if err != nil {
+			panic(err)
+		}
+
+		return *data
+	}, BipPriceCacheTime).(market.PriceChange)
+}
+
 func calculateUptime(slow float64) float64 {
-	return math.Round(((1 - (slow / 86400)) * 100) * 100) / 100
+	return math.Round(((1-(slow/86400))*100)*100) / 100
 }
 
 func isActive(lastBlock models.Block) bool {

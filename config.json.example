@@ -18,5 +18,7 @@
         "channel_blocks": "ME_EXTENDER_WS_CHANNEL_BLOCKS"
     }
   },
-  "startUsdPrice": ME_START_USD_PRICE
+  "bipdev": {
+    "api": "ME_BIPDEV_HOST"
+  }
 }
