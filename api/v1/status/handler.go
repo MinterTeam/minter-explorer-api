@@ -189,7 +189,7 @@ func getMarketPriceChange(explorer *core.Explorer, ch chan market.PriceChange) {
 	ch <- explorer.Cache.Get(fmt.Sprintf("bip_price"), func() interface{} {
 		data, err := explorer.MarketService.GetCurrentFiatPriceChange(explorer.Environment.BaseCoin, "USD")
 		if err != nil {
-			panic(err)
+			return market.PriceChange{Price: 0, Change: 0}
 		}
 
 		return *data
