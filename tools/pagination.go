@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/go-pg/pg/orm"
 	"github.com/go-pg/pg/urlvalues"
 	"math"
@@ -22,8 +23,13 @@ func NewPagination(request *http.Request) Pagination {
 	values := urlvalues.Values(request.URL.Query())
 	values.SetDefault("limit", strconv.Itoa(DefaultLimit))
 
+	// Temp fix.
+	// TODO: solve problem with max offset.
+	pager := values.Pager()
+	pager.MaxOffset = config.MaxPaginationOffset
+
 	return Pagination{
-		Pager:      values.Pager(),
+		Pager:      pager,
 		Request:    request,
 		RequestURL: fmt.Sprintf("%s%s%s", request.URL.Scheme, request.Host, request.URL.Path),
 	}
