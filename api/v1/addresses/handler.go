@@ -147,6 +147,33 @@ func GetRewards(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, *pagination))
 }
 
+func GetAggregatedRewards(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	minterAddress, err := getAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	var requestQuery FilterQueryRequest
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	pagination := tools.NewPagination(c.Request)
+
+	// fetch data
+	rewards := explorer.RewardRepository.GetPaginatedAggregatedByAddress(reward.AggregatedSelectFilter{
+		Address:    *minterAddress,
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, *pagination))
+}
+
 // Get list of slashes by Minter address
 func GetSlashes(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)

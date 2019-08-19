@@ -69,3 +69,20 @@ func (repository Repository) GetChartData(address string, filter tools.Filter) [
 
 	return chartData
 }
+
+func (repository Repository) GetPaginatedAggregatedByAddress(filter AggregatedSelectFilter, pagination *tools.Pagination) []models.AggregatedReward {
+	var rewards []models.AggregatedReward
+	var err error
+
+	// get rewards
+	err = repository.db.Model(&rewards).
+		Column("Address.address", "Validator.public_key", "Block.created_at").
+		Apply(filter.Filter).
+		Apply(pagination.Filter).
+		Order("block.id DESC").
+		Order("reward.amount").
+		Select()
+	helpers.CheckErr(err)
+
+	return rewards
+}
