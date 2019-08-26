@@ -16,11 +16,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
+	"math/big"
 	"net/http"
 )
 
 type GetAddressRequest struct {
 	Address string `uri:"address" binding:"minterAddress"`
+}
+
+type GetAddressRequestQuery struct {
+	WithSum bool `form:"withSum"`
 }
 
 type GetAddressesRequest struct {
@@ -88,8 +93,20 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 
+	var request GetAddressRequestQuery
+	if err := c.ShouldBindQuery(&request); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
+
+	// calculate overall address balance in base coin.
+	var sum *big.Int
+	if request.WithSum {
+		sum = explorer.BalanceService.GetBalanceSumByAddress(model)
+	}
 
 	// if no models found
 	if model == nil {
@@ -97,7 +114,7 @@ func GetAddress(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(address.Resource).Transform(*model),
+		"data": new(address.Resource).Transform(*model, sum),
 	})
 }
 
