@@ -34,6 +34,7 @@ type Explorer struct {
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
+	marketService := market.NewService(bipdev.NewApi(env.BipdevApiHost), env.BaseCoin)
 	return &Explorer{
 		CoinRepository:               *coins.NewRepository(db, env.BaseCoin),
 		BlockRepository:              *blocks.NewRepository(db),
@@ -46,7 +47,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		StakeRepository:              *stake.NewRepository(db),
 		Environment:                  *env,
 		Cache:                        cache.NewCache(),
-		MarketService:                market.NewService(bipdev.NewApi(env.BipdevApiHost), env.BaseCoin),
-		BalanceService:               balance.NewService(env.BaseCoin),
+		MarketService:                marketService,
+		BalanceService:               balance.NewService(env.BaseCoin, marketService),
 	}
 }

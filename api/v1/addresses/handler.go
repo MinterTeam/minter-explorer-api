@@ -102,10 +102,11 @@ func GetAddress(c *gin.Context) {
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
-	// calculate overall address balance in base coin.
-	var sum *big.Int
+	// calculate overall address balance in base coin and fiat
+	var balanceSumInBaseCoin, balanceSumInUSD *big.Float
 	if request.WithSum {
-		sum = explorer.BalanceService.GetBalanceSumByAddress(model)
+		balanceSumInBaseCoin = explorer.BalanceService.GetBalanceSumByAddress(model)
+		balanceSumInUSD = explorer.BalanceService.GetBalanceSumInUSDByBaseCoin(balanceSumInBaseCoin)
 	}
 
 	// if no models found
@@ -114,7 +115,7 @@ func GetAddress(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(address.Resource).Transform(*model, sum),
+		"data": new(address.Resource).Transform(*model, balanceSumInBaseCoin, balanceSumInUSD),
 	})
 }
 

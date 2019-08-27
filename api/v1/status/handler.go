@@ -6,7 +6,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/tools/market"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
@@ -28,16 +27,14 @@ func GetStatus(c *gin.Context) {
 	avgTimeCh := make(chan float64)
 	totalCount24hCh := make(chan int)
 	lastBlockCh := make(chan models.Block)
-	priceChangeCh := make(chan market.PriceChange)
 
 	go getTotalTxCountByLastDay(explorer, totalCount24hCh)
 	go getTotalTxCount(explorer, totalCountCh)
 	go getLastBlock(explorer, lastBlockCh)
 	go getAverageBlockTime(explorer, avgTimeCh)
-	go getMarketPriceChange(explorer, priceChangeCh)
 
 	txCount24h, lastBlock, txCountTotal, avgBlockTime, priceChange := <-totalCount24hCh, <-lastBlockCh,
-		<-totalCountCh, <-avgTimeCh, <-priceChangeCh
+		<-totalCountCh, <-avgTimeCh, explorer.MarketService.PriceChange
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
@@ -183,17 +180,6 @@ func getFreeBipSum(stakesSum string, lastBlockId uint64) float64 {
 
 func getTransactionSpeed(total int) float64 {
 	return helpers.Round(float64(total)/float64(86400), 8)
-}
-
-func getMarketPriceChange(explorer *core.Explorer, ch chan market.PriceChange) {
-	ch <- explorer.Cache.Get(fmt.Sprintf("bip_price"), func() interface{} {
-		data, err := explorer.MarketService.GetCurrentFiatPriceChange(explorer.Environment.BaseCoin, "USD")
-		if err != nil {
-			return market.PriceChange{Price: 0, Change: 0}
-		}
-
-		return *data
-	}, BipPriceCacheTime).(market.PriceChange)
 }
 
 func calculateUptime(slow float64) float64 {
