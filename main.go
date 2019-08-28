@@ -17,6 +17,9 @@ func main() {
 	// create explorer
 	explorer := core.NewExplorer(db, env)
 
+	// run market price update
+	go explorer.MarketService.Run()
+
 	// create ws extender
 	extender := core.NewExtenderWsClient(explorer)
 	defer extender.Close()

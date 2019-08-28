@@ -56,3 +56,10 @@ func Unit2Bip(units float64) float64 {
 func Seconds2Nano(sec int) float64 {
 	return float64(sec) * float64(time.Second)
 }
+
+func StringToBigInt(string string) *big.Int {
+	bInt, err := new(big.Int).SetString(string, 10)
+	CheckErrBool(err)
+
+	return bInt
+}
