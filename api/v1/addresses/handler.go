@@ -30,6 +30,7 @@ type GetAddressRequestQuery struct {
 
 type GetAddressesRequest struct {
 	Addresses []string `form:"addresses[]" binding:"required,minterAddress,max=50"`
+	WithSum   bool     `form:"withSum"`
 }
 
 // TODO: replace string to int
@@ -77,6 +78,18 @@ func GetAddresses(c *gin.Context) {
 		}
 	}
 
+	// calculate overall address balance in base coin and fiat
+	if request.WithSum {
+		c.JSON(http.StatusOK, gin.H{
+			"data": resource.TransformCollectionWithCallback(addresses, address.Resource{}, func(model interface{}) resource.ParamsInterface {
+				baseCoin, usd := explorer.BalanceService.GetSumByAddress(model.(models.Address))
+				return resource.ParamsInterface{baseCoin, usd}
+			}),
+		})
+
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(addresses, address.Resource{}),
 	})
@@ -102,16 +115,15 @@ func GetAddress(c *gin.Context) {
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
-	// calculate overall address balance in base coin and fiat
-	var balanceSumInBaseCoin, balanceSumInUSD *big.Float
-	if request.WithSum {
-		balanceSumInBaseCoin = explorer.BalanceService.GetBalanceSumByAddress(model)
-		balanceSumInUSD = explorer.BalanceService.GetBalanceSumInUSDByBaseCoin(balanceSumInBaseCoin)
-	}
-
 	// if no models found
 	if model == nil {
 		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
+	}
+
+	// calculate overall address balance in base coin and fiat
+	var balanceSumInBaseCoin, balanceSumInUSD *big.Float
+	if request.WithSum {
+		balanceSumInBaseCoin, balanceSumInUSD = explorer.BalanceService.GetSumByAddress(*model)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

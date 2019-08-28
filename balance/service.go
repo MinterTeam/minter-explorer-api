@@ -17,11 +17,7 @@ func NewService(baseCoin string, marketService *market.Service) *Service {
 	return &Service{baseCoin, marketService}
 }
 
-func (s *Service) GetBalanceSumByAddress(address *models.Address) *big.Float {
-	if address == nil {
-		return big.NewFloat(0)
-	}
-
+func (s *Service) GetSumByAddress(address models.Address) (*big.Float, *big.Float) {
 	sum := big.NewInt(0)
 	for _, balance := range address.Balances {
 		if balance.Coin.Symbol == s.baseCoin {
@@ -37,9 +33,10 @@ func (s *Service) GetBalanceSumByAddress(address *models.Address) *big.Float {
 		))
 	}
 
-	return new(big.Float).SetInt(sum)
+	sumInBaseCoin := new(big.Float).SetInt(sum)
+	return sumInBaseCoin, s.getBalanceSumInUSDByBaseCoin(sumInBaseCoin)
 }
 
-func (s *Service) GetBalanceSumInUSDByBaseCoin(sumInBasecoin *big.Float) *big.Float {
+func (s *Service) getBalanceSumInUSDByBaseCoin(sumInBasecoin *big.Float) *big.Float {
 	return new(big.Float).Mul(sumInBasecoin, big.NewFloat(s.marketService.PriceChange.Price))
 }
