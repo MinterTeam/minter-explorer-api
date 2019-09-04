@@ -17,7 +17,7 @@ func CalculateEmission(blockId uint64) uint64 {
 
 	var i int
 	for i = 1; i < high; i++ {
-		sum += uint64(blocksPerReward * firstReward)
+		sum += uint64(blocksPerReward * reward)
 		reward -= 1
 	}
 
