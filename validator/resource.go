@@ -9,6 +9,10 @@ import (
 
 type Resource struct {
 	Status         *uint8               `json:"status"`
+	Name           *string              `json:"name"`
+	Description    *string              `json:"description"`
+	IconUrl        *string              `json:"icon_url"`
+	SiteUrl        *string              `json:"site_url"`
 	Stake          *string              `json:"stake"`
 	Part           *string              `json:"part"`
 	DelegatorCount int                  `json:"delegator_count"`
@@ -38,6 +42,10 @@ func (r Resource) Transform(model resource.ItemInterface, params ...interface{})
 
 	return Resource{
 		Status:         validator.Status,
+		Name:           validator.Name,
+		Description:    validator.Description,
+		IconUrl:        validator.IconUrl,
+		SiteUrl:        validator.SiteUrl,
 		Stake:          stake,
 		Part:           part,
 		DelegatorCount: len(delegators),

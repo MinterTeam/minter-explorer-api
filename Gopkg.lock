@@ -2,15 +2,15 @@
 
 
 [[projects]]
-  digest = "1:4fc542eaea308269f3c53a82c27518ef5ca4c045c2bb22d34a866ea771b4600f"
+  digest = "1:9304882b8c8e4d7f3741dcd653bf1c5517aeb2500cf3fa68a11c1002cbdc0259"
   name = "github.com/MinterTeam/minter-explorer-tools"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "a0237f1d3b9606f75a19afb3d384ae28d5e82842"
-  version = "v2.0.4"
+  revision = "83591aa1185ea95382ddb7ec3162bd3a4d6d31eb"
+  version = "v3.0.0"
 
 [[projects]]
-  digest = "1:29c687cfd7e988c2666eec9fa372ae61ad6beeec5719465dcca0b2c5998d053b"
+  digest = "1:032764b09457c5c3b843599dc8b46ba9c6f8d093e2d7892791084dff2e282a93"
   name = "github.com/MinterTeam/minter-go-node"
   packages = [
     "core/check",
@@ -18,13 +18,14 @@
     "crypto",
     "crypto/secp256k1",
     "crypto/sha3",
+    "formula",
     "hexutil",
     "math",
     "rlp",
   ]
   pruneopts = "UT"
-  revision = "91a268f0067d762be06a1ae5e9d4369099e0f59f"
-  version = "v0.19.0"
+  revision = "14439248926def5f6f1d334dc9a84f7d0d2e5a0a"
+  version = "v1.0.4"
 
 [[projects]]
   digest = "1:093bf93a65962e8191e3e8cd8fc6c363f83d43caca9739c906531ba7210a9904"
@@ -334,6 +335,7 @@
   input-imports = [
     "github.com/MinterTeam/minter-explorer-tools/models",
     "github.com/MinterTeam/minter-go-node/core/check",
+    "github.com/MinterTeam/minter-go-node/formula",
     "github.com/centrifugal/centrifuge-go",
     "github.com/gin-contrib/cors",
     "github.com/gin-gonic/gin",
