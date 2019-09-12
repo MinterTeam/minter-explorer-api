@@ -4,15 +4,13 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/stake"
+	"github.com/MinterTeam/minter-explorer-api/validator/meta"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 )
 
 type Resource struct {
 	Status         *uint8               `json:"status"`
-	Name           *string              `json:"name"`
-	Description    *string              `json:"description"`
-	IconUrl        *string              `json:"icon_url"`
-	SiteUrl        *string              `json:"site_url"`
+	Meta           resource.Interface   `json:"meta"`
 	Stake          *string              `json:"stake"`
 	Part           *string              `json:"part"`
 	DelegatorCount int                  `json:"delegator_count"`
@@ -42,13 +40,10 @@ func (r Resource) Transform(model resource.ItemInterface, params ...interface{})
 
 	return Resource{
 		Status:         validator.Status,
-		Name:           validator.Name,
-		Description:    validator.Description,
-		IconUrl:        validator.IconUrl,
-		SiteUrl:        validator.SiteUrl,
 		Stake:          stake,
 		Part:           part,
 		DelegatorCount: len(delegators),
 		DelegatorList:  delegators,
+		Meta:           new(meta.Resource).Transform(*validator),
 	}
 }

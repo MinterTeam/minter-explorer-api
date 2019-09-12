@@ -24,6 +24,7 @@ func (repository Repository) GetByAddress(address string, pagination *tools.Pagi
 
 	pagination.Total, err = repository.db.Model(&stakes).
 		Column("Coin.symbol", "Validator.public_key", "OwnerAddress._").
+		Column("Validator.name", "Validator.description", "Validator.icon_url", "Validator.site_url").
 		Where("owner_address.address = ?", address).
 		Apply(pagination.Filter).
 		SelectAndCount()

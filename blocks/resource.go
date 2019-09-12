@@ -3,6 +3,7 @@ package blocks
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	validatorMeta "github.com/MinterTeam/minter-explorer-api/validator/meta"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"time"
 )
@@ -35,15 +36,17 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 }
 
 type ValidatorResource struct {
-	PublicKey string `json:"publicKey"`
-	Signed    bool   `json:"signed"`
+	PublicKey     string             `json:"publicKey"`
+	ValidatorMeta resource.Interface `json:"validator_meta"`
+	Signed        bool               `json:"signed"`
 }
 
 func (ValidatorResource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
 	blockValidator := model.(models.BlockValidator)
 
 	return ValidatorResource{
-		PublicKey: blockValidator.Validator.GetPublicKey(),
-		Signed:    blockValidator.Signed,
+		PublicKey:     blockValidator.Validator.GetPublicKey(),
+		Signed:        blockValidator.Signed,
+		ValidatorMeta: new(validatorMeta.Resource).Transform(blockValidator.Validator),
 	}
 }
