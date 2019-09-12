@@ -44,6 +44,6 @@ func (r Resource) Transform(model resource.ItemInterface, params ...interface{})
 		Part:           part,
 		DelegatorCount: len(delegators),
 		DelegatorList:  delegators,
-		Meta:           new(meta.Resource).Transform(validator),
+		Meta:           new(meta.Resource).Transform(*validator),
 	}
 }

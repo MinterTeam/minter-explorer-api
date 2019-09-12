@@ -28,6 +28,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		Address:       slash.Address.GetAddress(),
 		Validator:     slash.Validator.GetPublicKey(),
 		Timestamp:     slash.Block.CreatedAt.Format(time.RFC3339),
-		ValidatorMeta: new(validatorMeta.Resource).Transform(slash.Validator),
+		ValidatorMeta: new(validatorMeta.Resource).Transform(*slash.Validator),
 	}
 }

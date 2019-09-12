@@ -28,6 +28,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 		Address:       reward.Address.GetAddress(),
 		Validator:     reward.Validator.GetPublicKey(),
 		Timestamp:     reward.Block.CreatedAt.Format(time.RFC3339),
-		ValidatorMeta: new(validatorMeta.Resource).Transform(reward.Validator),
+		ValidatorMeta: new(validatorMeta.Resource).Transform(*reward.Validator),
 	}
 }

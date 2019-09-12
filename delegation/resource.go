@@ -23,6 +23,6 @@ func (resource Resource) Transform(model resource.ItemInterface, params ...inter
 		PubKey:        stake.Validator.GetPublicKey(),
 		Value:         helpers.PipStr2Bip(stake.Value),
 		BipValue:      helpers.PipStr2Bip(stake.BipValue),
-		ValidatorMeta: new(validatorMeta.Resource).Transform(stake.Validator),
+		ValidatorMeta: new(validatorMeta.Resource).Transform(*stake.Validator),
 	}
 }

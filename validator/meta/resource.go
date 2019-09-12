@@ -13,7 +13,7 @@ type Resource struct {
 }
 
 func (r Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
-	validator := model.(*models.Validator)
+	validator := model.(models.Validator)
 
 	return Resource{
 		Name:        validator.Name,
