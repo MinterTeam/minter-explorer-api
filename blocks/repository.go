@@ -42,6 +42,7 @@ func (repository Repository) GetPaginated(pagination *tools.Pagination) []models
 
 	pagination.Total, err = repository.DB.Model(&blocks).
 		Column("BlockValidators", "BlockValidators.Validator.public_key").
+		Column("Validator.name", "Validator.description", "Validator.icon_url", "Validator.site_url").
 		Apply(pagination.Filter).
 		Order("id DESC").
 		SelectAndCount()
