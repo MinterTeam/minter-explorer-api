@@ -15,7 +15,7 @@ type Resource struct {
 	Balances             []resource.Interface `json:"balances"`
 }
 
-func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	address := model.(models.Address)
 	balanceSumInBaseCoin, balanceSumInUSD := getBalanceSumParams(params...)
 
@@ -27,7 +27,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...interface{}) r
 	}
 }
 
-func getBalanceSumParams(params ...interface{}) (*string, *string) {
+func getBalanceSumParams(params ...resource.ParamInterface) (*string, *string) {
 	if len(params) != 2 {
 		return nil, nil
 	}
