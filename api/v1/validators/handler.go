@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-api/validator"
+	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -22,6 +23,9 @@ type GetValidatorTransactionsRequest struct {
 	StartBlock *string `form:"startblock"  binding:"omitempty,numeric"`
 	EndBlock   *string `form:"endblock"    binding:"omitempty,numeric"`
 }
+
+// cache time
+const CacheBlocksCount = 1
 
 // Get list of transaction by validator public key
 func GetValidatorTransactions(c *gin.Context) {
@@ -78,9 +82,9 @@ func GetValidator(c *gin.Context) {
 	}
 
 	// get array of active validator ids by last block
-	activeValidatorIDs := explorer.ValidatorRepository.GetActiveValidatorIds()
+	activeValidatorIDs := getActiveValidatorIDs(explorer)
 	// get total stake of active validators
-	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIDs)
+	totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": validator.Resource{}.Transform(*data, validator.Params{
@@ -95,18 +99,21 @@ func GetValidator(c *gin.Context) {
 func GetValidators(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// fetch data
-	validators := explorer.ValidatorRepository.GetValidators()
+	// fetch validators
+	validators := explorer.Cache.Get("validators", func() interface{} {
+		return explorer.ValidatorRepository.GetValidators()
+	}, CacheBlocksCount).([]models.Validator)
 
-	// get active validators and total stake
-	activeValidatorIds := explorer.ValidatorRepository.GetActiveValidatorIds()
-	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIds)
+	// get array of active validator ids by last block
+	activeValidatorIDs := getActiveValidatorIDs(explorer)
+	// get total stake of active validators
+	totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
 
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		return resource.ParamsInterface{validator.Params{
 			TotalStake:           totalStake,
-			ActiveValidatorsIDs:  activeValidatorIds,
+			ActiveValidatorsIDs:  activeValidatorIDs,
 			IsDelegatorsRequired: false,
 		}}
 	}
@@ -118,4 +125,16 @@ func GetValidators(c *gin.Context) {
 			resourceCallback,
 		),
 	})
+}
+
+func getActiveValidatorIDs(explorer *core.Explorer) []uint64 {
+	return explorer.Cache.Get("active_validators", func() interface{} {
+		return explorer.ValidatorRepository.GetActiveValidatorIds()
+	}, CacheBlocksCount).([]uint64)
+}
+
+func getTotalStakeByActiveValidators(explorer *core.Explorer, validators []uint64) string {
+	return explorer.Cache.Get("validators_total_stake", func() interface{} {
+		return explorer.ValidatorRepository.GetTotalStakeByActiveValidators(validators)
+	}, CacheBlocksCount).(string)
 }
