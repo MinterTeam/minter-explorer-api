@@ -6,7 +6,7 @@ import "github.com/gin-gonic/gin"
 func ApplyRoutes(r *gin.RouterGroup) {
 	validators := r.Group("/validators")
 	{
-		validators.GET("/", GetValidators)
+		validators.GET("", GetValidators)
 		validators.GET("/:publicKey/transactions", GetValidatorTransactions)
 		validators.GET("/:publicKey", GetValidator)
 	}
