@@ -14,7 +14,7 @@ type SellCoin struct {
 	MinimumValueToBuy string `json:"minimum_value_to_buy"`
 }
 
-func (SellCoin) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (SellCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.SellCoinTxData)
 	model := params[0].(models.Transaction)
 

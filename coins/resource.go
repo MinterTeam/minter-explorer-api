@@ -14,7 +14,7 @@ type Resource struct {
 	Symbol         string `json:"symbol"`
 }
 
-func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	coin := model.(models.Coin)
 	return Resource{
 		Crr:            coin.Crr,

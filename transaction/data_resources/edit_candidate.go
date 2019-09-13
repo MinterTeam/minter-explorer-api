@@ -11,7 +11,7 @@ type EditCandidate struct {
 	OwnerAddress  string `json:"owner_address"`
 }
 
-func (EditCandidate) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (EditCandidate) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.EditCandidateTxData)
 
 	return EditCandidate{

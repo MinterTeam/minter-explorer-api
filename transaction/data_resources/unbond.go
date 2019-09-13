@@ -12,7 +12,7 @@ type Unbond struct {
 	Value  string `json:"value"`
 }
 
-func (Unbond) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Unbond) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.UnbondTxData)
 
 	return Unbond{

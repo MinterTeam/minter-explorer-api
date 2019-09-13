@@ -12,7 +12,7 @@ type RewardResource struct {
 	Amount string `json:"amount"`
 }
 
-func (RewardResource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (RewardResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := model.(reward.ChartData)
 
 	return RewardResource{

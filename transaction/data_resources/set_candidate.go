@@ -9,7 +9,7 @@ type SetCandidate struct {
 	PubKey string `json:"pub_key"`
 }
 
-func (SetCandidate) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (SetCandidate) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.SetCandidateTxData)
 
 	return SetCandidate{

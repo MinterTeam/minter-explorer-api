@@ -18,7 +18,7 @@ type Resource struct {
 	Timestamp     string             `json:"timestamp"`
 }
 
-func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	reward := model.(models.Reward)
 
 	return Resource{

@@ -14,7 +14,7 @@ type BuyCoin struct {
 	MaximumValueToSell string `json:"maximum_value_to_sell"`
 }
 
-func (BuyCoin) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (BuyCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.BuyCoinTxData)
 	model := params[0].(models.Transaction)
 

@@ -12,7 +12,7 @@ type Resource struct {
 	SiteUrl     *string `json:"site_url"`
 }
 
-func (r Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (r Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	validator := model.(models.Validator)
 
 	return Resource{
