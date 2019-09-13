@@ -9,17 +9,17 @@ import (
 )
 
 type Resource struct {
-	PublicKey      string               `json:"public_key"`
-	Status         *uint8               `json:"status"`
-	Meta           resource.Interface   `json:"meta"`
-	Stake          *string              `json:"stake"`
-	Part           *string              `json:"part"`
+	PublicKey      string                `json:"public_key"`
+	Status         *uint8                `json:"status"`
+	Meta           resource.Interface    `json:"meta"`
+	Stake          *string               `json:"stake"`
+	Part           *string               `json:"part"`
 	DelegatorCount *int                  `json:"delegator_count,omitempty"`
 	DelegatorList  *[]resource.Interface `json:"delegator_list,omitempty"`
 }
 
 type Params struct {
-	TotalStake           string   // total stake of current active validator ids (by last block)
+	TotalStake           string // total stake of current active validator ids (by last block)
 	ActiveValidatorsIDs  []uint64
 	IsDelegatorsRequired bool
 }
@@ -31,11 +31,11 @@ func (r Resource) Transform(model resource.ItemInterface, values ...resource.Par
 	part, validatorStake := r.getValidatorPartAndStake(validator, params.TotalStake, params.ActiveValidatorsIDs)
 
 	result := Resource{
-		PublicKey:      validator.GetPublicKey(),
-		Status:         validator.Status,
-		Stake:          validatorStake,
-		Part:           part,
-		Meta:           new(meta.Resource).Transform(validator),
+		PublicKey: validator.GetPublicKey(),
+		Status:    validator.Status,
+		Stake:     validatorStake,
+		Part:      part,
+		Meta:      new(meta.Resource).Transform(validator),
 	}
 
 	if params.IsDelegatorsRequired {
