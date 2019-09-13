@@ -73,3 +73,13 @@ func (repository Repository) GetActiveCandidatesCount() int {
 
 	return count
 }
+
+// Get validators
+func (repository Repository) GetValidators() []models.Validator {
+	var validators []models.Validator
+
+	err := repository.db.Model(&validators).Select()
+	helpers.CheckErr(err)
+
+	return validators
+}

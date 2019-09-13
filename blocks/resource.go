@@ -20,7 +20,7 @@ type Resource struct {
 }
 
 // lastBlockId - uint64 pointer to the last block height, optional field.
-func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	block := model.(models.Block)
 
 	return Resource{
@@ -41,7 +41,7 @@ type ValidatorResource struct {
 	Signed        bool               `json:"signed"`
 }
 
-func (ValidatorResource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (ValidatorResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	blockValidator := model.(models.BlockValidator)
 
 	return ValidatorResource{

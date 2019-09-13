@@ -77,10 +77,45 @@ func GetValidator(c *gin.Context) {
 		return
 	}
 
+	// get array of active validator ids by last block
+	activeValidatorIDs := explorer.ValidatorRepository.GetActiveValidatorIds()
+	// get total stake of active validators
+	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIDs)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": validator.Resource{}.Transform(*data, validator.Params{
+			TotalStake:           totalStake,
+			ActiveValidatorsIDs:  activeValidatorIDs,
+			IsDelegatorsRequired: true,
+		}),
+	})
+}
+
+// Get list of validators
+func GetValidators(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// fetch data
+	validators := explorer.ValidatorRepository.GetValidators()
+
+	// get active validators and total stake
 	activeValidatorIds := explorer.ValidatorRepository.GetActiveValidatorIds()
 	totalStake := explorer.ValidatorRepository.GetTotalStakeByActiveValidators(activeValidatorIds)
 
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		return resource.ParamsInterface{validator.Params{
+			TotalStake:           totalStake,
+			ActiveValidatorsIDs:  activeValidatorIds,
+			IsDelegatorsRequired: false,
+		}}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": validator.Resource{}.Transform(data, activeValidatorIds, totalStake),
+		"data": resource.TransformCollectionWithCallback(
+			validators,
+			validator.Resource{},
+			resourceCallback,
+		),
 	})
 }
