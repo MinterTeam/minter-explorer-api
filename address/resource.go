@@ -9,42 +9,50 @@ import (
 )
 
 type Resource struct {
-	Address              string               `json:"address"`
-	BalanceSumInBaseCoin *string              `json:"balanceSumInBaseCoin,omitempty"`
-	BalanceSumInUSD      *string              `json:"balanceSumInUSD,omitempty"`
-	Balances             []resource.Interface `json:"balances"`
+	Address                string               `json:"address"`
+	Balances               []resource.Interface `json:"balances"`
+	TotalBalanceSum        *string              `json:"total_balance_sum,omitempty"`
+	TotalBalanceSumUSD     *string              `json:"total_balance_sum_usd,omitempty"`
+	AvailableBalanceSum    *string              `json:"available_balance_sum,omitempty"`
+	AvailableBalanceSumUSD *string              `json:"available_balance_sum_usd,omitempty"`
 }
 
-func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+type Params struct {
+	AvailableBalanceSum    *big.Float
+	AvailableBalanceSumUSD *big.Float
+	TotalBalanceSum        *big.Float
+	TotalBalanceSumUSD     *big.Float
+}
+
+func (r Resource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {
 	address := model.(models.Address)
-	balanceSumInBaseCoin, balanceSumInUSD := getBalanceSumParams(params...)
-
-	return Resource{
-		Address:              address.GetAddress(),
-		BalanceSumInBaseCoin: balanceSumInBaseCoin,
-		BalanceSumInUSD:      balanceSumInUSD,
-		Balances:             resource.TransformCollection(address.Balances, balance.Resource{}),
+	result := Resource{
+		Address:  address.GetAddress(),
+		Balances: resource.TransformCollection(address.Balances, balance.Resource{}),
 	}
+
+	if len(resourceParams) > 0 {
+		if params, ok := resourceParams[0].(Params); ok {
+			result.TotalBalanceSum, result.TotalBalanceSumUSD = r.getTotalBalanceParams(params)
+			result.AvailableBalanceSum, result.AvailableBalanceSumUSD = r.getAvailableBalanceParams(params)
+		}
+	}
+
+	return result
 }
 
-func getBalanceSumParams(params ...resource.ParamInterface) (*string, *string) {
-	if len(params) != 2 {
-		return nil, nil
-	}
+// prepare available address balance
+func (r Resource) getAvailableBalanceParams(params Params) (*string, *string) {
+	sum := helpers.PipStr2Bip(params.AvailableBalanceSum.String())
+	usd := helpers.PipStr2Bip(params.AvailableBalanceSumUSD.String())
 
-	var sumInUSD, sumInBaseCoin string
+	return &sum, &usd
+}
 
-	if sum, ok := params[0].(*big.Float); ok && sum != nil {
-		sumInBaseCoin = helpers.PipStr2Bip(sum.String())
-	} else {
-		return nil, nil
-	}
+// prepare total address balance
+func (r Resource) getTotalBalanceParams(params Params) (*string, *string) {
+	sum := helpers.PipStr2Bip(params.TotalBalanceSum.String())
+	usd := helpers.PipStr2Bip(params.TotalBalanceSumUSD.String())
 
-	if sum, ok := params[1].(*big.Float); ok && sum != nil {
-		sumInUSD = helpers.PipStr2Bip(sum.String())
-	} else {
-		return nil, nil
-	}
-
-	return &sumInBaseCoin, &sumInUSD
+	return &sum, &usd
 }

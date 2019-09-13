@@ -22,13 +22,18 @@ type CoinBalance struct {
 	Coin  *models.Coin
 }
 
-func (s *Service) GetSumByBalancesAndStakes(addressBalances []*models.Balance, addressStakes []*models.Stake) *big.Float {
-	var balances []CoinBalance
+func (s *Service) GetAvailableBalance(addressBalances []*models.Balance) *big.Float {
+	// fill coin balances slice from address balances
+	balances := s.transformAddressBalancesToCoinBalances(addressBalances)
+	// compute sum
+	sum := s.computeBalanceSum(balances)
 
-	// add to balances slice from address balances
-	for _, balance := range addressBalances {
-		balances = append(balances, CoinBalance{helpers.StringToBigInt(balance.Value), balance.Coin})
-	}
+	return new(big.Float).SetInt(sum)
+}
+
+func (s *Service) GetTotalBalance(addressBalances []*models.Balance, addressStakes []*models.Stake) *big.Float {
+	// fill coin balances slice from address balances
+	balances := s.transformAddressBalancesToCoinBalances(addressBalances)
 
 	// add or sum balances from address stakes
 	for _, stake := range addressStakes {
@@ -47,6 +52,16 @@ func (s *Service) GetSumByBalancesAndStakes(addressBalances []*models.Balance, a
 	}
 
 	// sum overall balances in base coin
+	sum := s.computeBalanceSum(balances)
+
+	return new(big.Float).SetInt(sum)
+}
+
+func (s *Service) GetBalanceSumInUSD(sumInBasecoin *big.Float) *big.Float {
+	return new(big.Float).Mul(sumInBasecoin, big.NewFloat(s.marketService.PriceChange.Price))
+}
+
+func (s *Service) computeBalanceSum(balances []CoinBalance) *big.Int {
 	sum := big.NewInt(0)
 	for _, balance := range balances {
 		// just add base coin to sum
@@ -64,9 +79,15 @@ func (s *Service) GetSumByBalancesAndStakes(addressBalances []*models.Balance, a
 		))
 	}
 
-	return new(big.Float).SetInt(sum)
+	return sum
 }
 
-func (s *Service) GetBalanceSumInUSDByBaseCoin(sumInBasecoin *big.Float) *big.Float {
-	return new(big.Float).Mul(sumInBasecoin, big.NewFloat(s.marketService.PriceChange.Price))
+func (s *Service) transformAddressBalancesToCoinBalances(addressBalances []*models.Balance) []CoinBalance {
+	var balances []CoinBalance
+	// fill coin balances slice from address balances
+	for _, balance := range addressBalances {
+		balances = append(balances, CoinBalance{helpers.StringToBigInt(balance.Value), balance.Coin})
+	}
+
+	return balances
 }

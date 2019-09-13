@@ -109,16 +109,33 @@ func GetAddress(c *gin.Context) {
 	}
 
 	// calculate overall address balance (with stakes) in base coin and fiat
-	var balanceSumInBaseCoin, balanceSumInUSD *big.Float
+	var availableBalanceSum, totalBalanceSum,
+		totalBalanceSumUSD, availableBalanceSumUSD *big.Float
 	if request.WithSum {
+		// get address stakes
 		addressStakes := explorer.StakeRepository.GetByAddress(*minterAddress)
-		balanceSumInBaseCoin = explorer.BalanceService.GetSumByBalancesAndStakes(model.Balances, addressStakes)
-		balanceSumInUSD = explorer.BalanceService.GetBalanceSumInUSDByBaseCoin(balanceSumInBaseCoin)
+
+		// compute available balance from address balances
+		availableBalanceSum = explorer.BalanceService.GetAvailableBalance(model.Balances)
+		availableBalanceSumUSD = explorer.BalanceService.GetBalanceSumInUSD(availableBalanceSum)
+
+		// compute total balance from address balances and stakes
+		totalBalanceSum = explorer.BalanceService.GetTotalBalance(model.Balances, addressStakes)
+		totalBalanceSumUSD = explorer.BalanceService.GetBalanceSumInUSD(totalBalanceSum)
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": new(address.Resource).Transform(*model, address.Params{
+				AvailableBalanceSum:    availableBalanceSum,
+				AvailableBalanceSumUSD: availableBalanceSumUSD,
+				TotalBalanceSum:        totalBalanceSum,
+				TotalBalanceSumUSD:     totalBalanceSumUSD,
+			}),
+		})
+
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": new(address.Resource).Transform(*model, balanceSumInBaseCoin, balanceSumInUSD),
-	})
+	c.JSON(http.StatusOK, gin.H{"data": new(address.Resource).Transform(*model)})
 }
 
 // Get list of transactions by Minter address
