@@ -17,8 +17,22 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
+// Get list of stakes by Minter address
+func (repository Repository) GetByAddress(address string) []*models.Stake {
+	var stakes []*models.Stake
+
+	err := repository.db.Model(&stakes).
+		Column("Coin", "OwnerAddress._").
+		Where("owner_address.address = ?", address).
+		Select()
+
+	helpers.CheckErr(err)
+
+	return stakes
+}
+
 // Get paginated list of stakes by Minter address
-func (repository Repository) GetByAddress(address string, pagination *tools.Pagination) []models.Stake {
+func (repository Repository) GetPaginatedByAddress(address string, pagination *tools.Pagination) []models.Stake {
 	var stakes []models.Stake
 	var err error
 

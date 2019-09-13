@@ -30,7 +30,6 @@ type GetAddressRequestQuery struct {
 
 type GetAddressesRequest struct {
 	Addresses []string `form:"addresses[]" binding:"required,minterAddress,max=50"`
-	WithSum   bool     `form:"withSum"`
 }
 
 // TODO: replace string to int
@@ -78,18 +77,6 @@ func GetAddresses(c *gin.Context) {
 		}
 	}
 
-	// calculate overall address balance in base coin and fiat
-	if request.WithSum {
-		c.JSON(http.StatusOK, gin.H{
-			"data": resource.TransformCollectionWithCallback(addresses, address.Resource{}, func(model interface{}) resource.ParamsInterface {
-				baseCoin, usd := explorer.BalanceService.GetSumByAddress(model.(models.Address))
-				return resource.ParamsInterface{baseCoin, usd}
-			}),
-		})
-
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(addresses, address.Resource{}),
 	})
@@ -106,6 +93,7 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 
+	// validate request query params
 	var request GetAddressRequestQuery
 	if err := c.ShouldBindQuery(&request); err != nil {
 		errors.SetValidationErrorResponse(err, c)
@@ -115,15 +103,17 @@ func GetAddress(c *gin.Context) {
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
-	// if no models found
+	// if model not found
 	if model == nil {
 		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
 	}
 
-	// calculate overall address balance in base coin and fiat
+	// calculate overall address balance (with stakes) in base coin and fiat
 	var balanceSumInBaseCoin, balanceSumInUSD *big.Float
 	if request.WithSum {
-		balanceSumInBaseCoin, balanceSumInUSD = explorer.BalanceService.GetSumByAddress(*model)
+		addressStakes := explorer.StakeRepository.GetByAddress(*minterAddress)
+		balanceSumInBaseCoin = explorer.BalanceService.GetSumByBalancesAndStakes(model.Balances, addressStakes)
+		balanceSumInUSD = explorer.BalanceService.GetBalanceSumInUSDByBaseCoin(balanceSumInBaseCoin)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -205,7 +195,7 @@ func GetDelegations(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	delegations := explorer.StakeRepository.GetByAddress(*minterAddress, &pagination)
+	delegations := explorer.StakeRepository.GetPaginatedByAddress(*minterAddress, &pagination)
 
 	// fetch total delegated sum
 	totalDelegated, err := explorer.StakeRepository.GetSumInBipValueByAddress(*minterAddress)
