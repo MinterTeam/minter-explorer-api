@@ -17,23 +17,50 @@ func NewService(baseCoin string, marketService *market.Service) *Service {
 	return &Service{baseCoin, marketService}
 }
 
-func (s *Service) GetBalanceSumByAddress(address *models.Address) *big.Float {
-	if address == nil {
-		return big.NewFloat(0)
+type CoinBalance struct {
+	Value *big.Int
+	Coin  *models.Coin
+}
+
+func (s *Service) GetSumByBalancesAndStakes(addressBalances []*models.Balance, addressStakes []*models.Stake) *big.Float {
+	var balances []CoinBalance
+
+	// add to balances slice from address balances
+	for _, balance := range addressBalances {
+		balances = append(balances, CoinBalance{helpers.StringToBigInt(balance.Value), balance.Coin})
 	}
 
+	// add or sum balances from address stakes
+	for _, stake := range addressStakes {
+		coin := stake.Coin
+		value := helpers.StringToBigInt(stake.Value)
+
+		for key, balance := range balances {
+			if balance.Coin.ID == stake.Coin.ID {
+				value = new(big.Int).Add(balance.Value, value)
+				balances = append(balances[:key], balances[key+1:]...)
+				break
+			}
+		}
+
+		balances = append(balances, CoinBalance{value, coin})
+	}
+
+	// sum overall balances in base coin
 	sum := big.NewInt(0)
-	for _, balance := range address.Balances {
+	for _, balance := range balances {
+		// just add base coin to sum
 		if balance.Coin.Symbol == s.baseCoin {
-			sum = sum.Add(sum, helpers.StringToBigInt(balance.Value))
+			sum = sum.Add(sum, balance.Value)
 			continue
 		}
 
+		// calculate the sale return value for custom coin
 		sum = sum.Add(sum, formula.CalculateSaleReturn(
 			helpers.StringToBigInt(balance.Coin.Volume),
 			helpers.StringToBigInt(balance.Coin.ReserveBalance),
 			uint(balance.Coin.Crr),
-			helpers.StringToBigInt(balance.Value),
+			balance.Value,
 		))
 	}
 
