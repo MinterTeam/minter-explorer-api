@@ -10,7 +10,7 @@ type Multisend struct {
 	List []Send `json:"list"`
 }
 
-func (Multisend) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Multisend) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.MultiSendTxData)
 
 	list := make([]Send, len(data.List))

@@ -24,7 +24,7 @@ type Resource struct {
 	Data      resource.ItemInterface `json:"data"`
 }
 
-func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.Transaction)
 
 	return Resource{

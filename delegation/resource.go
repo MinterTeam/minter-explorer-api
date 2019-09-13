@@ -15,7 +15,7 @@ type Resource struct {
 	ValidatorMeta resource.Interface `json:"validator_meta"`
 }
 
-func (resource Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (resource Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	stake := model.(models.Stake)
 
 	return Resource{

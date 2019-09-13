@@ -11,7 +11,7 @@ type TransactionResource struct {
 	TxCount uint64 `json:"txCount"`
 }
 
-func (TransactionResource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (TransactionResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := model.(transaction.TxCountChartData)
 
 	return TransactionResource{
