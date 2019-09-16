@@ -30,4 +30,3 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		ValidatorMeta: new(validatorMeta.Resource).Transform(*reward.Validator),
 	}
 }
-
