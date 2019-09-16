@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
+	"github.com/MinterTeam/minter-explorer-api/balance"
 	"github.com/MinterTeam/minter-explorer-api/bipdev"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/coins"
@@ -29,9 +30,11 @@ type Explorer struct {
 	Environment                  Environment
 	Cache                        *cache.ExplorerCache
 	MarketService                *market.Service
+	BalanceService               *balance.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
+	marketService := market.NewService(bipdev.NewApi(env.BipdevApiHost), env.BaseCoin)
 	return &Explorer{
 		CoinRepository:               *coins.NewRepository(db, env.BaseCoin),
 		BlockRepository:              *blocks.NewRepository(db),
@@ -44,6 +47,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		StakeRepository:              *stake.NewRepository(db),
 		Environment:                  *env,
 		Cache:                        cache.NewCache(),
-		MarketService:                market.NewService(bipdev.NewApi(env.BipdevApiHost), env.BaseCoin),
+		MarketService:                marketService,
+		BalanceService:               balance.NewService(env.BaseCoin, marketService),
 	}
 }

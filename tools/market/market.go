@@ -2,18 +2,14 @@ package market
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/bipdev"
+	"github.com/MinterTeam/minter-explorer-api/core/config"
+	"time"
 )
 
 type Service struct {
-	api      *bipdev.Api
-	baseCoin string
-}
-
-func NewService(bipdevApi *bipdev.Api, basecoin string) *Service {
-	return &Service{
-		api:      bipdevApi,
-		baseCoin: basecoin,
-	}
+	PriceChange PriceChange
+	api         *bipdev.Api
+	baseCoin    string
 }
 
 type PriceChange struct {
@@ -21,18 +17,24 @@ type PriceChange struct {
 	Change float64
 }
 
-func (s *Service) GetCurrentFiatPriceChange(coin string, currency string) (*PriceChange, error) {
-	if coin == s.baseCoin && currency == USDTicker {
+func NewService(bipdevApi *bipdev.Api, basecoin string) *Service {
+	return &Service{
+		api:         bipdevApi,
+		baseCoin:    basecoin,
+		PriceChange: PriceChange{Price: 0, Change: 0},
+	}
+}
+
+func (s *Service) Run() {
+	for {
 		response, err := s.api.GetCurrentPrice()
-		if err != nil {
-			return nil, err
+		if err == nil {
+			s.PriceChange = PriceChange{
+				Price:  response.Data.Price / 10000,
+				Change: response.Data.Delta,
+			}
 		}
 
-		return &PriceChange{
-			Price:  response.Data.Price / 10000,
-			Change: response.Data.Delta,
-		}, nil
+		time.Sleep(time.Duration(config.MarketPriceUpdatePeriodInMin * time.Minute))
 	}
-
-	return nil, nil
 }

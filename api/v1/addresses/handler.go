@@ -2,6 +2,7 @@ package addresses
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
+	"github.com/MinterTeam/minter-explorer-api/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
@@ -16,11 +17,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
+	"math/big"
 	"net/http"
 )
 
 type GetAddressRequest struct {
 	Address string `uri:"address" binding:"minterAddress"`
+}
+
+type GetAddressRequestQuery struct {
+	WithSum bool `form:"withSum"`
 }
 
 type GetAddressesRequest struct {
@@ -88,17 +94,49 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 
+	// validate request query params
+	var request GetAddressRequestQuery
+	if err := c.ShouldBindQuery(&request); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
-	// if no models found
+	// if model not found
 	if model == nil {
 		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": new(address.Resource).Transform(*model),
-	})
+	// calculate overall address balance (with stakes) in base coin and fiat
+	var availableBalanceSum, totalBalanceSum,
+		totalBalanceSumUSD, availableBalanceSumUSD *big.Float
+	if request.WithSum {
+		// get address stakes
+		addressStakes := explorer.StakeRepository.GetByAddress(*minterAddress)
+
+		// compute available balance from address balances
+		availableBalanceSum = explorer.BalanceService.GetAvailableBalance(model.Balances)
+		availableBalanceSumUSD = explorer.BalanceService.GetBalanceSumInUSD(availableBalanceSum)
+
+		// compute total balance from address balances and stakes
+		totalBalanceSum = explorer.BalanceService.GetTotalBalance(model.Balances, addressStakes)
+		totalBalanceSumUSD = explorer.BalanceService.GetBalanceSumInUSD(totalBalanceSum)
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": new(address.Resource).Transform(*model, address.Params{
+				AvailableBalanceSum:    availableBalanceSum,
+				AvailableBalanceSumUSD: availableBalanceSumUSD,
+				TotalBalanceSum:        totalBalanceSum,
+				TotalBalanceSumUSD:     totalBalanceSumUSD,
+			}),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": new(address.Resource).Transform(*model)})
 }
 
 // Get list of transactions by Minter address
@@ -162,16 +200,15 @@ func GetAggregatedRewards(c *gin.Context) {
 		return
 	}
 
-	pagination := tools.NewPagination(c.Request)
-
 	// fetch data
+	pagination := tools.NewPagination(c.Request)
 	rewards := explorer.RewardRepository.GetPaginatedAggregatedByAddress(reward.AggregatedSelectFilter{
 		Address:    *minterAddress,
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
 	}, &pagination)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, *pagination))
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, aggregated_reward.Resource{}, pagination))
 }
 
 // Get list of slashes by Minter address
@@ -202,7 +239,7 @@ func GetDelegations(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	delegations := explorer.StakeRepository.GetByAddress(*minterAddress, &pagination)
+	delegations := explorer.StakeRepository.GetPaginatedByAddress(*minterAddress, &pagination)
 
 	// fetch total delegated sum
 	totalDelegated, err := explorer.StakeRepository.GetSumInBipValueByAddress(*minterAddress)

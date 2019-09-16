@@ -13,7 +13,7 @@ type Resource struct {
 	BipValue string `json:"bip_value"`
 }
 
-func (Resource) Transform(model resource.ItemInterface, params ...interface{}) resource.Interface {
+func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	stake := model.(models.Stake)
 
 	return Resource{

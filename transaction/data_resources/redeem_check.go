@@ -22,7 +22,7 @@ type CheckData struct {
 	DueBlock uint64 `json:"due_block"`
 }
 
-func (RedeemCheck) Transform(txData resource.ItemInterface, params ...interface{}) resource.Interface {
+func (RedeemCheck) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*models.RedeemCheckTxData)
 
 	return RedeemCheck{
