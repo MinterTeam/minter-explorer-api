@@ -1,16 +1,14 @@
-package reward
+package aggregated_reward
 
-import (
-	"github.com/go-pg/pg/orm"
-)
+import "github.com/go-pg/pg/orm"
 
-type AggregatedSelectFilter struct {
+type SelectFilter struct {
 	Address    string
 	StartBlock *string
 	EndBlock   *string
 }
 
-func (f AggregatedSelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
+func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.StartBlock != nil {
 		q = q.Where("from_block_id >= ?", f.StartBlock)
 	}
@@ -21,4 +19,3 @@ func (f AggregatedSelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 
 	return q.Where("address.address = ?", f.Address), nil
 }
-

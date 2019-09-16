@@ -1,6 +1,7 @@
 package reward
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
@@ -71,7 +72,7 @@ func (repository Repository) GetChartData(address string, filter tools.Filter) [
 	return chartData
 }
 
-func (repository Repository) GetPaginatedAggregatedByAddress(filter AggregatedSelectFilter, pagination *tools.Pagination) []models.AggregatedReward {
+func (repository Repository) GetPaginatedAggregatedByAddress(filter aggregated_reward.SelectFilter, pagination *tools.Pagination) []models.AggregatedReward {
 	var rewards []models.AggregatedReward
 	var err error
 

@@ -202,7 +202,7 @@ func GetAggregatedRewards(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	rewards := explorer.RewardRepository.GetPaginatedAggregatedByAddress(reward.AggregatedSelectFilter{
+	rewards := explorer.RewardRepository.GetPaginatedAggregatedByAddress(aggregated_reward.SelectFilter{
 		Address:    *minterAddress,
 		StartBlock: requestQuery.StartBlock,
 		EndBlock:   requestQuery.EndBlock,
