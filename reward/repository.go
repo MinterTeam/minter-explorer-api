@@ -77,13 +77,13 @@ func (repository Repository) GetPaginatedAggregatedByAddress(filter aggregated_r
 	var err error
 
 	// get rewards
-	err = repository.db.Model(&rewards).
+	pagination.Total, err = repository.db.Model(&rewards).
 		Column("Address.address", "Validator").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("from_block_id DESC").
 		Order("amount").
-		Select()
+		SelectAndCount()
 
 	helpers.CheckErr(err)
 
