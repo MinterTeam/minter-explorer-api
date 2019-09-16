@@ -2,6 +2,7 @@ package addresses
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
+	"github.com/MinterTeam/minter-explorer-api/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
@@ -182,6 +183,32 @@ func GetRewards(c *gin.Context) {
 	rewards := explorer.RewardRepository.GetPaginatedByAddress(*filter, pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, *pagination))
+}
+
+func GetAggregatedRewards(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	minterAddress, err := getAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	var requestQuery FilterQueryRequest
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch data
+	pagination := tools.NewPagination(c.Request)
+	rewards := explorer.RewardRepository.GetPaginatedAggregatedByAddress(aggregated_reward.SelectFilter{
+		Address:    *minterAddress,
+		StartBlock: requestQuery.StartBlock,
+		EndBlock:   requestQuery.EndBlock,
+	}, &pagination)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, aggregated_reward.Resource{}, pagination))
 }
 
 // Get list of slashes by Minter address

@@ -51,7 +51,7 @@
 
 [[constraint]]
   name = "github.com/MinterTeam/minter-explorer-tools"
-  version = "^3.0.0"
+  version = "^3.0.1"
 
 [[constraint]]
   name = "github.com/centrifugal/centrifuge-go"
