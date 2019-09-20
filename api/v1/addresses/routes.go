@@ -13,6 +13,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		addresses.GET("/:address/events/slashes", GetSlashes)
 		addresses.GET("/:address/delegations", GetDelegations)
 		addresses.GET("/:address/statistics/rewards", GetRewardsStatistics)
-		addresses.GET("/:address/events/rewards/aggregated", GetAggregatedRewards)
+		//addresses.GET("/:address/events/rewards/aggregated", GetAggregatedRewards)
 	}
 }
