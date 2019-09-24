@@ -13,13 +13,11 @@ type Resource struct {
 	Balances               []resource.Interface `json:"balances"`
 	TotalBalanceSum        *string              `json:"total_balance_sum,omitempty"`
 	TotalBalanceSumUSD     *string              `json:"total_balance_sum_usd,omitempty"`
-	AvailableBalanceSum    *string              `json:"available_balance_sum,omitempty"`
-	AvailableBalanceSumUSD *string              `json:"available_balance_sum_usd,omitempty"`
+	AvailableBalanceSum    *string              `json:"available_balance_sum,omitempty"` // TODO: remove field
+	AvailableBalanceSumUSD *string              `json:"available_balance_sum_usd,omitempty"` // TODO: remove field
 }
 
 type Params struct {
-	AvailableBalanceSum    *big.Float
-	AvailableBalanceSumUSD *big.Float
 	TotalBalanceSum        *big.Float
 	TotalBalanceSumUSD     *big.Float
 }
@@ -34,19 +32,12 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	if len(resourceParams) > 0 {
 		if params, ok := resourceParams[0].(Params); ok {
 			result.TotalBalanceSum, result.TotalBalanceSumUSD = r.getTotalBalanceParams(params)
-			result.AvailableBalanceSum, result.AvailableBalanceSumUSD = r.getAvailableBalanceParams(params)
+			// TODO: remove available fields
+			result.AvailableBalanceSum, result.AvailableBalanceSumUSD = result.TotalBalanceSum, result.TotalBalanceSumUSD
 		}
 	}
 
 	return result
-}
-
-// prepare available address balance
-func (r Resource) getAvailableBalanceParams(params Params) (*string, *string) {
-	sum := helpers.PipStr2Bip(params.AvailableBalanceSum.String())
-	usd := helpers.PipStr2Bip(params.AvailableBalanceSumUSD.String())
-
-	return &sum, &usd
 }
 
 // prepare total address balance
