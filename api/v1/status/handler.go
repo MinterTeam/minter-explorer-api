@@ -1,6 +1,7 @@
 package status
 
 import (
+	"errors"
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/core"
@@ -272,6 +273,10 @@ func getMarketCap(bipCount uint64, fiatPrice float64) float64 {
 
 func recoveryStatusData(ch chan Data) {
 	if err := recover(); err != nil {
-		ch <- Data{nil, err.(error)}
+		if e, ok := err.(error); ok {
+			ch <- Data{nil, e}
+		} else {
+			ch <- Data{nil, errors.New(err.(string))}
+		}
 	}
 }
