@@ -10,8 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg"
+	"golang.org/x/time/rate"
 	"gopkg.in/go-playground/validator.v8"
 	"net/http"
+	"sync"
 )
 
 // Run API
@@ -29,11 +31,15 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	// create ip map
+	ipMap := sync.Map{}
+
 	router := gin.Default()
 	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
+	router.Use(throttle(ipMap))             // rate limit
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
@@ -88,4 +94,22 @@ func apiRecovery(c *gin.Context) {
 	}(c)
 
 	c.Next()
+}
+
+func throttle(ipMap sync.Map) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		limiter, ok := ipMap.Load(c.ClientIP())
+		if !ok {
+			limiter = rate.NewLimiter(5, 5)
+			ipMap.Store(c.ClientIP(), limiter)
+		}
+
+		if limiter.(*rate.Limiter).Allow() {
+			c.Next()
+			return
+		}
+
+		errors.SetErrorResponse(http.StatusTooManyRequests, -1, "Too many requests", c)
+		c.Abort()
+	}
 }

@@ -306,6 +306,14 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:cdd088b35bbf78713a6861a44a1bbe97e581861b6b8835c7f2211bbeca3671f6"
+  name = "golang.org/x/time"
+  packages = ["rate"]
+  pruneopts = "UT"
+  revision = "c4c64cad1fd0a1a8dab2523e04e61d35308e131e"
+
+[[projects]]
   digest = "1:cbc72c4c4886a918d6ab4b95e347ffe259846260f99ebdd8a198c2331cf2b2e9"
   name = "gopkg.in/go-playground/validator.v8"
   packages = ["."]
@@ -344,6 +352,7 @@
     "github.com/go-pg/pg/orm",
     "github.com/go-pg/pg/urlvalues",
     "github.com/spf13/viper",
+    "golang.org/x/time/rate",
     "gopkg.in/go-playground/validator.v8",
   ]
   solver-name = "gps-cdcl"

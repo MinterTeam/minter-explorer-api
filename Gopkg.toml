@@ -60,3 +60,7 @@
 [[constraint]]
   name = "github.com/MinterTeam/minter-go-node"
   version = "1.0.4"
+
+[[constraint]]
+  name = "golang.org/x/time"
+  branch = "master"
