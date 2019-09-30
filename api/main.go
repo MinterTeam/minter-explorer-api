@@ -104,12 +104,11 @@ func throttle(ipMap sync.Map) gin.HandlerFunc {
 			ipMap.Store(c.ClientIP(), limiter)
 		}
 
-		if limiter.(*rate.Limiter).Allow() {
+		if !limiter.(*rate.Limiter).Allow() {
+			errors.SetErrorResponse(http.StatusTooManyRequests, -1, "Too many requests", c)
+			c.Abort()
+		} else {
 			c.Next()
-			return
 		}
-
-		errors.SetErrorResponse(http.StatusTooManyRequests, -1, "Too many requests", c)
-		c.Abort()
 	}
 }
