@@ -39,7 +39,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
-	router.Use(throttle(ipMap))             // rate limit
+	//router.Use(throttle(ipMap))             // rate limit
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
