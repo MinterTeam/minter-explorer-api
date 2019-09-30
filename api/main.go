@@ -39,8 +39,9 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// create ip map
-	//ipMap := sync.Map{}
-	//router.Use(throttle(ipMap))             // rate limit
+	ipMap := sync.Map{}
+	// rate limit
+	router.Use(throttle(ipMap))
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
