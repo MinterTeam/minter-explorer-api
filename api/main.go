@@ -31,14 +31,15 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// create ip map
-	ipMap := sync.Map{}
 
 	router := gin.Default()
 	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
+
+	// create ip map
+	//ipMap := sync.Map{}
 	//router.Use(throttle(ipMap))             // rate limit
 
 	// Default handler 404
