@@ -45,6 +45,11 @@ type StatisticsQueryRequest struct {
 	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
 }
 
+type AggregatedRewardsQueryRequest struct {
+	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
+}
+
 // Get list of addresses
 func GetAddresses(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -116,8 +121,8 @@ func GetAddress(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"data": new(address.Resource).Transform(*model, address.Params{
-				TotalBalanceSum:        totalBalanceSum,
-				TotalBalanceSumUSD:     totalBalanceSumUSD,
+				TotalBalanceSum:    totalBalanceSum,
+				TotalBalanceSumUSD: totalBalanceSumUSD,
 			}),
 		})
 
@@ -182,7 +187,7 @@ func GetAggregatedRewards(c *gin.Context) {
 		return
 	}
 
-	var requestQuery FilterQueryRequest
+	var requestQuery AggregatedRewardsQueryRequest
 	if err := c.ShouldBindQuery(&requestQuery); err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -191,9 +196,9 @@ func GetAggregatedRewards(c *gin.Context) {
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
 	rewards := explorer.RewardRepository.GetPaginatedAggregatedByAddress(aggregated_reward.SelectFilter{
-		Address:    *minterAddress,
-		StartBlock: requestQuery.StartBlock,
-		EndBlock:   requestQuery.EndBlock,
+		Address:   *minterAddress,
+		StartTime: requestQuery.StartTime,
+		EndTime:   requestQuery.EndTime,
 	}, &pagination)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, aggregated_reward.Resource{}, pagination))

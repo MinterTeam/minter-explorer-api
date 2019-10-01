@@ -13,13 +13,13 @@ type Resource struct {
 	Balances               []resource.Interface `json:"balances"`
 	TotalBalanceSum        *string              `json:"total_balance_sum,omitempty"`
 	TotalBalanceSumUSD     *string              `json:"total_balance_sum_usd,omitempty"`
-	AvailableBalanceSum    *string              `json:"available_balance_sum,omitempty"` // TODO: remove field
+	AvailableBalanceSum    *string              `json:"available_balance_sum,omitempty"`     // TODO: remove field
 	AvailableBalanceSumUSD *string              `json:"available_balance_sum_usd,omitempty"` // TODO: remove field
 }
 
 type Params struct {
-	TotalBalanceSum        *big.Float
-	TotalBalanceSumUSD     *big.Float
+	TotalBalanceSum    *big.Float
+	TotalBalanceSumUSD *big.Float
 }
 
 func (r Resource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {

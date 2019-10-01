@@ -81,7 +81,7 @@ func (repository Repository) GetPaginatedAggregatedByAddress(filter aggregated_r
 		Column("Address.address", "Validator").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
-		Order("from_block_id DESC").
+		Order("time_id DESC").
 		Order("amount").
 		SelectAndCount()
 

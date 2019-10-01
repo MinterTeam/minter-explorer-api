@@ -5,11 +5,11 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	validatorMeta "github.com/MinterTeam/minter-explorer-api/validator/meta"
 	"github.com/MinterTeam/minter-explorer-tools/models"
+	"time"
 )
 
 type Resource struct {
-	FromBlockID   uint64             `json:"from_block_id"`
-	ToBlockID     uint64             `json:"to_block_id"`
+	TimeID        string             `json:"time_id"`
 	Role          string             `json:"role"`
 	Amount        string             `json:"amount"`
 	Address       string             `json:"address"`
@@ -21,8 +21,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 	reward := model.(models.AggregatedReward)
 
 	return Resource{
-		FromBlockID:   reward.FromBlockID,
-		ToBlockID:     reward.ToBlockID,
+		TimeID:        reward.TimeID.Format(time.RFC3339),
 		Role:          reward.Role,
 		Amount:        helpers.PipStr2Bip(reward.Amount),
 		Address:       reward.Address.GetAddress(),

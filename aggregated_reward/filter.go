@@ -3,18 +3,18 @@ package aggregated_reward
 import "github.com/go-pg/pg/orm"
 
 type SelectFilter struct {
-	Address    string
-	StartBlock *string
-	EndBlock   *string
+	Address   string
+	StartTime *string
+	EndTime   *string
 }
 
 func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	if f.StartBlock != nil {
-		q = q.Where("from_block_id >= ?", f.StartBlock)
+	if f.StartTime != nil {
+		q = q.Where("time_id >= ?", f.StartTime)
 	}
 
-	if f.EndBlock != nil {
-		q = q.Where("to_block_id <= ?", f.EndBlock)
+	if f.EndTime != nil {
+		q = q.Where("time_id <= ?", f.EndTime)
 	}
 
 	return q.Where("address.address = ?", f.Address), nil
