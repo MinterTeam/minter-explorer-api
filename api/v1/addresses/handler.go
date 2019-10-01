@@ -5,7 +5,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/chart"
 	"github.com/MinterTeam/minter-explorer-api/core"
-	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/events"
@@ -40,7 +39,6 @@ type FilterQueryRequest struct {
 }
 
 type StatisticsQueryRequest struct {
-	Scale     *string `form:"scale"     binding:"omitempty,eq=minute|eq=hour|eq=day"`
 	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
 	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
 }
@@ -261,17 +259,11 @@ func GetRewardsStatistics(c *gin.Context) {
 		return
 	}
 
-	// set scale instead of default if exists
-	scale := config.DefaultStatisticsScale
-	if requestQuery.Scale != nil {
-		scale = *requestQuery.Scale
-	}
-
 	// fetch data
-	chartData := explorer.RewardRepository.GetChartData(*minterAddress, chart.SelectFilter{
-		Scale:     scale,
-		StartTime: requestQuery.StartTime,
+	chartData := explorer.RewardRepository.GetAggregatedChartData(aggregated_reward.SelectFilter{
+		Address:   *minterAddress,
 		EndTime:   requestQuery.EndTime,
+		StartTime: requestQuery.StartTime,
 	})
 
 	c.JSON(http.StatusOK, gin.H{

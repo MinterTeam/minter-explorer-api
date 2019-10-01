@@ -51,8 +51,8 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 }
 
 type ChartData struct {
-	Time   time.Time
-	Amount string
+	Time time.Time `json:"time"`
+	Amount string `json:"amount"`
 }
 
 // Get filtered chart data by Minter address
@@ -64,6 +64,24 @@ func (repository Repository) GetChartData(address string, filter tools.Filter) [
 		Column("Address._").
 		ColumnExpr("SUM(amount) as amount").
 		Where("address.address = ?", address).
+		Apply(filter.Filter).
+		Select(&chartData)
+
+	helpers.CheckErr(err)
+
+	return chartData
+}
+
+func (repository Repository) GetAggregatedChartData(filter aggregated_reward.SelectFilter) []ChartData {
+	var rewards models.AggregatedReward
+	var chartData []ChartData
+
+	err := repository.db.Model(&rewards).
+		Column("Address._").
+		ColumnExpr("SUM(amount) as amount").
+		ColumnExpr("date_trunc('day', time_id) as time").
+		Group("time").
+		Order("time").
 		Apply(filter.Filter).
 		Select(&chartData)
 
