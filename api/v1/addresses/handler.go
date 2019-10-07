@@ -228,19 +228,38 @@ func GetDelegations(c *gin.Context) {
 		return
 	}
 
-	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	delegations := explorer.StakeRepository.GetPaginatedByAddress(*minterAddress, &pagination)
 
-	// fetch total delegated sum
-	totalDelegated, err := explorer.StakeRepository.GetSumInBipValueByAddress(*minterAddress)
-	helpers.CheckErr(err)
+	// get address stakes
+	stakesCh := make(chan helpers.ChannelData)
+	go func(ch chan helpers.ChannelData) {
+		value := explorer.StakeRepository.GetPaginatedByAddress(*minterAddress, &pagination)
+		ch <- helpers.NewChannelData(value, nil)
+	}(stakesCh)
 
-	// create additional field
-	additionalFields := map[string]interface{}{"total_delegated_bip_value": helpers.PipStr2Bip(totalDelegated)}
+	// get address total delegated sum in base coin
+	stakesSumCh := make(chan helpers.ChannelData)
+	go func(ch chan helpers.ChannelData) {
+		value, err := explorer.StakeRepository.GetSumInBipValueByAddress(*minterAddress)
+		ch <- helpers.NewChannelData(value, err)
+	}(stakesSumCh)
+
+	delegationsData, stakesSumData := <-stakesCh, <-stakesSumCh
+	helpers.CheckErr(delegationsData.Error)
+	helpers.CheckErr(stakesSumData.Error)
+
+	additionalFields := map[string]interface{}{
+		"total_delegated_bip_value": helpers.PipStr2Bip(
+			stakesSumData.Value.(string),
+		),
+	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithAdditionalFields(
-		delegations, delegation.Resource{}, pagination, additionalFields))
+		delegationsData.Value,
+		delegation.Resource{},
+		pagination,
+		additionalFields,
+	))
 }
 
 // Get rewards statistics by minter address

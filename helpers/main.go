@@ -5,6 +5,18 @@ import (
 	"time"
 )
 
+type ChannelData struct {
+	Value interface{}
+	Error error
+}
+
+func NewChannelData(value interface{}, err error) ChannelData {
+	return ChannelData{
+		Value: value,
+		Error: err,
+	}
+}
+
 func InArray(needle interface{}, haystack interface{}) bool {
 	switch reflect.TypeOf(haystack).Kind() {
 	case reflect.Slice:

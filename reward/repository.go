@@ -51,8 +51,8 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 }
 
 type ChartData struct {
-	Time time.Time `json:"time"`
-	Amount string `json:"amount"`
+	Time   time.Time `json:"time"`
+	Amount string    `json:"amount"`
 }
 
 // Get filtered chart data by Minter address

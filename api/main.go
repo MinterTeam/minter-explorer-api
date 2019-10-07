@@ -31,7 +31,6 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-
 	router := gin.Default()
 	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
