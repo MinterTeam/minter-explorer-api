@@ -79,6 +79,7 @@ func (repository Repository) GetAggregatedChartData(filter aggregated_reward.Sel
 	err := repository.db.Model(&rewards).
 		Column("Address._").
 		ColumnExpr("SUM(amount) as amount").
+		ColumnExpr("time_id as time").
 		Group("time").
 		Order("time").
 		Apply(filter.Filter).
