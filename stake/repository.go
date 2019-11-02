@@ -32,7 +32,7 @@ func (repository Repository) GetByAddress(address string) []*models.Stake {
 }
 
 // Get paginated list of stakes by Minter address
-func (repository Repository) GetPaginatedByAddress(address string, pagination *tools.Pagination) []models.Stake {
+func (repository Repository) GetPaginatedByAddress(address string, pagination *tools.Pagination) ([]models.Stake, error) {
 	var stakes []models.Stake
 	var err error
 
@@ -43,9 +43,7 @@ func (repository Repository) GetPaginatedByAddress(address string, pagination *t
 		Apply(pagination.Filter).
 		SelectAndCount()
 
-	helpers.CheckErr(err)
-
-	return stakes
+	return stakes, err
 }
 
 // Get total delegated bip value
