@@ -76,6 +76,11 @@ func (c *ExplorerCache) SetBlockId(id uint64) {
 	go c.ExpirationCheck()
 }
 
+// get last block id
+func (c *ExplorerCache) GetLastBlockId() uint64 {
+	return c.lastBlockId
+}
+
 // update last block id by ws data
 func (c *ExplorerCache) OnPublish(sub *centrifuge.Subscription, e centrifuge.PublishEvent) {
 	var block blocks.Resource
