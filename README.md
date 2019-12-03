@@ -54,7 +54,7 @@ Support JSON and YAML formats
 ```{
      "name": "Minter Explorer Api",
      "debug": true,
-     "baseCoin": "MNT",
+     "baseCoin": "MNT",  -- MNT for testnet / BIP for mainnet
      "database": {
        "host": "localhost",
        "name": "explorer",
