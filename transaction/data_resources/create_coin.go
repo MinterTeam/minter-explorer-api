@@ -24,6 +24,6 @@ func (CreateCoin) Transform(txData resource.ItemInterface, params ...resource.Pa
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),
 		InitialReserve:       helpers.PipStr2Bip(data.InitialReserve),
 		ConstantReserveRatio: data.ConstantReserveRatio,
-		MaxSupply:            data.MaxSupply,
+		MaxSupply:            helpers.PipStr2Bip(data.MaxSupply),
 	}
 }
