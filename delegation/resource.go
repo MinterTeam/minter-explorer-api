@@ -11,7 +11,6 @@ type Resource struct {
 	Coin          string             `json:"coin"`
 	Value         string             `json:"value"`
 	BipValue      string             `json:"bip_value"`
-	PubKey        string             `json:"pub_key"`
 	ValidatorMeta resource.Interface `json:"validator_meta"`
 }
 
@@ -20,7 +19,6 @@ func (resource Resource) Transform(model resource.ItemInterface, params ...resou
 
 	return Resource{
 		Coin:          stake.Coin.Symbol,
-		PubKey:        stake.Validator.GetPublicKey(),
 		Value:         helpers.PipStr2Bip(stake.Value),
 		BipValue:      helpers.PipStr2Bip(stake.BipValue),
 		ValidatorMeta: new(validatorMeta.Resource).Transform(*stake.Validator),

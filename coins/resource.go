@@ -9,7 +9,7 @@ import (
 type Resource struct {
 	Crr            uint64 `json:"crr"`
 	Volume         string `json:"volume"`
-	ReserveBalance string `json:"reserveBalance"`
+	ReserveBalance string `json:"reserve_balance"`
 	MaxSupply      string `json:"max_supply"`
 	Name           string `json:"name"`
 	Symbol         string `json:"symbol"`

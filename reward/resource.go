@@ -13,9 +13,8 @@ type Resource struct {
 	Role          string             `json:"role"`
 	Amount        string             `json:"amount"`
 	Address       string             `json:"address"`
-	Validator     string             `json:"validator"`
-	ValidatorMeta resource.Interface `json:"validator_meta"`
 	Timestamp     string             `json:"timestamp"`
+	ValidatorMeta resource.Interface `json:"validator_meta"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -26,7 +25,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Role:          reward.Role,
 		Amount:        helpers.PipStr2Bip(reward.Amount),
 		Address:       reward.Address.GetAddress(),
-		Validator:     reward.Validator.GetPublicKey(),
 		Timestamp:     reward.Block.CreatedAt.Format(time.RFC3339),
 		ValidatorMeta: new(validatorMeta.Resource).Transform(*reward.Validator),
 	}

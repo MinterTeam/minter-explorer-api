@@ -9,9 +9,9 @@ import (
 type Resource struct {
 	Hash      string `json:"hash"`
 	Block     uint64 `json:"block"`
-	Timestamp string `json:"timestamp"`
 	Type      uint8  `json:"type"`
 	From      string `json:"from"`
+	Timestamp string `json:"timestamp"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {

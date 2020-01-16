@@ -17,16 +17,14 @@ type Pagination struct {
 	Total      int
 }
 
-const DefaultLimit = 50
-
 func NewPagination(request *http.Request) Pagination {
 	values := urlvalues.Values(request.URL.Query())
-	values.SetDefault("limit", strconv.Itoa(DefaultLimit))
+	values.SetDefault("limit", strconv.Itoa(config.DefaultPaginationLimit))
 
-	// Temp fix.
-	// TODO: solve problem with max offset.
+	// Temp fix
 	pager := values.Pager()
 	pager.MaxOffset = config.MaxPaginationOffset
+	pager.MaxLimit  = config.MaxPaginationLimit
 
 	return Pagination{
 		Pager:      pager,

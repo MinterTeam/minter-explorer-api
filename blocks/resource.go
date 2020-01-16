@@ -11,8 +11,8 @@ import (
 type Resource struct {
 	ID          uint64               `json:"height"`
 	Size        uint64               `json:"size"`
-	NumTxs      uint32               `json:"txCount"`
-	BlockTime   float64              `json:"blockTime"`
+	NumTxs      uint32               `json:"transaction_count"`
+	BlockTime   float64              `json:"block_time"`
 	Timestamp   string               `json:"timestamp"`
 	BlockReward string               `json:"reward"`
 	Hash        string               `json:"hash"`
