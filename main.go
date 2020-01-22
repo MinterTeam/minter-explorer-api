@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/api"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/database"
+	"github.com/MinterTeam/minter-explorer-api/tools/metrics"
 )
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	// subscribe to channel and add cache handler
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)
 	sub.OnPublish(explorer.Cache)
+	sub.OnPublish(metrics.NewLastBlockMetric())
 	extender.Subscribe(sub)
 
 	// run api

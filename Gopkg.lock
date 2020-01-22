@@ -423,6 +423,7 @@
     "github.com/go-pg/pg",
     "github.com/go-pg/pg/orm",
     "github.com/go-pg/pg/urlvalues",
+    "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/viper",
     "golang.org/x/time/rate",
     "gopkg.in/go-playground/validator.v8",
