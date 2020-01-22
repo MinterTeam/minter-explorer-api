@@ -28,8 +28,15 @@ func main() {
 	// subscribe to channel and add cache handler
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)
 	sub.OnPublish(explorer.Cache)
-	sub.OnPublish(metrics.NewLastBlockMetric())
 	extender.Subscribe(sub)
+
+	// TODO: refactor
+	// create ws extender for metrics
+	extender2 := core.NewExtenderWsClient(explorer)
+	defer extender2.Close()
+	metricSub := extender2.CreateSubscription(explorer.Environment.WsBlocksChannel)
+	metricSub.OnPublish(metrics.NewLastBlockMetric())
+	extender2.Subscribe(metricSub)
 
 	// run api
 	api.Run(db, explorer)
