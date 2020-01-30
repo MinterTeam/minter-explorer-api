@@ -46,11 +46,6 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
-	// create ip map
-	ipMap := sync.Map{}
-	// rate limit
-	router.Use(throttle(ipMap))
-
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Resource not found.", c)
