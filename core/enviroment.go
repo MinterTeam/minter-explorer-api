@@ -16,6 +16,7 @@ type Environment struct {
 	WsServer        string
 	WsBlocksChannel string
 	BipdevApiHost   string
+	NodeApiHost     string
 }
 
 func NewEnvironment() *Environment {
@@ -33,6 +34,7 @@ func NewEnvironment() *Environment {
 		WsServer:        cfg.GetString("extender.ws.address"),
 		WsBlocksChannel: cfg.GetString("extender.ws.channel_blocks"),
 		BipdevApiHost:   cfg.GetString("bipdev.api"),
+		NodeApiHost:     cfg.GetString("node_api_host"),
 	}
 
 	return &env
