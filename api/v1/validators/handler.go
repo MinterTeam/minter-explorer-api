@@ -19,9 +19,9 @@ type GetValidatorRequest struct {
 
 // TODO: replace string to int
 type GetValidatorTransactionsRequest struct {
-	Page       string  `form:"page"        binding:"omitempty,numeric"`
-	StartBlock *string `form:"startblock"  binding:"omitempty,numeric"`
-	EndBlock   *string `form:"endblock"    binding:"omitempty,numeric"`
+	Page       string  `form:"page"         binding:"omitempty,numeric"`
+	StartBlock *string `form:"start_block"  binding:"omitempty,numeric"`
+	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
 }
 
 // cache time

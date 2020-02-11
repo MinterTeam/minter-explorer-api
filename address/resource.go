@@ -9,10 +9,10 @@ import (
 )
 
 type Resource struct {
-	Address                string               `json:"address"`
-	Balances               []resource.Interface `json:"balances"`
-	TotalBalanceSum        *string              `json:"total_balance_sum,omitempty"`
-	TotalBalanceSumUSD     *string              `json:"total_balance_sum_usd,omitempty"`
+	Address            string               `json:"address"`
+	Balances           []resource.Interface `json:"balances"`
+	TotalBalanceSum    *string              `json:"total_balance_sum,omitempty"`
+	TotalBalanceSumUSD *string              `json:"total_balance_sum_usd,omitempty"`
 }
 
 type Params struct {

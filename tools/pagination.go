@@ -24,7 +24,7 @@ func NewPagination(request *http.Request) Pagination {
 	// Temp fix
 	pager := values.Pager()
 	pager.MaxOffset = config.MaxPaginationOffset
-	pager.MaxLimit  = config.MaxPaginationLimit
+	pager.MaxLimit = config.MaxPaginationLimit
 
 	return Pagination{
 		Pager:      pager,

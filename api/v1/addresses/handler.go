@@ -24,7 +24,7 @@ type GetAddressRequest struct {
 }
 
 type GetAddressRequestQuery struct {
-	WithSum bool `form:"withSum"`
+	WithSum bool `form:"with_sum"`
 }
 
 type GetAddressesRequest struct {
@@ -33,19 +33,26 @@ type GetAddressesRequest struct {
 
 // TODO: replace string to int
 type FilterQueryRequest struct {
-	StartBlock *string `form:"startblock" binding:"omitempty,numeric"`
-	EndBlock   *string `form:"endblock"   binding:"omitempty,numeric"`
-	Page       *string `form:"page"       binding:"omitempty,numeric"`
+	StartBlock *string `form:"start_block" binding:"omitempty,numeric"`
+	EndBlock   *string `form:"end_block"   binding:"omitempty,numeric"`
+	Page       *string `form:"page"        binding:"omitempty,numeric"`
+}
+
+type AddressTransactionsQueryRequest struct {
+	SendType   *string `form:"send_type"   binding:"omitempty,oneof=incoming outcoming"`
+	StartBlock *string `form:"start_block" binding:"omitempty,numeric"`
+	EndBlock   *string `form:"end_block"   binding:"omitempty,numeric"`
+	Page       *string `form:"page"        binding:"omitempty,numeric"`
 }
 
 type StatisticsQueryRequest struct {
-	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
-	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
+	StartTime *string `form:"start_time" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"end_time"   binding:"omitempty,timestamp"`
 }
 
 type AggregatedRewardsQueryRequest struct {
-	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
-	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
+	StartTime *string `form:"start_time" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"end_time"   binding:"omitempty,timestamp"`
 }
 
 // Get list of addresses
@@ -141,7 +148,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	// validate request query
-	var requestQuery FilterQueryRequest
+	var requestQuery AddressTransactionsQueryRequest
 	err = c.ShouldBindQuery(&requestQuery)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
@@ -152,7 +159,8 @@ func GetTransactions(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
 		[]string{*minterAddress},
-		transaction.BlocksRangeSelectFilter{
+		transaction.SelectFilter{
+			SendType:   requestQuery.SendType,
 			StartBlock: requestQuery.StartBlock,
 			EndBlock:   requestQuery.EndBlock,
 		}, &pagination)

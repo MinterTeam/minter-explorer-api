@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg"
 	"golang.org/x/time/rate"
-	"gopkg.in/go-playground/validator.v8"
+	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"sync"
 )
@@ -32,9 +32,9 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	}
 
 	router := gin.Default()
-	router.Use(cors.Default())              // CORS
-	router.Use(gin.ErrorLogger())           // print all errors
-	router.Use(apiRecovery)                 // returns 500 on any code panics
+	router.Use(cors.Default())    // CORS
+	router.Use(gin.ErrorLogger()) // print all errors
+	//router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// create ip map

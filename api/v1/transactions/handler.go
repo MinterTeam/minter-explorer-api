@@ -16,10 +16,10 @@ import (
 
 // TODO: replace string in StartBlock, EndBlock, Page to int
 type GetTransactionsRequest struct {
-	Addresses  []string `form:"addresses[]" binding:"omitempty,minterAddress"`
-	Page       string   `form:"page"        binding:"omitempty,numeric"`
-	StartBlock *string  `form:"startblock"  binding:"omitempty,numeric"`
-	EndBlock   *string  `form:"endblock"    binding:"omitempty,numeric"`
+	Addresses  []string `form:"addresses[]"  binding:"omitempty,minterAddress"`
+	Page       string   `form:"page"         binding:"omitempty,numeric"`
+	StartBlock *string  `form:"start_block"  binding:"omitempty,numeric"`
+	EndBlock   *string  `form:"end_block"    binding:"omitempty,numeric"`
 }
 
 type GetTransactionRequest struct {
@@ -57,7 +57,7 @@ func GetTransactions(c *gin.Context) {
 
 	var txs []models.Transaction
 	if len(minterAddresses) > 0 {
-		txs = explorer.TransactionRepository.GetPaginatedTxsByAddresses(minterAddresses, transaction.BlocksRangeSelectFilter{
+		txs = explorer.TransactionRepository.GetPaginatedTxsByAddresses(minterAddresses, transaction.SelectFilter{
 			StartBlock: request.StartBlock,
 			EndBlock:   request.EndBlock,
 		}, &pagination)

@@ -19,7 +19,7 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get paginated list of transactions by address filter
-func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter BlocksRangeSelectFilter, pagination *tools.Pagination) []models.Transaction {
+func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter SelectFilter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 

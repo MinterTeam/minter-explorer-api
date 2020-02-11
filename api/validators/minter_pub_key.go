@@ -1,16 +1,12 @@
 package validators
 
 import (
-	"gopkg.in/go-playground/validator.v8"
-	"reflect"
+	"gopkg.in/go-playground/validator.v9"
 	"regexp"
 )
 
-func MinterPublicKey(
-	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
-	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
-) bool {
-	return isValidMinterPublicKey(field.String())
+func MinterPublicKey(fl validator.FieldLevel) bool {
+	return isValidMinterPublicKey(fl.Field().Interface().(string))
 }
 
 func isValidMinterPublicKey(publicKey string) bool {

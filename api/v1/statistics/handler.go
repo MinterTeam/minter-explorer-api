@@ -13,9 +13,9 @@ import (
 )
 
 type GetTransactionsRequest struct {
-	Scale     *string `form:"scale"     binding:"omitempty,eq=minute|eq=hour|eq=day"`
-	StartTime *string `form:"startTime" binding:"omitempty,timestamp"`
-	EndTime   *string `form:"endTime"   binding:"omitempty,timestamp"`
+	Scale     *string `form:"scale"      binding:"omitempty,eq=minute|eq=hour|eq=day"`
+	StartTime *string `form:"start_time" binding:"omitempty,timestamp"`
+	EndTime   *string `form:"end_time"   binding:"omitempty,timestamp"`
 }
 
 // statistics cache time

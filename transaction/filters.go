@@ -36,19 +36,28 @@ func (f ValidatorFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	return q, nil
 }
 
-type BlocksRangeSelectFilter struct {
+const (
+	SendTypeIncoming  = "incoming"
+	SendTypeOutcoming = "outcoming"
+)
+
+type SelectFilter struct {
+	SendType   *string
 	StartBlock *string
 	EndBlock   *string
 }
 
-func (f BlocksRangeSelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	if f.StartBlock != nil {
-		q = q.Where("ind.block_id >= ?", f.StartBlock)
+func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
+	if f.SendType != nil && *f.SendType == SendTypeIncoming {
+		q.Where("transaction.from_address_id != a.id")
 	}
 
-	if f.EndBlock != nil {
-		q = q.Where("ind.block_id <= ?", f.EndBlock)
+	if f.SendType != nil && *f.SendType == SendTypeOutcoming {
+		q.Where("transaction.from_address_id = a.id")
 	}
+
+	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}
+	q = q.Apply(blocksRange.Filter)
 
 	return q, nil
 }

@@ -3,6 +3,7 @@ package blocks
 import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
@@ -45,7 +46,7 @@ func GetBlocks(c *gin.Context) {
 	}
 
 	// cache last blocks
-	if pagination.GetCurrentPage() == 1 && pagination.GetPerPage() == tools.DefaultLimit {
+	if pagination.GetCurrentPage() == 1 && pagination.GetPerPage() == config.DefaultPaginationLimit {
 		cached := explorer.Cache.Get("blocks", func() interface{} {
 			return CacheBlocksData{getBlocks(), pagination}
 		}, CacheBlocksCount).(CacheBlocksData)
