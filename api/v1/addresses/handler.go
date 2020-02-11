@@ -131,7 +131,7 @@ func GetAddress(c *gin.Context) {
 			}
 
 			model = &models.Address{
-				Address:             addressWithPrefix,
+				Address:             *minterAddress,
 				Balances:            md,
 			}
 		}
