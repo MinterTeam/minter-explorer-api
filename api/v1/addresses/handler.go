@@ -107,7 +107,7 @@ func GetAddress(c *gin.Context) {
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
 	// if model not found
-	if model == nil {
+	if model == nil || len(model.Balances) == 0 {
 		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
 	}
 
