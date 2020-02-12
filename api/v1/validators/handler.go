@@ -89,9 +89,8 @@ func GetValidator(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": validator.Resource{}.Transform(*data, validator.Params{
-			TotalStake:           totalStake,
-			ActiveValidatorsIDs:  activeValidatorIDs,
-			IsDelegatorsRequired: true,
+			TotalStake:          totalStake,
+			ActiveValidatorsIDs: activeValidatorIDs,
 		}),
 	})
 }
@@ -113,9 +112,8 @@ func GetValidators(c *gin.Context) {
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		return resource.ParamsInterface{validator.Params{
-			TotalStake:           totalStake,
-			ActiveValidatorsIDs:  activeValidatorIDs,
-			IsDelegatorsRequired: false,
+			TotalStake:          totalStake,
+			ActiveValidatorsIDs: activeValidatorIDs,
 		}}
 	}
 

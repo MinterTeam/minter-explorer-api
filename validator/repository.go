@@ -21,7 +21,7 @@ func (repository Repository) GetByPublicKey(publicKey string) *models.Validator 
 	var validator models.Validator
 
 	err := repository.db.Model(&validator).
-		Column("Stakes", "Stakes.Coin", "Stakes.OwnerAddress").
+		Column("Stakes").
 		Where("public_key = ?", publicKey).
 		Select()
 
