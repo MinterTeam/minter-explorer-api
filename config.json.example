@@ -20,6 +20,5 @@
   },
   "bipdev": {
     "api": "ME_BIPDEV_HOST"
-  },
-  "node_api_host": "ME_NODE_HOST"
+  }
 }
