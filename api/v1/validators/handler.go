@@ -2,6 +2,7 @@ package validators
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
@@ -125,6 +126,45 @@ func GetValidators(c *gin.Context) {
 			resourceCallback,
 		),
 	})
+}
+
+type GetValidatorDelegationsRequestQuery struct {
+	Page string `form:"page" binding:"omitempty,numeric"`
+}
+
+// Get validator delegations list
+func GetValidatorDelegations(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	request := new(GetValidatorRequest)
+	err := c.ShouldBindUri(request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	requestQuery := new(GetValidatorDelegationsRequestQuery)
+	if err := c.ShouldBindQuery(requestQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch validator by public key
+	publicKey := helpers.RemoveMinterPrefix(request.PublicKey)
+	v := explorer.ValidatorRepository.GetByPublicKey(publicKey)
+	if v == nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		return
+	}
+
+	// fetch validator stakes
+	pagination := tools.NewPagination(c.Request)
+	stakes, err := explorer.StakeRepository.GetPaginatedByValidator(*v, &pagination)
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(stakes, delegation.Resource{}, pagination))
 }
 
 // Get IDs of active validators

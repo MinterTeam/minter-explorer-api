@@ -64,3 +64,21 @@ func (repository Repository) GetSumInBipValueByAddress(address string) (string, 
 
 	return sum, err
 }
+
+// Get paginated list of stakes by validator
+func (repository Repository) GetPaginatedByValidator(
+	validator models.Validator,
+	pagination *tools.Pagination,
+) ([]models.Stake, error) {
+	var stakes []models.Stake
+	var err error
+
+	pagination.Total, err = repository.db.Model(&stakes).
+		Column("Coin.symbol", "Validator").
+		Where("validator_id = ?", validator.ID).
+		Order("id DESC").
+		Apply(pagination.Filter).
+		SelectAndCount()
+
+	return stakes, err
+}
