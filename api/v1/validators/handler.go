@@ -2,10 +2,10 @@ package validators
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/core"
-	"github.com/MinterTeam/minter-explorer-api/delegation"
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/stake"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-api/validator"
@@ -130,8 +130,8 @@ type GetValidatorDelegationsRequestQuery struct {
 	Page string `form:"page" binding:"omitempty,numeric"`
 }
 
-// Get validator delegations list
-func GetValidatorDelegations(c *gin.Context) {
+// Get validator stake list
+func GetValidatorStakes(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// validate request
@@ -162,7 +162,7 @@ func GetValidatorDelegations(c *gin.Context) {
 	stakes, err := explorer.StakeRepository.GetPaginatedByValidator(*v, &pagination)
 	helpers.CheckErr(err)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(stakes, delegation.Resource{}, pagination))
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(stakes, stake.Resource{}, pagination))
 }
 
 // Get IDs of active validators

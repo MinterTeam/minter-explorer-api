@@ -8,7 +8,7 @@ func ApplyRoutes(r *gin.RouterGroup) {
 	{
 		validators.GET("", GetValidators)
 		validators.GET("/:publicKey", GetValidator)
+		validators.GET("/:publicKey/stakes", GetValidatorStakes)
 		validators.GET("/:publicKey/transactions", GetValidatorTransactions)
-		validators.GET("/:publicKey/delegations", GetValidatorDelegations)
 	}
 }
