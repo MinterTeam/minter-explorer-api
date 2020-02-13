@@ -3,17 +3,19 @@ package validator
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-api/validator/meta"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 )
 
-type Resource struct {
-	PublicKey      string             `json:"public_key"`
-	Status         *uint8             `json:"status"`
-	Meta           resource.Interface `json:"meta"`
-	Stake          *string            `json:"stake"`
-	Part           *string            `json:"part"`
-	DelegatorCount int                `json:"delegator_count"`
+type ResourceDetailed struct {
+	PublicKey      string  `json:"public_key"`
+	Name           *string `json:"name"`
+	Description    *string `json:"description"`
+	IconUrl        *string `json:"icon_url"`
+	SiteUrl        *string `json:"site_url"`
+	Status         *uint8  `json:"status"`
+	Stake          *string `json:"stake"`
+	Part           *string `json:"part"`
+	DelegatorCount int     `json:"delegator_count"`
 }
 
 type Params struct {
@@ -22,17 +24,20 @@ type Params struct {
 }
 
 // Required extra params: object type of Params.
-func (r Resource) Transform(model resource.ItemInterface, values ...resource.ParamInterface) resource.Interface {
+func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...resource.ParamInterface) resource.Interface {
 	validator := model.(models.Validator)
 	params := values[0].(Params)
 	part, validatorStake := r.getValidatorPartAndStake(validator, params.TotalStake, params.ActiveValidatorsIDs)
 
-	result := Resource{
+	result := ResourceDetailed{
 		PublicKey:      validator.GetPublicKey(),
 		Status:         validator.Status,
 		Stake:          validatorStake,
+		Name:           validator.Name,
+		Description:    validator.Description,
+		IconUrl:        validator.IconUrl,
+		SiteUrl:        validator.SiteUrl,
 		Part:           part,
-		Meta:           new(meta.Resource).Transform(validator),
 		DelegatorCount: len(validator.Stakes),
 	}
 
@@ -40,7 +45,7 @@ func (r Resource) Transform(model resource.ItemInterface, values ...resource.Par
 }
 
 // return validator stake and part of the total (%)
-func (r Resource) getValidatorPartAndStake(validator models.Validator, totalStake string, validators []uint64) (*string, *string) {
+func (r ResourceDetailed) getValidatorPartAndStake(validator models.Validator, totalStake string, validators []uint64) (*string, *string) {
 	var part, stake *string
 
 	if helpers.InArray(validator.ID, validators) && validator.TotalStake != nil {
@@ -54,4 +59,28 @@ func (r Resource) getValidatorPartAndStake(validator models.Validator, totalStak
 	}
 
 	return part, stake
+}
+
+type Resource struct {
+	PublicKey   string  `json:"public_key"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	IconUrl     *string `json:"icon_url"`
+	SiteUrl     *string `json:"site_url"`
+	Status      *uint8  `json:"status"`
+}
+
+func (r Resource) Transform(model resource.ItemInterface, values ...resource.ParamInterface) resource.Interface {
+	validator := model.(models.Validator)
+
+	result := Resource{
+		PublicKey:   validator.GetPublicKey(),
+		Status:      validator.Status,
+		Name:        validator.Name,
+		Description: validator.Description,
+		IconUrl:     validator.IconUrl,
+		SiteUrl:     validator.SiteUrl,
+	}
+
+	return result
 }

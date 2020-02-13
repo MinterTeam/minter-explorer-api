@@ -88,7 +88,7 @@ func GetValidator(c *gin.Context) {
 	totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": validator.Resource{}.Transform(*data, validator.Params{
+		"data": validator.ResourceDetailed{}.Transform(*data, validator.Params{
 			TotalStake:          totalStake,
 			ActiveValidatorsIDs: activeValidatorIDs,
 		}),
@@ -120,7 +120,7 @@ func GetValidators(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollectionWithCallback(
 			validators,
-			validator.Resource{},
+			validator.ResourceDetailed{},
 			resourceCallback,
 		),
 	})

@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/go-pg/pg"
@@ -48,12 +47,18 @@ func (repository Repository) GetTotalStakeByActiveValidators(ids []uint64) strin
 
 func (repository Repository) GetActiveValidatorIds() []uint64 {
 	var blockValidator models.BlockValidator
+	var lastBlock models.Block
 	var ids []uint64
+
+	lastBlockQuery := repository.db.Model(&lastBlock).
+		Column("id").
+		Order("id DESC").
+		Limit(1)
 
 	// get active validators by last block
 	err := repository.db.Model(&blockValidator).
 		Column("validator_id").
-		Where("block_id = ?", blocks.NewRepository(repository.db).GetLastBlock().ID).
+		Where("block_id = (?)", lastBlockQuery).
 		Select(&ids)
 
 	helpers.CheckErr(err)
