@@ -4,7 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	validatorMeta "github.com/MinterTeam/minter-explorer-api/validator/meta"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/minter-explorer-tools/v4/models"
 	"time"
 )
 

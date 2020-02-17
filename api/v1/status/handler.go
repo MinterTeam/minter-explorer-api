@@ -8,7 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/minter-explorer-tools/v4/models"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"

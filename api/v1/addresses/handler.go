@@ -15,7 +15,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/minter-explorer-tools/v4/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -87,7 +87,7 @@ func GetAddresses(c *gin.Context) {
 }
 
 type NodeAddressBalanceResponse struct {
-	Result struct{
+	Result struct {
 		Balance map[string]string `json:"balance"`
 	} `json:"result"`
 }
@@ -125,14 +125,14 @@ func GetAddress(c *gin.Context) {
 			var md []*models.Balance
 			for coin, value := range resp.Result.Balance {
 				md = append(md, &models.Balance{
-					Value:     value,
-					Coin:      &models.Coin{Symbol:coin},
+					Value: value,
+					Coin:  &models.Coin{Symbol: coin},
 				})
 			}
 
 			model = &models.Address{
-				Address:             *minterAddress,
-				Balances:            md,
+				Address:  *minterAddress,
+				Balances: md,
 			}
 		}
 	}
