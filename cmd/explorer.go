@@ -5,9 +5,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/database"
 	"github.com/MinterTeam/minter-explorer-api/tools/metrics"
+	"github.com/joho/godotenv"
+	"log"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println(".env file not found")
+	}
+
 	// init environment
 	env := core.NewEnvironment()
 

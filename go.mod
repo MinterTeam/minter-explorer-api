@@ -14,6 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-pg/pg v8.0.6+incompatible
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/prometheus/client_golang v1.4.1
 	github.com/spf13/viper v1.6.2
 	github.com/tendermint/go-amino v0.15.1 // indirect

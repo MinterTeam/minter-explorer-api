@@ -23,7 +23,7 @@ https://app.swaggerhub.com/apis-docs/GrKamil/minter-explorer_api
 
 - go mod tidy
 
-- run `go build -o ./builds/explorer ./main.go`
+- run `go build -o ./builds/explorer ./cmd/explorer.go`
 
 ## USE
 
@@ -41,38 +41,8 @@ https://app.swaggerhub.com/apis-docs/GrKamil/minter-explorer_api
 
 - build and move the compiled file to the directory e.g. `/opt/minter/explorer`
 
-- copy config.json.example to config.json file in extender's directory and fill with own values
+- copy .env.dist to .env file in extender's directory and fill with own values
 
 #### Run
 
-./explorer -config=/path/to/config.json
-
-### Config file
-
-Support JSON and YAML formats 
-
-```{
-     "name": "Minter Explorer Api",
-     "debug": true,
-     "baseCoin": "MNT",  -- MNT for testnet / BIP for mainnet
-     "database": {
-       "host": "localhost",
-       "name": "explorer",
-       "user": "minter",
-       "password": "password",
-       "poolSize": 20
-     },
-     "server": {
-       "port": "8080"
-     },
-     "extender": {
-       "ws": {
-           "address": "wss://centrifugo.url/connection/websocket",
-           "channel_blocks": "blocks"
-       }
-     },
-     "bipdev": {
-       "api": ""
-     }
-   }
-```
+./explorer

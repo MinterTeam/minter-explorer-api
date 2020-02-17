@@ -1,0 +1,13 @@
+version: '3.6'
+
+services:
+  explorer:
+    build: ./
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    ports:
+    - 8080:8080
+    restart: always
+    command: extender
