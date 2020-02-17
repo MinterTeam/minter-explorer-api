@@ -21,9 +21,9 @@ https://app.swaggerhub.com/apis-docs/GrKamil/minter-explorer_api
 
 ## BUILD
 
-- dep ensure
+- go mod tidy
 
-- run `make build`
+- run `go build -o ./builds/explorer ./main.go`
 
 ## USE
 
