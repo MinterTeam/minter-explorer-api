@@ -36,7 +36,6 @@ func (RedeemCheck) Transform(txData resource.ItemInterface, params ...resource.P
 }
 
 func TransformCheckData(raw string) (CheckData, error) {
-
 	data, err := transaction.DecodeIssueCheck(raw)
 	if err != nil {
 		return CheckData{}, err

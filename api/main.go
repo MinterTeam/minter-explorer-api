@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/Depado/ginprom"
 	"github.com/MinterTeam/minter-explorer-api/api/v1"
 	"github.com/MinterTeam/minter-explorer-api/api/validators"
 	"github.com/MinterTeam/minter-explorer-api/core"
@@ -11,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg"
+	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
@@ -34,13 +34,10 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 
 	router := gin.Default()
 
-	p := ginprom.New(
-		ginprom.Engine(router),
-		ginprom.Subsystem("gin"),
-		ginprom.Path("/metrics"),
-	)
+	// metrics
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(router)
 
-	router.Use(p.Instrument())              // metrics
 	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(apiRecovery)                 // returns 500 on any code panics
