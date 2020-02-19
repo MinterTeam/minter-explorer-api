@@ -6,7 +6,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/transaction/data_resources"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/minter-explorer-tools/v4/models"
+	"github.com/MinterTeam/minter-go-sdk/transaction"
 	"reflect"
 	"time"
 )
@@ -47,20 +48,20 @@ type TransformTxConfig struct {
 }
 
 var transformConfig = map[uint8]TransformTxConfig{
-	models.TxTypeSend:                {Model: new(models.SendTxData), Resource: data_resources.Send{}},
-	models.TxTypeSellCoin:            {Model: new(models.SellCoinTxData), Resource: data_resources.SellCoin{}},
-	models.TxTypeSellAllCoin:         {Model: new(models.SellAllCoinTxData), Resource: data_resources.SellAllCoin{}},
-	models.TxTypeBuyCoin:             {Model: new(models.BuyCoinTxData), Resource: data_resources.BuyCoin{}},
-	models.TxTypeCreateCoin:          {Model: new(models.CreateCoinTxData), Resource: data_resources.CreateCoin{}},
-	models.TxTypeDeclareCandidacy:    {Model: new(models.DeclareCandidacyTxData), Resource: data_resources.DeclareCandidacy{}},
-	models.TxTypeDelegate:            {Model: new(models.DelegateTxData), Resource: data_resources.Delegate{}},
-	models.TxTypeUnbound:             {Model: new(models.UnbondTxData), Resource: data_resources.Unbond{}},
-	models.TxTypeRedeemCheck:         {Model: new(models.RedeemCheckTxData), Resource: data_resources.RedeemCheck{}},
-	models.TxTypeMultiSig:            {Model: new(models.CreateMultisigTxData), Resource: data_resources.CreateMultisig{}},
-	models.TxTypeMultiSend:           {Model: new(models.MultiSendTxData), Resource: data_resources.Multisend{}},
-	models.TxTypeEditCandidate:       {Model: new(models.EditCandidateTxData), Resource: data_resources.EditCandidate{}},
-	models.TxTypeSetCandidateOnline:  {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}},
-	models.TxTypeSetCandidateOffline: {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}},
+	uint8(transaction.TypeSend):                {Model: new(models.SendTxData), Resource: data_resources.Send{}},
+	uint8(transaction.TypeSellCoin):            {Model: new(models.SellCoinTxData), Resource: data_resources.SellCoin{}},
+	uint8(transaction.TypeSellAllCoin):         {Model: new(models.SellAllCoinTxData), Resource: data_resources.SellAllCoin{}},
+	uint8(transaction.TypeBuyCoin):             {Model: new(models.BuyCoinTxData), Resource: data_resources.BuyCoin{}},
+	uint8(transaction.TypeCreateCoin):          {Model: new(models.CreateCoinTxData), Resource: data_resources.CreateCoin{}},
+	uint8(transaction.TypeDeclareCandidacy):    {Model: new(models.DeclareCandidacyTxData), Resource: data_resources.DeclareCandidacy{}},
+	uint8(transaction.TypeDelegate):            {Model: new(models.DelegateTxData), Resource: data_resources.Delegate{}},
+	uint8(transaction.TypeUnbond):              {Model: new(models.UnbondTxData), Resource: data_resources.Unbond{}},
+	uint8(transaction.TypeRedeemCheck):         {Model: new(models.RedeemCheckTxData), Resource: data_resources.RedeemCheck{}},
+	uint8(transaction.TypeCreateMultisig):      {Model: new(models.CreateMultisigTxData), Resource: data_resources.CreateMultisig{}},
+	uint8(transaction.TypeMultisend):           {Model: new(models.MultiSendTxData), Resource: data_resources.Multisend{}},
+	uint8(transaction.TypeEditCandidate):       {Model: new(models.EditCandidateTxData), Resource: data_resources.EditCandidate{}},
+	uint8(transaction.TypeSetCandidateOnline):  {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}},
+	uint8(transaction.TypeSetCandidateOffline): {Model: new(models.SetCandidateTxData), Resource: data_resources.SetCandidate{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {

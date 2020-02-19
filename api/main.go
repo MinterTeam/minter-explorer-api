@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/Depado/ginprom"
 	"github.com/MinterTeam/minter-explorer-api/api/v1"
 	"github.com/MinterTeam/minter-explorer-api/api/validators"
 	"github.com/MinterTeam/minter-explorer-api/core"
@@ -32,15 +33,18 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	}
 
 	router := gin.Default()
-	router.Use(cors.Default())    // CORS
-	router.Use(gin.ErrorLogger()) // print all errors
-	//router.Use(apiRecovery)                 // returns 500 on any code panics
-	router.Use(apiMiddleware(db, explorer)) // init global context
 
-	// create ip map
-	ipMap := sync.Map{}
-	// rate limit
-	router.Use(throttle(ipMap))
+	p := ginprom.New(
+		ginprom.Engine(router),
+		ginprom.Subsystem("gin"),
+		ginprom.Path("/metrics"),
+	)
+
+	router.Use(p.Instrument())              // metrics
+	router.Use(cors.Default())              // CORS
+	router.Use(gin.ErrorLogger())           // print all errors
+	router.Use(apiRecovery)                 // returns 500 on any code panics
+	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
