@@ -11,4 +11,4 @@ BUILD_FLAGS = "-X main.Version=$(VERSION) -X main.GitCommit=$(COMMIT) -X main.Bu
 
 ### Build ###################
 build:
-	GOOS=${GOOS} go mod download && go build -o ./builds/$(APP) cmd/explorer.go
+	@go mod download && go build -o ./builds/$(APP) cmd/explorer.go
