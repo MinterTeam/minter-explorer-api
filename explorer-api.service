@@ -9,8 +9,8 @@ KillMode=process
 TimeoutStartSec=10
 Restart=always
 RestartSec=15s
-WorkingDirectory=/opt/minter/explorer/current
-ExecStart=/opt/minter/explorer/current/explorer -config=/opt/minter/explorer/current/config.json
+WorkingDirectory=/opt/minter/explorer-v2/current
+ExecStart=/opt/minter/explorer-v2/current/explorer
 
 User=minter
 Group=minter
