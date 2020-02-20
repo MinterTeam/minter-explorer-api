@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/api/v1"
+	"github.com/MinterTeam/minter-explorer-api/api/v2"
 	"github.com/MinterTeam/minter-explorer-api/api/validators"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
@@ -51,8 +51,8 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	// Create base api prefix
 	api := router.Group("/api")
 	{
-		// apply routes of version 1.0
-		apiV1.ApplyRoutes(api)
+		// apply routes of version 2.0
+		apiV2.ApplyRoutes(api)
 	}
 
 	// Register validator for api requests
