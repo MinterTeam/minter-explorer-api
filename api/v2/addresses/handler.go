@@ -11,7 +11,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/events"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-api/reward"
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
@@ -194,22 +193,7 @@ func GetTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 
-// Get list of rewards by Minter address
-func GetRewards(c *gin.Context) {
-	explorer := c.MustGet("explorer").(*core.Explorer)
-
-	filter, pagination, err := prepareEventsRequest(c)
-	if err != nil {
-		errors.SetValidationErrorResponse(err, c)
-		return
-	}
-
-	// fetch data
-	rewards := explorer.RewardRepository.GetPaginatedByAddress(*filter, pagination)
-
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, reward.Resource{}, *pagination))
-}
-
+// Get aggregated by day list of address rewards
 func GetAggregatedRewards(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
