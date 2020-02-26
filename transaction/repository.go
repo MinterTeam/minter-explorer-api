@@ -29,7 +29,7 @@ func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filt
 		Join("INNER JOIN addresses AS a").
 		JoinOn("a.id = ind.address_id").
 		ColumnExpr("DISTINCT transaction.id").
-		Column("transaction.*", "FromAddress.address").
+		Column("transaction.*", "FromAddress.address", "GasCoin.symbol").
 		Where("a.address IN (?)", pg.In(addresses)).
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
@@ -47,7 +47,7 @@ func (repository Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagina
 	var err error
 
 	pagination.Total, err = repository.db.Model(&transactions).
-		Column("transaction.*", "FromAddress.address").
+		Column("transaction.*", "FromAddress.address", "GasCoin.symbol").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("transaction.id DESC").
@@ -62,7 +62,10 @@ func (repository Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagina
 func (repository Repository) GetTxByHash(hash string) *models.Transaction {
 	var transaction models.Transaction
 
-	err := repository.db.Model(&transaction).Column("FromAddress").Where("hash = ?", hash).Select()
+	err := repository.db.Model(&transaction).
+		Column("FromAddress", "GasCoin.symbol").
+		Where("hash = ?", hash).
+		Select()
 	if err != nil {
 		return nil
 	}

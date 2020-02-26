@@ -18,6 +18,7 @@ type Resource struct {
 	Nonce     uint64                 `json:"nonce"`
 	Block     uint64                 `json:"block"`
 	Timestamp string                 `json:"timestamp"`
+	GasCoin   string                 `json:"gas_coin"`
 	Fee       string                 `json:"fee"`
 	Type      uint8                  `json:"type"`
 	Payload   string                 `json:"payload"`
@@ -35,6 +36,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt.Format(time.RFC3339),
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
+		GasCoin:   tx.GasCoin.Symbol,
 		Type:      tx.Type,
 		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),

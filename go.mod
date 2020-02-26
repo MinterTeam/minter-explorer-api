@@ -17,6 +17,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/prometheus/client_golang v1.4.1
+	github.com/sirupsen/logrus v1.4.2
 	github.com/tendermint/go-amino v0.15.1 // indirect
 	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0

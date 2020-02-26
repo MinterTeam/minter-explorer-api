@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg"
+	"github.com/sirupsen/logrus"
 	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
 	"gopkg.in/go-playground/validator.v9"
@@ -91,6 +92,7 @@ func registerApiValidators() {
 func apiRecovery(c *gin.Context) {
 	defer func(c *gin.Context) {
 		if rec := recover(); rec != nil {
+			logrus.WithField("err", rec).Error("API error")
 			errors.SetErrorResponse(http.StatusInternalServerError, -1, "Internal server error", c)
 		}
 	}(c)
