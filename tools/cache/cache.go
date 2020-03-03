@@ -4,21 +4,22 @@ import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/centrifugal/centrifuge-go"
 	"sync"
 	"time"
 )
 
 type ExplorerCache struct {
-	lastBlockId uint64
-	items       *sync.Map
+	lastBlock blocks.Resource
+	items     *sync.Map
 }
 
 // cache constructor
-func NewCache() *ExplorerCache {
+func NewCache(lastBlock models.Block) *ExplorerCache {
 	cache := &ExplorerCache{
-		lastBlockId: uint64(0),
-		items:       new(sync.Map),
+		lastBlock: new(blocks.Resource).Transform(lastBlock).(blocks.Resource),
+		items:     new(sync.Map),
 	}
 
 	return cache
@@ -31,7 +32,7 @@ func (c *ExplorerCache) newCacheItem(value interface{}, ttl interface{}) *CacheI
 		ttl := time.Now().Add(t * time.Second)
 		return &CacheItem{value: value, ttl: &ttl}
 	case int:
-		ttl := c.lastBlockId + uint64(t)
+		ttl := c.lastBlock.ID + uint64(t)
 		return &CacheItem{value: value, btl: &ttl}
 	}
 
@@ -43,7 +44,7 @@ func (c *ExplorerCache) Get(key interface{}, callback func() interface{}, ttl in
 	v, ok := c.items.Load(key)
 	if ok {
 		item := v.(*CacheItem)
-		if !item.IsExpired(c.lastBlockId) {
+		if !item.IsExpired(c.lastBlock.ID) {
 			return item.value
 		}
 	}
@@ -61,7 +62,7 @@ func (c *ExplorerCache) Store(key interface{}, value interface{}, ttl interface{
 func (c *ExplorerCache) ExpirationCheck() {
 	c.items.Range(func(key, value interface{}) bool {
 		item := value.(*CacheItem)
-		if item.IsExpired(c.lastBlockId) {
+		if item.IsExpired(c.lastBlock.ID) {
 			c.items.Delete(key)
 		}
 
@@ -70,10 +71,15 @@ func (c *ExplorerCache) ExpirationCheck() {
 }
 
 // set new last block id
-func (c *ExplorerCache) SetBlockId(id uint64) {
-	c.lastBlockId = id
+func (c *ExplorerCache) SetLastBlock(block blocks.Resource) {
+	c.lastBlock = block
 	// clean expired items
 	go c.ExpirationCheck()
+}
+
+// Get latest explorer block
+func (c *ExplorerCache) GetLastBlock() blocks.Resource {
+	return c.lastBlock
 }
 
 // update last block id by ws data
@@ -83,5 +89,5 @@ func (c *ExplorerCache) OnPublish(sub *centrifuge.Subscription, e centrifuge.Pub
 	helpers.CheckErr(err)
 
 	// update last block id
-	c.SetBlockId(block.ID)
+	c.SetLastBlock(block)
 }
