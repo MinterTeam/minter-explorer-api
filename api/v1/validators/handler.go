@@ -137,6 +137,10 @@ func getActiveValidatorIDs(explorer *core.Explorer) []uint64 {
 // Get total stake of active validators
 func getTotalStakeByActiveValidators(explorer *core.Explorer, validators []uint64) string {
 	return explorer.Cache.Get("validators_total_stake", func() interface{} {
+		if len(validators) == 0 {
+			return "0"
+		}
+
 		return explorer.ValidatorRepository.GetTotalStakeByActiveValidators(validators)
 	}, CacheBlocksCount).(string)
 }

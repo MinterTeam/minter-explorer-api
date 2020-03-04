@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:6c3c580fd9472169f3ad763e4d8809807cb529769494cc0658b151500c95abdf"
+  name = "github.com/Depado/ginprom"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ce3affe17b932d176c6f6c09d5e05bb75904c055"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:f38a5be3237ae322610b1c80b96819cd0fda1fb8ea0e94f35e9dab09fdc4196b"
   name = "github.com/MinterTeam/minter-explorer-tools"
   packages = ["models"]
@@ -10,7 +18,7 @@
 
 [[projects]]
   branch = "dev"
-  digest = "1:38e44b24a0d5c0be142ae307fc7add144446ac1f092d80680ae4047a91d382aa"
+  digest = "1:902f6b6f4c7c134d88567902e86a39a375c8f6ac109396a45d34204db60def7f"
   name = "github.com/MinterTeam/minter-go-node"
   packages = [
     "core/check",
@@ -19,12 +27,21 @@
     "crypto/secp256k1",
     "crypto/sha3",
     "formula",
+    "helpers",
     "hexutil",
     "math",
     "rlp",
   ]
   pruneopts = "UT"
-  revision = "87831469c59af2efb0e375e1085943f384a0fdd9"
+  revision = "0390de51d9df392558b67d37e8a9b6905f9000ed"
+
+[[projects]]
+  digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
+  name = "github.com/beorn7/perks"
+  packages = ["quantile"]
+  pruneopts = "UT"
+  revision = "37c8de3658fcb183f997c4e13e8337516ab753e6"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:093bf93a65962e8191e3e8cd8fc6c363f83d43caca9739c906531ba7210a9904"
@@ -188,6 +205,14 @@
   version = "v0.0.4"
 
 [[projects]]
+  digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
+  name = "github.com/matttproud/golang_protobuf_extensions"
+  packages = ["pbutil"]
+  pruneopts = "UT"
+  revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+  version = "v1.0.1"
+
+[[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
@@ -218,6 +243,50 @@
   pruneopts = "UT"
   revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:eb04f69c8991e52eff33c428bd729e04208bf03235be88e4df0d88497c6861b9"
+  name = "github.com/prometheus/client_golang"
+  packages = [
+    "prometheus",
+    "prometheus/internal",
+    "prometheus/promhttp",
+  ]
+  pruneopts = "UT"
+  revision = "170205fb58decfd011f1550d4cfb737230d7ae4f"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:982be0b5396e16a663697899ce69cc7b1e71ddcae4153af157578d4dc9bc3f88"
+  name = "github.com/prometheus/client_model"
+  packages = ["go"]
+  pruneopts = "UT"
+  revision = "d1d2010b5beead3fa1c5f271a5cf626e40b3ad6e"
+  version = "v0.1.0"
+
+[[projects]]
+  digest = "1:f119e3205d3a1f0f19dbd7038eb37528e2c6f0933269dc344e305951fb87d632"
+  name = "github.com/prometheus/common"
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "model",
+  ]
+  pruneopts = "UT"
+  revision = "287d3e634a1e550c9e463dd7e5a75a422c614505"
+  version = "v0.7.0"
+
+[[projects]]
+  digest = "1:ec0ff4bd619a67065e34d6477711ed0117e335f99059a4c508e0fe21cfe7b304"
+  name = "github.com/prometheus/procfs"
+  packages = [
+    ".",
+    "internal/fs",
+    "internal/util",
+  ]
+  pruneopts = "UT"
+  revision = "6d489fc7f1d9cd890a250f3ea3431b1744b9623f"
+  version = "v0.0.8"
 
 [[projects]]
   digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
@@ -283,9 +352,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:969c44c96e9866e912a16e282a362cf045b64202107424983fe8abc3373d1eab"
+  digest = "1:a1914323eabb0da3b4392fb0d34b1ae5b6b531323daf4eeddc355d8000982052"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "41f3e6584952bb034a481797859f6ab34b6803bd"
 
@@ -340,6 +412,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/Depado/ginprom",
     "github.com/MinterTeam/minter-explorer-tools/models",
     "github.com/MinterTeam/minter-go-node/core/check",
     "github.com/MinterTeam/minter-go-node/formula",
@@ -350,6 +423,7 @@
     "github.com/go-pg/pg",
     "github.com/go-pg/pg/orm",
     "github.com/go-pg/pg/urlvalues",
+    "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/viper",
     "golang.org/x/time/rate",
     "gopkg.in/go-playground/validator.v8",
