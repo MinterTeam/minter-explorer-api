@@ -16,6 +16,7 @@ type RedeemCheck struct {
 
 type CheckData struct {
 	Coin     string `json:"coin"`
+	GasCoin  string `json:"gas_coin"`
 	Nonce    string `json:"nonce"`
 	Value    string `json:"value"`
 	Sender   string `json:"sender"`
@@ -44,6 +45,7 @@ func TransformCheckData(raw string) CheckData {
 
 	return CheckData{
 		Coin:     data.Coin.String(),
+		GasCoin:  data.GasCoin.String(),
 		Nonce:    base64.StdEncoding.EncodeToString(data.Nonce[:]),
 		Value:    helpers.PipStr2Bip(data.Value.String()),
 		Sender:   sender.String(),

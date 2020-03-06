@@ -16,7 +16,7 @@ const unitInBip = 1000
 
 func PipStr2Bip(value string) string {
 	if value == "" {
-		return "0"
+		value = "0"
 	}
 
 	floatValue, err := new(big.Float).SetPrec(500).SetString(value)

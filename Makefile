@@ -44,10 +44,10 @@ ensure_deps:
 
 ### Build ###################
 build: clean
-	GOOS=${GOOS} go build -ldflags $(BUILD_FLAGS) -o ./builds/$(APP)
+	GOOS=${GOOS} env GO111MODULE=off go build -ldflags $(BUILD_FLAGS) -o ./builds/$(APP)
 
 install:
-	GOOS=${GOOS} go install -ldflags $(BUILD_FLAGS)
+	GOOS=${GOOS} env GO111MODULE=off go install -ldflags $(BUILD_FLAGS)
 
 clean:
 	@rm -f $(BINARY)

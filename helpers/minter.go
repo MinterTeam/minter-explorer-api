@@ -9,8 +9,10 @@ func RemoveMinterPrefix(raw string) string {
 const firstReward = 333
 const blocksPerReward = 200000
 const premineValue = 200 * 1000000 // in the mainnet the real value is 200 * 1000000
+const startHeight = 5000000
 
 func CalculateEmission(blockId uint64) uint64 {
+	blockId += startHeight
 	sum := uint64(premineValue)
 	reward := firstReward
 	high := int(math.Ceil(float64(blockId) / float64(blocksPerReward)))

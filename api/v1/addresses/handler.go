@@ -1,7 +1,6 @@
 package addresses
 
 import (
-	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/chart"
@@ -115,26 +114,7 @@ func GetAddress(c *gin.Context) {
 
 	// if model not found
 	if model == nil || len(model.Balances) == 0 {
-		addressWithPrefix := `Mx` + *minterAddress
-		httpClient := tools.NewHttpClient(explorer.Environment.NodeApiHost)
-		resp := new(NodeAddressBalanceResponse)
-		err := httpClient.Get(fmt.Sprintf("/address?address=%s", addressWithPrefix), resp)
-		if err != nil {
-			model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
-		} else {
-			var md []*models.Balance
-			for coin, value := range resp.Result.Balance {
-				md = append(md, &models.Balance{
-					Value:     value,
-					Coin:      &models.Coin{Symbol:coin},
-				})
-			}
-
-			model = &models.Address{
-				Address:             *minterAddress,
-				Balances:            md,
-			}
-		}
+		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
 	}
 
 	// calculate overall address balance in base coin and fiat
@@ -153,7 +133,10 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": new(address.Resource).Transform(*model)})
+	c.JSON(http.StatusOK, gin.H{
+		"data":              new(address.Resource).Transform(*model),
+		"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
+	})
 }
 
 // Get list of transactions by Minter address

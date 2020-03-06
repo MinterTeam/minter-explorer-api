@@ -12,6 +12,7 @@ type CreateCoin struct {
 	InitialAmount        string `json:"initial_amount"`
 	InitialReserve       string `json:"initial_reserve"`
 	ConstantReserveRatio string `json:"constant_reserve_ratio"`
+	MaxSupply            string `json:"max_supply"`
 }
 
 func (CreateCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -23,5 +24,6 @@ func (CreateCoin) Transform(txData resource.ItemInterface, params ...resource.Pa
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),
 		InitialReserve:       helpers.PipStr2Bip(data.InitialReserve),
 		ConstantReserveRatio: data.ConstantReserveRatio,
+		MaxSupply:            helpers.PipStr2Bip(data.MaxSupply),
 	}
 }

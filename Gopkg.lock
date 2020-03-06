@@ -10,15 +10,16 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:b6f3e68d6d1e886e469cbf14d34de0f6a7c53f7b164d0aabbfe97ee5f8cbe8e6"
+  digest = "1:95fe8c72adddfbcf0affaa5763cbaf7cbb1830030cef58e050381e2404af79bb"
   name = "github.com/MinterTeam/minter-explorer-tools"
   packages = ["models"]
   pruneopts = "UT"
-  revision = "2b98e16f53253257f7650cf25b1db14abc4edb60"
-  version = "v3.0.1"
+  revision = "5a0a25c969e2b94f0bfc783f512ca1c5f19a8089"
+  version = "v4.2.3"
 
 [[projects]]
-  digest = "1:032764b09457c5c3b843599dc8b46ba9c6f8d093e2d7892791084dff2e282a93"
+  branch = "dev"
+  digest = "1:902f6b6f4c7c134d88567902e86a39a375c8f6ac109396a45d34204db60def7f"
   name = "github.com/MinterTeam/minter-go-node"
   packages = [
     "core/check",
@@ -27,13 +28,13 @@
     "crypto/secp256k1",
     "crypto/sha3",
     "formula",
+    "helpers",
     "hexutil",
     "math",
     "rlp",
   ]
   pruneopts = "UT"
-  revision = "14439248926def5f6f1d334dc9a84f7d0d2e5a0a"
-  version = "v1.0.4"
+  revision = "0390de51d9df392558b67d37e8a9b6905f9000ed"
 
 [[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
