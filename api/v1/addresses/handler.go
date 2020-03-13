@@ -128,6 +128,7 @@ func GetAddress(c *gin.Context) {
 				TotalBalanceSum:    totalBalanceSum,
 				TotalBalanceSumUSD: totalBalanceSumUSD,
 			}),
+			"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 		})
 
 		return
