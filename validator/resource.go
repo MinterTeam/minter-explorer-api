@@ -28,6 +28,11 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 	validator := model.(models.Validator)
 	params := values[0].(Params)
 
+	validatorStakePart := "0"
+	if helpers.InArray(validator.ID, params.ActiveValidatorsIDs) && validator.TotalStake != nil {
+		validatorStakePart = helpers.CalculatePercent(*validator.TotalStake, *validator.TotalStake)
+	}
+
 	result := ResourceDetailed{
 		PublicKey:      validator.GetPublicKey(),
 		Status:         validator.Status,
@@ -36,7 +41,7 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		Description:    validator.Description,
 		IconUrl:        validator.IconUrl,
 		SiteUrl:        validator.SiteUrl,
-		Part:           helpers.CalculatePercent(*validator.TotalStake, params.TotalStake),
+		Part:           validatorStakePart,
 		DelegatorCount: len(validator.Stakes),
 	}
 
