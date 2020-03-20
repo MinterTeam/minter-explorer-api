@@ -38,7 +38,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Nonce:     tx.Nonce,
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt.Format(time.RFC3339),
-		Gas:       strconv.FormatUint(tx.Gas, 64),
+		Gas:       strconv.FormatUint(tx.Gas, 10),
 		GasPrice:  tx.GasPrice,
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
 		GasCoin:   tx.GasCoin.Symbol,
