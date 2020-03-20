@@ -13,8 +13,8 @@ type ResourceDetailed struct {
 	IconUrl        *string `json:"icon_url"`
 	SiteUrl        *string `json:"site_url"`
 	Status         *uint8  `json:"status"`
-	Stake          *string `json:"stake"`
-	Part           *string `json:"part"`
+	Stake          string  `json:"stake"`
+	Part           string  `json:"part"`
 	DelegatorCount int     `json:"delegator_count"`
 }
 
@@ -27,17 +27,16 @@ type Params struct {
 func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...resource.ParamInterface) resource.Interface {
 	validator := model.(models.Validator)
 	params := values[0].(Params)
-	part, validatorStake := r.getValidatorPartAndStake(validator, params.TotalStake, params.ActiveValidatorsIDs)
 
 	result := ResourceDetailed{
 		PublicKey:      validator.GetPublicKey(),
 		Status:         validator.Status,
-		Stake:          validatorStake,
+		Stake:          helpers.PipStr2Bip(*validator.TotalStake),
 		Name:           validator.Name,
 		Description:    validator.Description,
 		IconUrl:        validator.IconUrl,
 		SiteUrl:        validator.SiteUrl,
-		Part:           part,
+		Part:           helpers.CalculatePercent(*validator.TotalStake, params.TotalStake),
 		DelegatorCount: len(validator.Stakes),
 	}
 
