@@ -9,6 +9,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-tools/v4/models"
 	"github.com/MinterTeam/minter-go-sdk/transaction"
 	"reflect"
+	"strconv"
 	"time"
 )
 
@@ -19,6 +20,8 @@ type Resource struct {
 	Block     uint64                 `json:"block"`
 	Timestamp string                 `json:"timestamp"`
 	GasCoin   string                 `json:"gas_coin"`
+	Gas       string                 `json:"gas"`
+	GasPrice  uint64                 `json:"gas_price"`
 	Fee       string                 `json:"fee"`
 	Type      uint8                  `json:"type"`
 	Payload   string                 `json:"payload"`
@@ -35,6 +38,8 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Nonce:     tx.Nonce,
 		Block:     tx.BlockID,
 		Timestamp: tx.CreatedAt.Format(time.RFC3339),
+		Gas:       strconv.FormatUint(tx.Gas, 64),
+		GasPrice:  tx.GasPrice,
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
 		GasCoin:   tx.GasCoin.Symbol,
 		Type:      tx.Type,
