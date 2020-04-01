@@ -85,12 +85,6 @@ func GetAddresses(c *gin.Context) {
 	})
 }
 
-type NodeAddressBalanceResponse struct {
-	Result struct{
-		Balance map[string]string `json:"balance"`
-	} `json:"result"`
-}
-
 // Get address detail
 func GetAddress(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
