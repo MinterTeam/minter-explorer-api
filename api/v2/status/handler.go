@@ -55,14 +55,14 @@ func GetStatus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"bipPriceUsd":           marketPrice.Price,
-			"bipPriceChange":        marketPrice.Change,
-			"latestBlockHeight":     lastBlock.ID,
-			"totalTransactions":     txTotalCount.Result.(int),
-			"averageBlockTime":      avgBlockTime.Result.(float64),
-			"latestBlockTime":       lastBlock.CreatedAt.Format(time.RFC3339),
-			"marketCap":             getMarketCap(helpers.CalculateEmission(lastBlock.ID), marketPrice.Price),
-			"transactionsPerSecond": getTransactionSpeed(txTotalCount24h.Result.(int)),
+			"bip_price_usd":           marketPrice.Price,
+			"bip_price_change":        marketPrice.Change,
+			"latest_block_height":     lastBlock.ID,
+			"total_transactions":      txTotalCount.Result.(int),
+			"avg_block_time":          avgBlockTime.Result.(float64),
+			"latest_block_time":       lastBlock.CreatedAt.Format(time.RFC3339),
+			"market_cap":              getMarketCap(helpers.CalculateEmission(lastBlock.ID), marketPrice.Price),
+			"transactions_per_second": getTransactionSpeed(txTotalCount24h.Result.(int)),
 		},
 	})
 }
@@ -121,22 +121,22 @@ func GetStatusPage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"status":              status,
-			"numberOfBlocks":      lastBlock.ID,
-			"blockSpeed24h":       avgBlockTime.Result.(float64),
-			"txTotalCount":        txTotalCount.Result.(int),
-			"tx24hCount":          tx24hData.Result.(transaction.Tx24hData).Count,
-			"activeValidators":    activeValidators.Result.(int),
-			"activeCandidates":    activeCandidates.Result.(int),
-			"totalDelegatedBip":   stakesSum,
-			"customCoinsCount":    customCoins.Count,
-			"averageTxCommission": helpers.Unit2Bip(tx24h.FeeAvg),
-			"totalCommission":     helpers.Unit2Bip(tx24h.FeeSum),
-			"customCoinsSum":      helpers.PipStr2Bip(customCoins.ReserveSum),
-			"bipEmission":         helpers.CalculateEmission(lastBlock.ID),
-			"freeFloatBip":        getFreeBipSum(stakesSum, lastBlock.ID),
-			"txPerSecond":         getTransactionSpeed(tx24h.Count),
-			"uptime":              calculateUptime(slowBlocksTimeSum.Result.(float64)),
+			"status":                     status,
+			"blocks_count":               lastBlock.ID,
+			"block_speed_24h":            avgBlockTime.Result.(float64),
+			"transactions_total":         txTotalCount.Result.(int),
+			"transaction_count_24h":      tx24hData.Result.(transaction.Tx24hData).Count,
+			"active_validators":          activeValidators.Result.(int),
+			"active_candidates":          activeCandidates.Result.(int),
+			"total_delegated_bip":        stakesSum,
+			"custom_coins_count":         customCoins.Count,
+			"avg_transaction_commission": helpers.Unit2Bip(tx24h.FeeAvg),
+			"total_commission":           helpers.Unit2Bip(tx24h.FeeSum),
+			"custom_coins_sum":           helpers.PipStr2Bip(customCoins.ReserveSum),
+			"bip_emission":               helpers.CalculateEmission(lastBlock.ID),
+			"free_float_bip":             getFreeBipSum(stakesSum, lastBlock.ID),
+			"transactions_per_second":    getTransactionSpeed(tx24h.Count),
+			"uptime":                     calculateUptime(slowBlocksTimeSum.Result.(float64)),
 		},
 	})
 }
