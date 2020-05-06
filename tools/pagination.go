@@ -18,6 +18,8 @@ type Pagination struct {
 }
 
 func NewPagination(request *http.Request) Pagination {
+	fmt.Println(request.TLS)
+
 	values := urlvalues.Values(request.URL.Query())
 	values.SetDefault("limit", strconv.Itoa(config.DefaultPaginationLimit))
 
@@ -26,10 +28,15 @@ func NewPagination(request *http.Request) Pagination {
 	pager.MaxOffset = config.MaxPaginationOffset
 	pager.MaxLimit = config.MaxPaginationLimit
 
+	scheme := "https://"
+	if request.TLS == nil {
+		scheme = "http://"
+	}
+
 	return Pagination{
 		Pager:      pager,
 		Request:    request,
-		RequestURL: fmt.Sprintf("%s%s%s", request.URL.Scheme, request.Host, request.URL.Path),
+		RequestURL: fmt.Sprintf("%s%s%s", scheme, request.Host, request.URL.Path),
 	}
 }
 

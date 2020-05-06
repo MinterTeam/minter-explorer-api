@@ -34,7 +34,7 @@ func (repository Repository) GetByAddresses(minterAddresses []string) []models.A
 	var addresses []models.Address
 
 	err := repository.DB.Model(&addresses).Column("Balances", "Balances.Coin").
-		WhereIn("address IN (?)", pg.In(minterAddresses)).Select()
+		WhereIn("address IN (?)", minterAddresses).Select()
 
 	helpers.CheckErr(err)
 
