@@ -10,5 +10,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		validators.GET("/:publicKey", GetValidator)
 		validators.GET("/:publicKey/stakes", GetValidatorStakes)
 		validators.GET("/:publicKey/transactions", GetValidatorTransactions)
+		validators.GET("/:publicKey/events/slashes", GetValidatorSlashes)
 	}
 }

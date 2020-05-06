@@ -14,18 +14,23 @@ type Resource struct {
 	Amount    string             `json:"amount"`
 	Address   string             `json:"address"`
 	Timestamp string             `json:"timestamp"`
-	Validator resource.Interface `json:"validator"`
+	Validator resource.Interface `json:"validator,omitempty"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	slash := model.(models.Slash)
 
-	return Resource{
+	slashResource := Resource{
 		BlockID:   slash.BlockID,
 		Coin:      slash.Coin.Symbol,
 		Amount:    helpers.PipStr2Bip(slash.Amount),
 		Address:   slash.Address.GetAddress(),
 		Timestamp: slash.Block.CreatedAt.Format(time.RFC3339),
-		Validator: new(validator.Resource).Transform(*slash.Validator),
 	}
+
+	if slash.Validator != nil {
+		slashResource.Validator = new(validator.Resource).Transform(*slash.Validator)
+	}
+
+	return slashResource
 }

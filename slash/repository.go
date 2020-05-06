@@ -23,8 +23,7 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	var err error
 
 	pagination.Total, err = repository.db.Model(&slashes).
-		Column("Coin.symbol", "Address.address", "Validator.public_key", "Block.created_at").
-		Column("Validator.name", "Validator.description", "Validator.icon_url", "Validator.site_url").
+		Column("Coin.symbol", "Address.address", "Block.created_at", "Validator").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
@@ -33,4 +32,22 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	helpers.CheckErr(err)
 
 	return slashes
+}
+
+func (repository Repository) GetPaginatedByValidator(validator *models.Validator, pagination *tools.Pagination) ([]models.Slash, error) {
+	var slashes []models.Slash
+	var err error
+
+	pagination.Total, err = repository.db.Model(&slashes).
+		Column("Coin.symbol", "Address.address", "Block.created_at").
+		Where("validator_id = ?", validator.ID).
+		Apply(pagination.Filter).
+		Order("block_id DESC").
+		SelectAndCount()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return slashes, nil
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/errors"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/stake"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
@@ -163,6 +164,34 @@ func GetValidatorStakes(c *gin.Context) {
 	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(stakes, stake.Resource{}, pagination))
+}
+
+// Get validator slashes list
+func GetValidatorSlashes(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	request := new(GetValidatorRequest)
+	err := c.ShouldBindUri(request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch validator by public key
+	publicKey := helpers.RemoveMinterPrefix(request.PublicKey)
+	v := explorer.ValidatorRepository.GetByPublicKey(publicKey)
+	if v == nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		return
+	}
+
+	// fetch validator stakes
+	pagination := tools.NewPagination(c.Request)
+	slashes, err := explorer.SlashRepository.GetPaginatedByValidator(v, &pagination)
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, pagination))
 }
 
 // Get IDs of active validators
