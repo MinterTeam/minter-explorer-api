@@ -17,7 +17,7 @@ type Resource struct {
 	Txn       uint64                 `json:"txn"`
 	Hash      string                 `json:"hash"`
 	Nonce     uint64                 `json:"nonce"`
-	Block     uint64                 `json:"block"`
+	Block     uint64                 `json:"height"`
 	Timestamp string                 `json:"timestamp"`
 	GasCoin   string                 `json:"gas_coin"`
 	Gas       string                 `json:"gas"`

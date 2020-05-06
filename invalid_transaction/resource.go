@@ -8,7 +8,7 @@ import (
 
 type Resource struct {
 	Hash      string `json:"hash"`
-	Block     uint64 `json:"block"`
+	Block     uint64 `json:"height"`
 	Type      uint8  `json:"type"`
 	From      string `json:"from"`
 	Timestamp string `json:"timestamp"`

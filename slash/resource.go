@@ -9,7 +9,7 @@ import (
 )
 
 type Resource struct {
-	BlockID   uint64             `json:"block"`
+	BlockID   uint64             `json:"height"`
 	Coin      string             `json:"coin"`
 	Amount    string             `json:"amount"`
 	Address   string             `json:"address"`
