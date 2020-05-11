@@ -35,4 +35,4 @@ installFromGithub() {
 	echo ""
 }
 
-installFromGithub golang/dep 22125cfaa6ddc71e145b1535d4b7ee9744fefff2 cmd/dep
+installFromGithub golang/dep 5600de07d5903b1d1acd8939b93ecf5c35151ace cmd/dep

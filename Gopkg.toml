@@ -51,7 +51,7 @@
 
 [[constraint]]
   name = "github.com/MinterTeam/minter-explorer-tools"
-  version = "^3.0.1"
+  version = "4.2.3"
 
 [[constraint]]
   name = "github.com/centrifugal/centrifuge-go"
@@ -59,8 +59,12 @@
 
 [[constraint]]
   name = "github.com/MinterTeam/minter-go-node"
-  version = "1.0.4"
+  branch = "dev"
 
 [[constraint]]
   name = "golang.org/x/time"
   branch = "master"
+
+[[constraint]]
+  name = "github.com/Depado/ginprom"
+  version = "1.2.0"

@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/api"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/database"
+	"github.com/MinterTeam/minter-explorer-api/tools/metrics"
 )
 
 func main() {
@@ -28,6 +29,14 @@ func main() {
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)
 	sub.OnPublish(explorer.Cache)
 	extender.Subscribe(sub)
+
+	// TODO: refactor
+	// create ws extender for metrics
+	extender2 := core.NewExtenderWsClient(explorer)
+	defer extender2.Close()
+	metricSub := extender2.CreateSubscription(explorer.Environment.WsBlocksChannel)
+	metricSub.OnPublish(metrics.NewLastBlockMetric())
+	extender2.Subscribe(metricSub)
 
 	// run api
 	api.Run(db, explorer)

@@ -107,7 +107,7 @@ func GetAddress(c *gin.Context) {
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
 
 	// if model not found
-	if model == nil {
+	if model == nil || len(model.Balances) == 0 {
 		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
 	}
 
@@ -122,12 +122,16 @@ func GetAddress(c *gin.Context) {
 				TotalBalanceSum:    totalBalanceSum,
 				TotalBalanceSumUSD: totalBalanceSumUSD,
 			}),
+			"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 		})
 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": new(address.Resource).Transform(*model)})
+	c.JSON(http.StatusOK, gin.H{
+		"data":              new(address.Resource).Transform(*model),
+		"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
+	})
 }
 
 // Get list of transactions by Minter address
