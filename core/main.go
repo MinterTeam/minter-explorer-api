@@ -3,8 +3,8 @@ package core
 import (
 	"github.com/MinterTeam/minter-explorer-api/address"
 	"github.com/MinterTeam/minter-explorer-api/balance"
-	"github.com/MinterTeam/minter-explorer-api/bipdev"
 	"github.com/MinterTeam/minter-explorer-api/blocks"
+	"github.com/MinterTeam/minter-explorer-api/coingecko"
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/invalid_transaction"
 	"github.com/MinterTeam/minter-explorer-api/reward"
@@ -34,10 +34,11 @@ type Explorer struct {
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
-	marketService := market.NewService(bipdev.NewApi(env.BipdevApiHost), env.BaseCoin)
-	blockReposistory := *blocks.NewRepository(db)
+	marketService := market.NewService(coingecko.NewService(env.MarketHost), env.BaseCoin)
+	blockRepository := *blocks.NewRepository(db)
+
 	return &Explorer{
-		BlockRepository:              blockReposistory,
+		BlockRepository:              blockRepository,
 		CoinRepository:               *coins.NewRepository(db, env.BaseCoin),
 		AddressRepository:            *address.NewRepository(db),
 		TransactionRepository:        *transaction.NewRepository(db),
@@ -47,7 +48,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		ValidatorRepository:          *validator.NewRepository(db),
 		StakeRepository:              *stake.NewRepository(db),
 		Environment:                  *env,
-		Cache:                        cache.NewCache(blockReposistory.GetLastBlock()),
+		Cache:                        cache.NewCache(blockRepository.GetLastBlock()),
 		MarketService:                marketService,
 		BalanceService:               balance.NewService(env.BaseCoin, marketService),
 	}

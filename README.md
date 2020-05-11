@@ -71,8 +71,8 @@ Support JSON and YAML formats
            "channel_blocks": "blocks"
        }
      },
-     "bipdev": {
-       "api": ""
+     "market": {
+       "host": ""
      }
    }
 ```
