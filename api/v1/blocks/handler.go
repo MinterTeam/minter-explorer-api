@@ -113,12 +113,6 @@ func GetBlockTransactions(c *gin.Context) {
 	blockId, err := strconv.ParseUint(request.ID, 10, 64)
 	helpers.CheckErr(err)
 
-	// check block to existing
-	if explorer.Cache.GetLastBlockId() < blockId && explorer.Cache.GetLastBlockId() != 0 {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Block not found.", c)
-		return
-	}
-
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
 	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.BlockFilter{
