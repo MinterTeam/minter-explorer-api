@@ -144,6 +144,18 @@ func GetStatusPage(c *gin.Context) {
 	})
 }
 
+type InfoResponse struct {
+	ChainId                string    `json:"chain_id"`
+	BlockHeight            uint64    `json:"block_height"`
+	BlockTime              float64   `json:"block_time"`
+	TotalCirculatingTokens float64   `json:"total_circulating_tokens"`
+	NotBondedTokens        float64   `json:"not_bonded_tokens"`
+	BondedTokens           float64   `json:"bonded_tokens"`
+	TotalTxsNum            int       `json:"total_txs_num"`
+	TotalValidatorNum      int       `json:"total_validator_num"`
+	Time                   time.Time `json:"time"`
+}
+
 func GetInfo(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -184,16 +196,16 @@ func GetInfo(c *gin.Context) {
 		panic(err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"chain_id":                 chainID,
-		"block_height":             lastBlock.ID,
-		"block_time":               avgBlockTime.Result.(float64),
-		"total_txs_num":            txTotalCount.Result.(int),
-		"total_validator_num":      activeValidators.Result.(int),
-		"total_circulating_tokens": bondedTokens + notBondedTokens,
-		"bonded_tokens":            bondedTokens,
-		"not_bonded_tokens":        notBondedTokens,
-		"time":                     lastBlock.CreatedAt,
+	c.JSON(http.StatusOK, InfoResponse{
+		ChainId:                chainID,
+		BlockHeight:            lastBlock.ID,
+		BlockTime:              avgBlockTime.Result.(float64),
+		TotalCirculatingTokens: bondedTokens + notBondedTokens,
+		NotBondedTokens:        notBondedTokens,
+		BondedTokens:           bondedTokens,
+		TotalTxsNum:            txTotalCount.Result.(int),
+		TotalValidatorNum:      activeValidators.Result.(int),
+		Time:                   lastBlock.CreatedAt,
 	})
 }
 
