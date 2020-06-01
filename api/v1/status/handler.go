@@ -16,9 +16,12 @@ import (
 	"time"
 )
 
-const LastDataCacheTime = time.Duration(60)
-const SlowAvgBlocksCacheTime = time.Duration(300)
-const StatusPageCacheTime = 1
+const (
+	lastDataCacheTime      = time.Duration(60)
+	slowAvgBlocksCacheTime = time.Duration(300)
+	pageCacheTime          = 1
+	chainID                = "minter-mainnet-2"
+)
 
 type Data struct {
 	Result interface{}
@@ -141,12 +144,65 @@ func GetStatusPage(c *gin.Context) {
 	})
 }
 
+func GetInfo(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// initialize channels for required status data
+	avgTimeCh := make(chan Data)
+	txTotalCountCh := make(chan Data)
+	activeValidatorsCh := make(chan Data)
+	lastBlockCh := make(chan Data)
+	stakesSumCh := make(chan Data)
+	customCoinsDataCh := make(chan Data)
+
+	go getTotalTxCount(explorer, txTotalCountCh)
+	go getActiveValidatorsCount(explorer, activeValidatorsCh)
+	go getAverageBlockTime(explorer, avgTimeCh)
+	go getLastBlock(explorer, lastBlockCh)
+	go getStakesSum(explorer, stakesSumCh)
+	go getCustomCoinsData(explorer, customCoinsDataCh)
+
+	// get values from goroutines
+	txTotalCount := <-txTotalCountCh
+	activeValidators := <-activeValidatorsCh
+	avgBlockTime, lastBlockData := <-avgTimeCh, <-lastBlockCh
+	stakesSumData := <-stakesSumCh
+
+	// handle errors from goroutines
+	helpers.CheckErr(txTotalCount.Error)
+	helpers.CheckErr(activeValidators.Error)
+	helpers.CheckErr(avgBlockTime.Error)
+	helpers.CheckErr(lastBlockData.Error)
+	helpers.CheckErr(stakesSumData.Error)
+
+	// prepare data
+	lastBlock := lastBlockData.Result.(models.Block)
+	stakesSum := stakesSumData.Result.(string)
+	notBondedTokens := getFreeBipSum(stakesSum, lastBlock.ID)
+	bondedTokens, err := strconv.ParseFloat(stakesSum, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"chain_id":                 chainID,
+		"block_height":             lastBlock.ID,
+		"block_time":               avgBlockTime.Result.(float64),
+		"total_txs_num":            txTotalCount.Result.(int),
+		"total_validator_num":      activeValidators.Result.(int),
+		"total_circulating_tokens": bondedTokens + notBondedTokens,
+		"bonded_tokens":            bondedTokens,
+		"not_bonded_tokens":        notBondedTokens,
+		"time":                     lastBlock.CreatedAt,
+	})
+}
+
 func getTotalTxCount(explorer *core.Explorer, ch chan Data) {
 	defer recoveryStatusData(ch)
 
 	data := explorer.Cache.Get(fmt.Sprintf("total_tx_count"), func() interface{} {
 		return explorer.TransactionRepository.GetTotalTransactionCount(nil)
-	}, StatusPageCacheTime)
+	}, pageCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -156,7 +212,7 @@ func getLastBlock(explorer *core.Explorer, ch chan Data) {
 
 	data := explorer.Cache.Get("last_block", func() interface{} {
 		return explorer.BlockRepository.GetLastBlock()
-	}, StatusPageCacheTime)
+	}, pageCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -166,7 +222,7 @@ func getActiveCandidatesCount(explorer *core.Explorer, ch chan Data) {
 
 	data := explorer.Cache.Get("active_candidates_count", func() interface{} {
 		return explorer.ValidatorRepository.GetActiveCandidatesCount()
-	}, StatusPageCacheTime)
+	}, pageCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -176,7 +232,7 @@ func getActiveValidatorsCount(explorer *core.Explorer, ch chan Data) {
 
 	data := explorer.Cache.Get("active_validators_count", func() interface{} {
 		return len(explorer.ValidatorRepository.GetActiveValidatorIds())
-	}, StatusPageCacheTime)
+	}, pageCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -186,7 +242,7 @@ func getAverageBlockTime(explorer *core.Explorer, ch chan Data) {
 
 	data := explorer.Cache.Get("avg_block_time", func() interface{} {
 		return explorer.BlockRepository.GetAverageBlockTime()
-	}, SlowAvgBlocksCacheTime)
+	}, slowAvgBlocksCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -196,7 +252,7 @@ func getSumSlowBlocksTime(explorer *core.Explorer, ch chan Data) {
 
 	data := explorer.Cache.Get("slow_blocks_count", func() interface{} {
 		return explorer.BlockRepository.GetSumSlowBlocksTimeBy24h()
-	}, SlowAvgBlocksCacheTime)
+	}, slowAvgBlocksCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -206,7 +262,7 @@ func getTransactionsDataBy24h(explorer *core.Explorer, ch chan Data) {
 
 	data := explorer.Cache.Get("tx_24h_data", func() interface{} {
 		return explorer.TransactionRepository.Get24hTransactionsData()
-	}, LastDataCacheTime).(transaction.Tx24hData)
+	}, lastDataCacheTime).(transaction.Tx24hData)
 
 	ch <- Data{data, nil}
 }
@@ -217,7 +273,7 @@ func getTotalTxCountByLastDay(explorer *core.Explorer, ch chan Data) {
 	startTime := time.Now().AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
 	data := explorer.Cache.Get("last_day_total_tx_count", func() interface{} {
 		return explorer.TransactionRepository.GetTotalTransactionCount(&startTime)
-	}, LastDataCacheTime)
+	}, lastDataCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -230,7 +286,7 @@ func getStakesSum(explorer *core.Explorer, ch chan Data) {
 		helpers.CheckErr(err)
 
 		return helpers.PipStr2Bip(sum)
-	}, StatusPageCacheTime)
+	}, pageCacheTime)
 
 	ch <- Data{data, nil}
 }
@@ -243,7 +299,7 @@ func getCustomCoinsData(explorer *core.Explorer, ch chan Data) {
 		helpers.CheckErr(err)
 
 		return data
-	}, StatusPageCacheTime)
+	}, pageCacheTime)
 
 	ch <- Data{data, nil}
 }

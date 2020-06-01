@@ -6,4 +6,5 @@ import "github.com/gin-gonic/gin"
 func ApplyRoutes(r *gin.RouterGroup) {
 	r.GET("/status", GetStatus)
 	r.GET("/status-page", GetStatusPage)
+	r.GET("/info", GetInfo)
 }
