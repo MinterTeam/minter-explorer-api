@@ -6,7 +6,7 @@ require (
 	github.com/MinterTeam/go-amino v0.14.1 // indirect
 	github.com/MinterTeam/minter-explorer-tools/v4 v4.1.3
 	github.com/MinterTeam/minter-go-node v1.0.5
-	github.com/MinterTeam/minter-go-sdk v0.2.19-0.20200304122718-dc37e748370f
+	github.com/MinterTeam/minter-go-sdk v1.1.6
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
