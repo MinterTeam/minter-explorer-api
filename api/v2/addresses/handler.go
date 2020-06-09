@@ -128,12 +128,16 @@ func GetAddress(c *gin.Context) {
 				TotalBalanceSum:    totalBalanceSum,
 				TotalBalanceSumUSD: totalBalanceSumUSD,
 			}),
+			"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 		})
 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": new(address.Resource).Transform(*model)})
+	c.JSON(http.StatusOK, gin.H{
+		"data":              new(address.Resource).Transform(*model),
+		"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
+	})
 }
 
 // Get list of transactions by Minter address

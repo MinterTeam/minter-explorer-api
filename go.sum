@@ -19,12 +19,15 @@ github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec h1:1Qb69m
 github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec/go.mod h1:CD8UlnlLDiqb36L110uqiP2iSflVjx9g/3U9hCI4q2U=
 github.com/MinterTeam/go-amino v0.14.1 h1:RJZh+Rn2MpSnCroAL/HA8CdnibeYPSsiLvQWacFCVKc=
 github.com/MinterTeam/go-amino v0.14.1/go.mod h1:2sqs1fcf3DcQpvIJarkzVCjALWc11WDwc5oFHCrG5R4=
+github.com/MinterTeam/minter-explorer-tools v1.5.2 h1:p+MIw4jaddH4NRM9DXdQjUsGVGoesIKreLwv64iZp+c=
+github.com/MinterTeam/minter-explorer-tools v1.5.2/go.mod h1:owuL/5tZGB+sGlQh88XFyCB5RobQGc5yWs5jm2BqQl4=
 github.com/MinterTeam/minter-explorer-tools/v4 v4.1.3 h1:QTExSzVuf09eNAMT0wADw0RtmqWt4fUvdkb0xs9yYqU=
 github.com/MinterTeam/minter-explorer-tools/v4 v4.1.3/go.mod h1:OMgo5DGLbhUlUnU21DF6iJDoMiIOn/BbDG9FOw03Sik=
 github.com/MinterTeam/minter-go-node v1.0.5 h1:26JxaXfplVT2pt99Q70vCDQ1Kx5IinR0k0mLzzfHDfk=
 github.com/MinterTeam/minter-go-node v1.0.5/go.mod h1:juaQ5woUKkGknh4Fj57+uv0AgMAzSv/aChNQT04K+uQ=
 github.com/MinterTeam/minter-go-sdk v0.2.19-0.20200304122718-dc37e748370f h1:KzHX7i/bUl+XnsL70s7EDvvlDTqrETuMpgJttA7fYbw=
 github.com/MinterTeam/minter-go-sdk v0.2.19-0.20200304122718-dc37e748370f/go.mod h1:IVoupdNnGyzfdprQ32x2ZI9MaA6XpXDirH16H6GqBTY=
+github.com/MinterTeam/minter-go-sdk v1.1.6 h1:+OdoPFJqPMch8e1QMwyghhnk+Pb2gHxYftzmmBXgIZY=
 github.com/MinterTeam/minter-go-sdk v1.1.6/go.mod h1:NgJhvRXNT94mxNSO4+C9knRy2ZkcJjeuj11hGr0ZigU=
 github.com/MinterTeam/node-grpc-gateway v1.1.1/go.mod h1:WWdGy/bxMgnaTlDWaemx4Z7tc2/4IjPOKdlmC8QRH2M=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
@@ -133,6 +136,7 @@ github.com/golang/protobuf v1.3.2-0.20190517061210-b285ee9cfc6c/go.mod h1:6lQm79
 github.com/golang/protobuf v1.3.2 h1:6nsPYzhq5kReh6QImI3k5qWzO4PEbvbIW2cwSfR/6xs=
 github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.3/go.mod h1:vzj43D7+SQXF/4pzW/hwtAqwc6iTitCiVSaWz5lYuqw=
+github.com/golang/protobuf v1.3.5 h1:F768QJ1E9tib+q5Sc8MkdJi1RxLTbRcTf8LJV56aRls=
 github.com/golang/protobuf v1.3.5/go.mod h1:6O5/vntMXwX2lRkT1hjjk0nAC1IDOTvTlVgjlRvqsdk=
 github.com/golang/snappy v0.0.1/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
 github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=

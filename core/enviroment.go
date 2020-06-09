@@ -18,8 +18,7 @@ type Environment struct {
 	IsDebug         bool
 	WsServer        string
 	WsBlocksChannel string
-	BipdevApiHost   string
-	NodeApiHost     string
+	MarketHost      string
 }
 
 func NewEnvironment() *Environment {
@@ -40,8 +39,7 @@ func NewEnvironment() *Environment {
 		IsDebug:         os.Getenv("EXPLORER_DEBUG") == "1",
 		WsServer:        os.Getenv("CENTRIFUGO_LINK"),
 		WsBlocksChannel: os.Getenv("CENTRIFUGO_BLOCK_CHANNEL"),
-		BipdevApiHost:   os.Getenv("BIP_DEV_API"),
-		NodeApiHost:     os.Getenv("NODE_API"),
+		MarketHost:      os.Getenv("MARKET_HOST"),
 	}
 
 	return &env

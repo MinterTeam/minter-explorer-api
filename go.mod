@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/MinterTeam/go-amino v0.14.1 // indirect
+	github.com/MinterTeam/minter-explorer-tools v1.5.2
 	github.com/MinterTeam/minter-explorer-tools/v4 v4.1.3
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk v1.1.6
