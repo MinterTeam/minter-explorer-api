@@ -1,6 +1,7 @@
 package data_resources
 
 import (
+	"encoding/base64"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-tools/v4/models"
@@ -49,7 +50,7 @@ func TransformCheckData(raw string) (CheckData, error) {
 	return CheckData{
 		Coin:     string(data.Coin[:]),
 		GasCoin:  string(data.GasCoin[:]),
-		Nonce:    string(data.Nonce[:]),
+		Nonce:    base64.StdEncoding.EncodeToString(data.Nonce),
 		Value:    helpers.PipStr2Bip(data.Value.String()),
 		Sender:   sender,
 		DueBlock: data.DueBlock,
