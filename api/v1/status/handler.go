@@ -220,7 +220,7 @@ func getTotalSlashed() float64 {
 	httpClient := tools.NewHttpClient("http://195.201.244.41:8841")
 	err := httpClient.Get("/total_slashed", &totalSlashedResponse)
 	if err != nil {
-		panic(err)
+		return 0
 	}
 
 	return totalSlashedResponse.Result / 1e18
