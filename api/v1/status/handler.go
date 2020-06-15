@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
@@ -136,7 +137,7 @@ func GetStatusPage(c *gin.Context) {
 			"averageTxCommission": helpers.Unit2Bip(tx24h.FeeAvg),
 			"totalCommission":     helpers.Unit2Bip(tx24h.FeeSum),
 			"customCoinsSum":      helpers.PipStr2Bip(customCoins.ReserveSum),
-			"bipEmission":         helpers.CalculateEmission(lastBlock.ID),
+			"bipEmission":         float64(helpers.CalculateEmission(lastBlock.ID)) - getTotalSlashed(), // TODO: hot-fix, replace with value from extender
 			"freeFloatBip":        getFreeBipSum(stakesSum, lastBlock.ID),
 			"txPerSecond":         getTransactionSpeed(tx24h.Count),
 			"uptime":              calculateUptime(slowBlocksTimeSum.Result.(float64)),
@@ -190,7 +191,7 @@ func GetInfo(c *gin.Context) {
 	// prepare data
 	lastBlock := lastBlockData.Result.(models.Block)
 	stakesSum := stakesSumData.Result.(string)
-	notBondedTokens := getFreeBipSum(stakesSum, lastBlock.ID)
+	notBondedTokens := getFreeBipSum(stakesSum, lastBlock.ID) - getTotalSlashed()
 	bondedTokens, err := strconv.ParseFloat(stakesSum, 64)
 	if err != nil {
 		panic(err)
@@ -207,6 +208,22 @@ func GetInfo(c *gin.Context) {
 		TotalValidatorNum:      activeValidators.Result.(int),
 		Time:                   lastBlock.CreatedAt,
 	})
+}
+
+// TODO: hot-fix, replace with value from extender
+func getTotalSlashed() float64 {
+	type TotalSlashedResponse struct {
+		Result float64 `json:"result"`
+	}
+
+	totalSlashedResponse := new(TotalSlashedResponse)
+	httpClient := tools.NewHttpClient("http://195.201.244.41:8841")
+	err := httpClient.Get("/total_slashed", &totalSlashedResponse)
+	if err != nil {
+		panic(err)
+	}
+
+	return totalSlashedResponse.Result / 1e18
 }
 
 func getTotalTxCount(explorer *core.Explorer, ch chan Data) {
