@@ -250,7 +250,9 @@ func GetDelegations(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(delegationsData.Value, delegation.Resource{}),
-		"meta": additionalFields,
+		"meta": gin.H{
+			"additional": additionalFields,
+		},
 	})
 }
 
