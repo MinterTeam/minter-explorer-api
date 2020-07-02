@@ -17,15 +17,13 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get paginated list of stakes by Minter address
-func (repository Repository) GetPaginatedByAddress(address string, pagination *tools.Pagination) ([]models.Stake, error) {
+func (repository Repository) GetAllByAddress(address string) ([]models.Stake, error) {
 	var stakes []models.Stake
-	var err error
 
-	pagination.Total, err = repository.db.Model(&stakes).
+	err := repository.db.Model(&stakes).
 		Column("Coin.symbol", "Validator", "OwnerAddress._").
 		Where("owner_address.address = ?", address).
-		Apply(pagination.Filter).
-		SelectAndCount()
+		Select()
 
 	return stakes, err
 }

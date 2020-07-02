@@ -224,12 +224,10 @@ func GetDelegations(c *gin.Context) {
 		return
 	}
 
-	pagination := tools.NewPagination(c.Request)
-
 	// get address stakes
 	stakesCh := make(chan helpers.ChannelData)
 	go func(ch chan helpers.ChannelData) {
-		value, err := explorer.StakeRepository.GetPaginatedByAddress(*minterAddress, &pagination)
+		value, err := explorer.StakeRepository.GetAllByAddress(*minterAddress)
 		ch <- helpers.NewChannelData(value, err)
 	}(stakesCh)
 
@@ -250,12 +248,10 @@ func GetDelegations(c *gin.Context) {
 		),
 	}
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithAdditionalFields(
-		delegationsData.Value,
-		delegation.Resource{},
-		pagination,
-		additionalFields,
-	))
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(delegationsData.Value, delegation.Resource{}),
+		"meta": additionalFields,
+	})
 }
 
 // Get rewards statistics by minter address
