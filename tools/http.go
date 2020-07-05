@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type HttpClient struct {
@@ -14,7 +15,9 @@ type HttpClient struct {
 func NewHttpClient(host string) *HttpClient {
 	return &HttpClient{
 		host:   host,
-		client: &http.Client{},
+		client: &http.Client{
+			Timeout: time.Minute,
+		},
 	}
 }
 
