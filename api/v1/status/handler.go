@@ -7,7 +7,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/models"
 	"github.com/gin-gonic/gin"
@@ -212,18 +211,7 @@ func GetInfo(c *gin.Context) {
 
 // TODO: hot-fix, replace with value from extender
 func getTotalSlashed() float64 {
-	type TotalSlashedResponse struct {
-		Result float64 `json:"result"`
-	}
-
-	totalSlashedResponse := new(TotalSlashedResponse)
-	httpClient := tools.NewHttpClient("http://195.201.244.41:8841")
-	err := httpClient.Get("/total_slashed", &totalSlashedResponse)
-	if err != nil {
-		return 0
-	}
-
-	return totalSlashedResponse.Result / 1e18
+	return float64(0)
 }
 
 func getTotalTxCount(explorer *core.Explorer, ch chan Data) {
