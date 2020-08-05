@@ -18,8 +18,6 @@ type Pagination struct {
 }
 
 func NewPagination(request *http.Request) Pagination {
-	fmt.Println(request.TLS)
-
 	values := urlvalues.Values(request.URL.Query())
 	values.SetDefault("limit", strconv.Itoa(config.DefaultPaginationLimit))
 
@@ -31,7 +29,7 @@ func NewPagination(request *http.Request) Pagination {
 	return Pagination{
 		Pager:      pager,
 		Request:    request,
-		RequestURL: fmt.Sprintf("https://%s%s", request.Host, request.URL.Path),
+		RequestURL: fmt.Sprintf("https://explorer-api.minter.network%s", request.URL.Path), // TODO: fix request url
 	}
 }
 
