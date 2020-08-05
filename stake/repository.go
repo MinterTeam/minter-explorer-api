@@ -64,3 +64,15 @@ func (repository Repository) GetPaginatedByValidator(
 
 	return stakes, err
 }
+
+func (repository Repository) GetMinStakes() ([]models.Stake, error) {
+	var stakes []models.Stake
+
+	 err := repository.db.Model(&stakes).
+	 	ColumnExpr("min(bip_value) as bip_value").
+	 	Column("validator_id").
+	 	Group("validator_id").
+	 	Select()
+
+	 return stakes, err
+}

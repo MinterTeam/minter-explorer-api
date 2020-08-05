@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/invalid_transaction"
 	"github.com/MinterTeam/minter-explorer-api/reward"
+	"github.com/MinterTeam/minter-explorer-api/services"
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/stake"
 	"github.com/MinterTeam/minter-explorer-api/tools/cache"
@@ -31,11 +32,15 @@ type Explorer struct {
 	Cache                        *cache.ExplorerCache
 	MarketService                *market.Service
 	BalanceService               *balance.Service
+	ValidatorService             *services.ValidatorService
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	marketService := market.NewService(coingecko.NewService(env.MarketHost), env.BaseCoin)
 	blockRepository := *blocks.NewRepository(db)
+	validatorRepository := validator.NewRepository(db)
+	stakeRepository := stake.NewRepository(db)
+	cacheService := cache.NewCache(blockRepository.GetLastBlock())
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
@@ -45,11 +50,12 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),
 		RewardRepository:             *reward.NewRepository(db),
 		SlashRepository:              *slash.NewRepository(db),
-		ValidatorRepository:          *validator.NewRepository(db),
-		StakeRepository:              *stake.NewRepository(db),
+		ValidatorRepository:          *validatorRepository,
+		StakeRepository:              *stakeRepository,
 		Environment:                  *env,
-		Cache:                        cache.NewCache(blockRepository.GetLastBlock()),
+		Cache:                        cacheService,
 		MarketService:                marketService,
 		BalanceService:               balance.NewService(env.BaseCoin, marketService),
+		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 	}
 }

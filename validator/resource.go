@@ -16,10 +16,12 @@ type ResourceDetailed struct {
 	Stake          string  `json:"stake"`
 	Part           string  `json:"part"`
 	DelegatorCount int     `json:"delegator_count"`
+	MinStake       string  `json:"min_stake"`
 }
 
 type Params struct {
 	TotalStake          string // total stake of current active validator ids (by last block)
+	MinStake            string
 	ActiveValidatorsIDs []uint64
 }
 
@@ -42,6 +44,7 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		IconUrl:        validator.IconUrl,
 		SiteUrl:        validator.SiteUrl,
 		Part:           validatorStakePart,
+		MinStake:       helpers.PipStr2Bip(params.MinStake),
 		DelegatorCount: len(validator.Stakes),
 	}
 

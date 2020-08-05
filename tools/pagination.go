@@ -29,7 +29,7 @@ func NewPagination(request *http.Request) Pagination {
 	return Pagination{
 		Pager:      pager,
 		Request:    request,
-		RequestURL: fmt.Sprintf("https://explorer-api.minter.network%s", request.URL.Path), // TODO: fix request url
+		RequestURL: fmt.Sprintf("https://%s%s", request.Host, request.URL.Path), // TODO: fix request url
 	}
 }
 
