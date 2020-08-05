@@ -28,15 +28,10 @@ func NewPagination(request *http.Request) Pagination {
 	pager.MaxOffset = config.MaxPaginationOffset
 	pager.MaxLimit = config.MaxPaginationLimit
 
-	scheme := "https://"
-	if request.TLS == nil {
-		scheme = "http://"
-	}
-
 	return Pagination{
 		Pager:      pager,
 		Request:    request,
-		RequestURL: fmt.Sprintf("%s%s%s", scheme, request.Host, request.URL.Path),
+		RequestURL: fmt.Sprintf("https://%s%s", request.Host, request.URL.Path),
 	}
 }
 
