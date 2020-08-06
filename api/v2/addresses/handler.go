@@ -15,6 +15,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-tools/v4/models"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -119,14 +120,23 @@ func GetAddress(c *gin.Context) {
 
 	// calculate overall address balance in base coin and fiat
 	if request.WithSum {
+		stakes, err := explorer.StakeRepository.GetAllByAddress(model.Address)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// compute available balance from address balances
 		totalBalanceSum := explorer.BalanceService.GetTotalBalance(model)
 		totalBalanceSumUSD := explorer.BalanceService.GetTotalBalanceInUSD(totalBalanceSum)
+		stakeBalanceSum := explorer.BalanceService.GetStakeBalance(stakes)
+		stakeBalanceSumUSD := explorer.BalanceService.GetTotalBalanceInUSD(stakeBalanceSum)
 
 		c.JSON(http.StatusOK, gin.H{
 			"data": new(address.Resource).Transform(*model, address.Params{
 				TotalBalanceSum:    totalBalanceSum,
 				TotalBalanceSumUSD: totalBalanceSumUSD,
+				StakeBalanceSum:    stakeBalanceSum,
+				StakeBalanceSumUSD: stakeBalanceSumUSD,
 			}),
 			"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 		})

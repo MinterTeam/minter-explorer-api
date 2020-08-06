@@ -16,12 +16,12 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-// Get paginated list of stakes by Minter address
+// Get list of stakes by Minter address
 func (repository Repository) GetAllByAddress(address string) ([]models.Stake, error) {
 	var stakes []models.Stake
 
 	err := repository.db.Model(&stakes).
-		Column("Coin.symbol", "Validator", "OwnerAddress._").
+		Column("Coin", "Validator", "OwnerAddress._").
 		Where("owner_address.address = ?", address).
 		Select()
 
@@ -68,11 +68,11 @@ func (repository Repository) GetPaginatedByValidator(
 func (repository Repository) GetMinStakes() ([]models.Stake, error) {
 	var stakes []models.Stake
 
-	 err := repository.db.Model(&stakes).
-	 	ColumnExpr("min(bip_value) as bip_value").
-	 	Column("validator_id").
-	 	Group("validator_id").
-	 	Select()
+	err := repository.db.Model(&stakes).
+		ColumnExpr("min(bip_value) as bip_value").
+		Column("validator_id").
+		Group("validator_id").
+		Select()
 
-	 return stakes, err
+	return stakes, err
 }
