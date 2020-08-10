@@ -14,6 +14,7 @@ type ResourceDetailed struct {
 	SiteUrl        *string `json:"site_url"`
 	Status         *uint8  `json:"status"`
 	Stake          string  `json:"stake"`
+	Commission     *uint64 `json:"commission"`
 	Part           string  `json:"part"`
 	DelegatorCount int     `json:"delegator_count"`
 	MinStake       string  `json:"min_stake"`
@@ -43,6 +44,7 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		Description:    validator.Description,
 		IconUrl:        validator.IconUrl,
 		SiteUrl:        validator.SiteUrl,
+		Commission:     validator.Commission,
 		Part:           validatorStakePart,
 		MinStake:       helpers.PipStr2Bip(params.MinStake),
 		DelegatorCount: len(validator.Stakes),
