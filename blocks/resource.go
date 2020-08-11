@@ -9,21 +9,48 @@ import (
 )
 
 type Resource struct {
-	ID          uint64               `json:"height"`
-	Size        uint64               `json:"size"`
-	NumTxs      uint32               `json:"transaction_count"`
-	BlockTime   float64              `json:"block_time"`
-	Timestamp   string               `json:"timestamp"`
-	BlockReward string               `json:"reward"`
-	Hash        string               `json:"hash"`
-	Validators  []resource.Interface `json:"validators"`
+	ID              uint64  `json:"height"`
+	Size            uint64  `json:"size"`
+	NumTxs          uint32  `json:"transaction_count"`
+	BlockTime       float64 `json:"block_time"`
+	Timestamp       string  `json:"timestamp"`
+	BlockReward     string  `json:"reward"`
+	Hash            string  `json:"hash"`
+	ValidatorsCount int     `json:"validators_count"`
 }
 
-// lastBlockId - uint64 pointer to the last block height, optional field.
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	block := model.(models.Block)
 
 	return Resource{
+		ID:              block.ID,
+		Size:            block.Size,
+		NumTxs:          block.NumTxs,
+		BlockTime:       helpers.Nano2Seconds(block.BlockTime),
+		Timestamp:       block.CreatedAt.Format(time.RFC3339),
+		BlockReward:     helpers.PipStr2Bip(block.BlockReward),
+		Hash:            block.GetHash(),
+		ValidatorsCount: len(block.BlockValidators),
+	}
+}
+
+type ResourceDetailed struct {
+	ID              uint64               `json:"height"`
+	Size            uint64               `json:"size"`
+	NumTxs          uint32               `json:"transaction_count"`
+	BlockTime       float64              `json:"block_time"`
+	Timestamp       string               `json:"timestamp"`
+	BlockReward     string               `json:"reward"`
+	Hash            string               `json:"hash"`
+	ValidatorsCount *uint64              `json:"validators_count"`
+	Validators      []resource.Interface `json:"validators"`
+}
+
+// lastBlockId - uint64 pointer to the last block height, optional field.
+func (ResourceDetailed) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	block := model.(models.Block)
+
+	return ResourceDetailed{
 		ID:          block.ID,
 		Size:        block.Size,
 		NumTxs:      block.NumTxs,

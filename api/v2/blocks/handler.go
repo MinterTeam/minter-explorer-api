@@ -86,7 +86,7 @@ func GetBlock(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(blocks.Resource).Transform(*block),
+		"data": new(blocks.ResourceDetailed).Transform(*block),
 	})
 }
 
