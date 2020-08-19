@@ -12,6 +12,7 @@ type Coin struct {
 
 func (Coin) Transform(data *api_pb.Coin) Coin {
 	id, _ := strconv.ParseUint(data.GetId(), 10, 32)
+
 	return Coin{
 		ID:     uint32(id),
 		Symbol: data.GetSymbol(),
