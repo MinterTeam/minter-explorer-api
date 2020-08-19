@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-tools/v4/models"
@@ -9,16 +10,16 @@ import (
 )
 
 type Resource struct {
-	Coin      string `json:"coin"`
-	Amount    string `json:"amount"`
-	BipAmount string `json:"bip_amount"`
+	Coin      resource.Interface `json:"coin"`
+	Amount    string             `json:"amount"`
+	BipAmount string             `json:"bip_amount"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	balance := model.(models.Balance)
 
 	return Resource{
-		Coin:      balance.Coin.Symbol,
+		Coin:      new(coins.IdResource).Transform(*balance.Coin),
 		Amount:    helpers.PipStr2Bip(balance.Value),
 		BipAmount: helpers.PipStr2Bip(getCoinBalanceInBaseValue(balance).String()),
 	}

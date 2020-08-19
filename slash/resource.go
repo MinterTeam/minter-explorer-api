@@ -1,6 +1,7 @@
 package slash
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/validator"
@@ -10,7 +11,7 @@ import (
 
 type Resource struct {
 	BlockID   uint64             `json:"height"`
-	Coin      string             `json:"coin"`
+	Coin      resource.Interface `json:"coin"`
 	Amount    string             `json:"amount"`
 	Address   string             `json:"address"`
 	Timestamp string             `json:"timestamp"`
@@ -22,7 +23,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 
 	slashResource := Resource{
 		BlockID:   slash.BlockID,
-		Coin:      slash.Coin.Symbol,
+		Coin:      new(coins.IdResource).Transform(*slash.Coin),
 		Amount:    helpers.PipStr2Bip(slash.Amount),
 		Address:   slash.Address.GetAddress(),
 		Timestamp: slash.Block.CreatedAt.Format(time.RFC3339),

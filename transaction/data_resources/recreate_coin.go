@@ -6,7 +6,7 @@ import (
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 )
 
-type CreateCoin struct {
+type RecreateCoin struct {
 	Name                 string `json:"name"`
 	Symbol               string `json:"symbol"`
 	InitialAmount        string `json:"initial_amount"`
@@ -15,11 +15,11 @@ type CreateCoin struct {
 	MaxSupply            string `json:"max_supply"`
 }
 
-func (CreateCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.CreateCoinData)
+func (RecreateCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	data := txData.(*api_pb.RecreateCoinData)
 
-	return CreateCoin{
-		Name:                 data.Name,
+	return RecreateCoin{
+		Name:                 "", // TODO: set value
 		Symbol:               data.Symbol,
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),
 		InitialReserve:       helpers.PipStr2Bip(data.InitialReserve),

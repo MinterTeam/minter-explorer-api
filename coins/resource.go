@@ -26,3 +26,16 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Symbol:         coin.Symbol,
 	}
 }
+
+type IdResource struct {
+	ID     uint64 `json:"id"`
+	Symbol string `json:"symbol"`
+}
+
+func (IdResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	coin := model.(models.Coin)
+	return IdResource{
+		ID:     coin.ID,
+		Symbol: coin.Symbol,
+	}
+}

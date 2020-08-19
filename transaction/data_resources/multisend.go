@@ -4,6 +4,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-tools/v4/models"
+	"github.com/MinterTeam/node-grpc-gateway/api_pb"
+	"strconv"
 )
 
 type Multisend struct {
@@ -11,7 +13,7 @@ type Multisend struct {
 }
 
 func (Multisend) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*models.MultiSendTxData)
+	data := txData.(*api_pb.MultiSendData)
 
 	list := make([]Send, len(data.List))
 	for key, item := range data.List {
@@ -23,9 +25,13 @@ func (Multisend) Transform(txData resource.ItemInterface, params ...resource.Par
 
 func (Multisend) TransformByTxOutput(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.TransactionOutput)
+	coin := &api_pb.Coin{
+		Id:     strconv.FormatUint(data.Coin.ID, 10),
+		Symbol: data.Coin.Symbol,
+	}
 
 	return Send{
-		Coin:  data.Coin.Symbol,
+		Coin:  new(Coin).Transform(coin),
 		To:    data.ToAddress.GetAddress(),
 		Value: helpers.PipStr2Bip(data.Value),
 	}

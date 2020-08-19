@@ -1,6 +1,7 @@
 package delegation
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/validator"
@@ -8,7 +9,7 @@ import (
 )
 
 type Resource struct {
-	Coin      string             `json:"coin"`
+	Coin      resource.Interface `json:"coin"`
 	Value     string             `json:"value"`
 	BipValue  string             `json:"bip_value"`
 	Validator resource.Interface `json:"validator"`
@@ -18,7 +19,7 @@ func (resource Resource) Transform(model resource.ItemInterface, params ...resou
 	stake := model.(models.Stake)
 
 	return Resource{
-		Coin:      stake.Coin.Symbol,
+		Coin:      new(coins.IdResource).Transform(*stake.Coin),
 		Value:     helpers.PipStr2Bip(stake.Value),
 		BipValue:  helpers.PipStr2Bip(stake.BipValue),
 		Validator: new(validator.Resource).Transform(*stake.Validator),

@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-tools/v4/models"
 	"github.com/MinterTeam/minter-go-sdk/transaction"
+	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 )
 
 type RedeemCheck struct {
@@ -24,14 +24,14 @@ type CheckData struct {
 }
 
 func (RedeemCheck) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*models.RedeemCheckTxData)
+	data := txData.(*api_pb.RedeemCheckData)
 
 	//TODO: handle error
-	check, _ := TransformCheckData(data.RawCheck)
+	check, _ := TransformCheckData(data.GetRawCheck())
 
 	return RedeemCheck{
-		RawCheck: data.RawCheck,
-		Proof:    data.Proof,
+		RawCheck: data.GetRawCheck(),
+		Proof:    data.GetProof(),
 		Check:    check,
 	}
 }

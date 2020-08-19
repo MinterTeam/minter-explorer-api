@@ -4,10 +4,11 @@ go 1.13
 
 require (
 	github.com/MinterTeam/go-amino v0.14.1 // indirect
-	github.com/MinterTeam/minter-explorer-tools v1.5.2
-	github.com/MinterTeam/minter-explorer-tools/v4 v4.1.3
+	github.com/MinterTeam/minter-explorer-tools/v4 v4.2.3
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk v1.1.6
+	github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20200818114839-c812cbadacaa
+	github.com/MinterTeam/node-grpc-gateway v1.1.3-0.20200818113440-fe9f21434b29
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
