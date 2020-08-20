@@ -13,6 +13,7 @@ type Resource struct {
 	MaxSupply      string `json:"max_supply"`
 	Name           string `json:"name"`
 	Symbol         string `json:"symbol"`
+	OwnerAddress   string `json:"owner_address"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
