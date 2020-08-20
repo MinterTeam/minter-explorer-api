@@ -72,8 +72,8 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeSetCandidateOffline): {Model: new(api_pb.SetCandidateOffData), Resource: data_resources.SetCandidate{}},
 	uint8(transaction.TypeSetHaltBlock):        {Model: new(api_pb.SetHaltBlockData), Resource: data_resources.SetHaltBlock{}},
 	uint8(transaction.TypeRecreateCoin):        {Model: new(api_pb.RecreateCoinData), Resource: data_resources.RecreateCoin{}},
-	uint8(transaction.TypeChangeOwner):         {Model: new(api_pb.ChangeCoinOwnerData), Resource: data_resources.ChangeCoinOwner{}},
-	uint8(transaction.TypeEditMultisigOwner):   {Model: new(api_pb.EditMultisigOwnersData), Resource: data_resources.EditMultisigOwners{}},
+	uint8(transaction.TypeChangeCoinOwner):     {Model: new(api_pb.ChangeCoinOwnerData), Resource: data_resources.ChangeCoinOwner{}},
+	uint8(transaction.TypeEditMultisigOwners):  {Model: new(api_pb.EditMultisigOwnersData), Resource: data_resources.EditMultisigOwners{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {
