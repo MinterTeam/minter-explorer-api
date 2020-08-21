@@ -3,7 +3,7 @@ package coins
 import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-tools/v4/models"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg"
 )
 
@@ -24,7 +24,7 @@ func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
 	err := repository.DB.Model(&coins).
-		Column("crr", "volume", "reserve_balance", "name", "symbol").
+		Column("Address").
 		Where("deleted_at IS NULL").
 		Order("reserve_balance DESC").
 		Select()
@@ -39,7 +39,7 @@ func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
 	var coins []models.Coin
 
 	err := repository.DB.Model(&coins).
-		Column("crr", "volume", "reserve_balance", "name", "symbol").
+		Column("Address").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Where("deleted_at IS NULL").
 		Order("reserve_balance DESC").

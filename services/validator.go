@@ -29,9 +29,9 @@ const (
 	minStakeCacheTime = 120
 )
 
-type ValidatorsMinStake map[uint64]string
+type ValidatorsMinStake map[uint]string
 
-func (s *ValidatorService) GetMinStakesByValidator(validatorId uint64) string {
+func (s *ValidatorService) GetMinStakesByValidator(validatorId uint) string {
 	var stakes ValidatorsMinStake
 
 	if s.cache.GetLastBlock().ID%120 == 0 {

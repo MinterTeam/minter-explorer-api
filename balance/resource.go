@@ -4,7 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-tools/v4/models"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
 	"math/big"
 )
@@ -26,13 +26,13 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 }
 
 func getCoinBalanceInBaseValue(balance models.Balance) *big.Int {
-	if balance.Coin.ReserveBalance == "" {
+	if balance.Coin.Reserve == "" {
 		return helpers.StringToBigInt(balance.Value)
 	}
 
 	return formula.CalculateSaleReturn(
 		helpers.StringToBigInt(balance.Coin.Volume),
-		helpers.StringToBigInt(balance.Coin.ReserveBalance),
+		helpers.StringToBigInt(balance.Coin.Reserve),
 		uint(balance.Coin.Crr),
 		helpers.StringToBigInt(balance.Value),
 	)

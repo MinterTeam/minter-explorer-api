@@ -3,7 +3,7 @@ package balance
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools/market"
-	"github.com/MinterTeam/minter-explorer-tools/v4/models"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
 	"math/big"
 )
@@ -29,7 +29,7 @@ func (s *Service) GetTotalBalance(address *models.Address) *big.Float {
 		// calculate the sale return value for custom coin
 		sum = sum.Add(sum, formula.CalculateSaleReturn(
 			helpers.StringToBigInt(balance.Coin.Volume),
-			helpers.StringToBigInt(balance.Coin.ReserveBalance),
+			helpers.StringToBigInt(balance.Coin.Reserve),
 			uint(balance.Coin.Crr),
 			helpers.StringToBigInt(balance.Value),
 		))
@@ -51,7 +51,7 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
 		// calculate the sale return value for custom coin
 		sum = sum.Add(sum, formula.CalculateSaleReturn(
 			helpers.StringToBigInt(stake.Coin.Volume),
-			helpers.StringToBigInt(stake.Coin.ReserveBalance),
+			helpers.StringToBigInt(stake.Coin.Reserve),
 			uint(stake.Coin.Crr),
 			helpers.StringToBigInt(stake.Value),
 		))
