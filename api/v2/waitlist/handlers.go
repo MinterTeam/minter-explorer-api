@@ -1,11 +1,13 @@
 package waitlist
 
 import (
-	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/api/v2/addresses"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
+	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/waitlist"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func GetWaitlistByAddress(c *gin.Context) {
@@ -22,5 +24,5 @@ func GetWaitlistByAddress(c *gin.Context) {
 		panic(err)
 	}
 
-	fmt.Println(wl)
+	c.JSON(http.StatusOK, resource.TransformCollection(wl, waitlist.Resource{}))
 }

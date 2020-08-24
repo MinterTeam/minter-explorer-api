@@ -16,7 +16,12 @@ func NewRepository() *Repository {
 func (r *Repository) GetListByAddress(address string) ([]models.StakeKick, error) {
 	var wl []models.StakeKick
 
-	err := r.db.Model(&wl).Join("addresses").Where("address_id = ?", address).Select()
+	err := r.db.Model(&wl).
+		Column("Coin", "Validator").
+		Join("addresses").
+		Where("address_id = ?", address).
+		Select()
+
 	if err != nil {
 		return nil, err
 	}
