@@ -7,6 +7,7 @@ import (
 )
 
 type Resource struct {
+	ID           uint    `json:"id"`
 	Crr          uint    `json:"crr"`
 	Volume       string  `json:"volume"`
 	Reserve      string  `json:"reserve_balance"`
@@ -21,10 +22,11 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 
 	ownerAddress := new(string)
 	if coin.OwnerAddressId != 0 {
-		ownerAddress = &coin.OwnerAddress.Address
+		*ownerAddress = coin.OwnerAddress.GetAddress()
 	}
 
 	return Resource{
+		ID:           coin.ID,
 		Crr:          coin.Crr,
 		Volume:       helpers.PipStr2Bip(coin.Volume),
 		Reserve:      helpers.PipStr2Bip(coin.Reserve),
