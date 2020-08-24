@@ -18,13 +18,13 @@ type Pagination struct {
 }
 
 func NewPagination(request *http.Request) Pagination {
-	//values := urlstruct.Values(request.URL.Query())
-	//values.SetDefault("limit", strconv.Itoa(config.DefaultPaginationLimit))
-
-	// Temp fix
 	pager := urlstruct.NewPager(request.URL.Query())
 	pager.MaxOffset = config.MaxPaginationOffset
 	pager.MaxLimit = config.MaxPaginationLimit
+
+	if pager.Limit == 0 {
+		pager.Limit = config.DefaultPaginationLimit
+	}
 
 	return Pagination{
 		Pager:      pager,
