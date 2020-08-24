@@ -44,7 +44,7 @@ func (IdResource) Transform(model resource.ItemInterface, params ...resource.Par
 	coin := model.(models.Coin)
 
 	return IdResource{
-		ID:     uint32(coin.CoinId),
+		ID:     uint32(coin.ID),
 		Symbol: coin.Symbol,
 	}
 }

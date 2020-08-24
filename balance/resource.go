@@ -26,7 +26,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 }
 
 func getCoinBalanceInBaseValue(balance models.Balance) *big.Int {
-	if balance.Coin.CoinId == 0 {
+	if balance.Coin.ID == 0 {
 		return helpers.StringToBigInt(balance.Value)
 	}
 

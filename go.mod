@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/MinterTeam/go-amino v0.14.1 // indirect
-	github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200820121843-ec0b080b5354
+	github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200824120016-277608980ac6
 	github.com/MinterTeam/minter-explorer-tools v1.5.2 // indirect
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk v1.1.6
@@ -18,6 +18,7 @@ require (
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-pg/pg v8.0.7+incompatible
 	github.com/go-pg/pg/v9 v9.1.2
+	github.com/go-pg/urlstruct v0.2.8
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/leodido/go-urn v1.2.0 // indirect
