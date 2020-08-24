@@ -60,7 +60,7 @@ func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData,
 
 	err := repository.DB.
 		Model(&models.Coin{}).
-		ColumnExpr("SUM(reserve_balance) as reserve_sum, COUNT(*) as count").
+		ColumnExpr("SUM(reserve) as reserve_sum, COUNT(*) as count").
 		Where("symbol != ?", repository.baseCoinSymbol).
 		Select(&data)
 
