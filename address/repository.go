@@ -3,7 +3,7 @@ package address
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/v9"
 )
 
 type Repository struct {

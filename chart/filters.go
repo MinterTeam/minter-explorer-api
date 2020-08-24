@@ -1,6 +1,6 @@
 package chart
 
-import "github.com/go-pg/pg/orm"
+import "github.com/go-pg/pg/v9/orm"
 
 type SelectFilter struct {
 	Scale     string

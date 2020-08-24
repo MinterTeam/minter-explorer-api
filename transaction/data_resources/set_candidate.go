@@ -10,9 +10,17 @@ type SetCandidate struct {
 }
 
 func (SetCandidate) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.SetCandidateOffData)
+	var pubkey string
+
+	if data, ok := txData.(*api_pb.SetCandidateOffData); ok {
+		pubkey = data.PubKey
+	}
+
+	if data, ok := txData.(*api_pb.SetCandidateOffData); ok {
+		pubkey = data.PubKey
+	}
 
 	return SetCandidate{
-		PubKey: data.PubKey,
+		PubKey: pubkey,
 	}
 }

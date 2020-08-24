@@ -4,7 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/v9"
 	"time"
 )
 
@@ -66,6 +66,7 @@ func (repository Repository) GetTxByHash(hash string) *models.Transaction {
 		Column("FromAddress", "GasCoin.symbol").
 		Where("hash = ?", hash).
 		Select()
+
 	if err != nil {
 		return nil
 	}

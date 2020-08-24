@@ -17,7 +17,7 @@ func (Multisend) Transform(txData resource.ItemInterface, params ...resource.Par
 
 	list := make([]Send, len(data.List))
 	for key, item := range data.List {
-		list[key] = Send{}.Transform(&item).(Send)
+		list[key] = Send{}.Transform(item).(Send)
 	}
 
 	return Multisend{list}

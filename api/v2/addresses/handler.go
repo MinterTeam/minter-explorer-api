@@ -97,7 +97,7 @@ func GetAddress(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// validate request
-	minterAddress, err := getAddressFromRequestUri(c)
+	minterAddress, err := GetAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -154,7 +154,7 @@ func GetAddress(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	minterAddress, err := getAddressFromRequestUri(c)
+	minterAddress, err := GetAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -185,7 +185,7 @@ func GetTransactions(c *gin.Context) {
 func GetAggregatedRewards(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	minterAddress, err := getAddressFromRequestUri(c)
+	minterAddress, err := GetAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -228,7 +228,7 @@ func GetSlashes(c *gin.Context) {
 func GetDelegations(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	minterAddress, err := getAddressFromRequestUri(c)
+	minterAddress, err := GetAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -270,7 +270,7 @@ func GetDelegations(c *gin.Context) {
 func GetRewardsStatistics(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	minterAddress, err := getAddressFromRequestUri(c)
+	minterAddress, err := GetAddressFromRequestUri(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -295,7 +295,7 @@ func GetRewardsStatistics(c *gin.Context) {
 }
 
 func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Pagination, error) {
-	minterAddress, err := getAddressFromRequestUri(c)
+	minterAddress, err := GetAddressFromRequestUri(c)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -315,7 +315,7 @@ func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Paginati
 }
 
 // Get minter address from current request uri
-func getAddressFromRequestUri(c *gin.Context) (*string, error) {
+func GetAddressFromRequestUri(c *gin.Context) (*string, error) {
 	var request GetAddressRequest
 	if err := c.ShouldBindUri(&request); err != nil {
 		return nil, err

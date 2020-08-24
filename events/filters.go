@@ -2,7 +2,7 @@ package events
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/blocks"
-	"github.com/go-pg/pg/orm"
+	"github.com/go-pg/pg/v9/orm"
 )
 
 type SelectFilter struct {

@@ -15,7 +15,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/tools/market"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
 	"github.com/MinterTeam/minter-explorer-api/validator"
-	"github.com/go-pg/pg"
+	"github.com/MinterTeam/minter-explorer-api/waitlist"
+	"github.com/go-pg/pg/v9"
 )
 
 type Explorer struct {
@@ -33,6 +34,7 @@ type Explorer struct {
 	MarketService                *market.Service
 	BalanceService               *balance.Service
 	ValidatorService             *services.ValidatorService
+	WaitlistRepository           *waitlist.Repository
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {

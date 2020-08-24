@@ -3,26 +3,26 @@ package tools
 import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/core/config"
-	"github.com/go-pg/pg/orm"
-	"github.com/go-pg/pg/urlvalues"
+	"github.com/go-pg/pg/v9/orm"
+	"github.com/go-pg/urlstruct"
 	"math"
 	"net/http"
 	"strconv"
 )
 
 type Pagination struct {
-	Pager      *urlvalues.Pager
+	Pager      *urlstruct.Pager
 	Request    *http.Request
 	RequestURL string
 	Total      int
 }
 
 func NewPagination(request *http.Request) Pagination {
-	values := urlvalues.Values(request.URL.Query())
-	values.SetDefault("limit", strconv.Itoa(config.DefaultPaginationLimit))
+	//values := urlstruct.Values(request.URL.Query())
+	//values.SetDefault("limit", strconv.Itoa(config.DefaultPaginationLimit))
 
 	// Temp fix
-	pager := values.Pager()
+	pager := urlstruct.NewPager(request.URL.Query())
 	pager.MaxOffset = config.MaxPaginationOffset
 	pager.MaxLimit = config.MaxPaginationLimit
 
@@ -34,7 +34,7 @@ func NewPagination(request *http.Request) Pagination {
 }
 
 func (pagination Pagination) Filter(query *orm.Query) (*orm.Query, error) {
-	return pagination.Pager.Pagination(query)
+	return query.Limit(pagination.Pager.GetLimit()).Offset(pagination.Pager.GetOffset()), nil
 }
 
 func (pagination Pagination) GetNextPageLink() *string {
