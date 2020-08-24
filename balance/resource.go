@@ -26,14 +26,14 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 }
 
 func getCoinBalanceInBaseValue(balance models.Balance) *big.Int {
-	if balance.Coin.Reserve == "" {
+	if balance.Coin.CoinId == 0 {
 		return helpers.StringToBigInt(balance.Value)
 	}
 
 	return formula.CalculateSaleReturn(
 		helpers.StringToBigInt(balance.Coin.Volume),
 		helpers.StringToBigInt(balance.Coin.Reserve),
-		uint(balance.Coin.Crr),
+		balance.Coin.Crr,
 		helpers.StringToBigInt(balance.Value),
 	)
 }

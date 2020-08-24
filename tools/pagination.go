@@ -38,7 +38,7 @@ func (pagination Pagination) Filter(query *orm.Query) (*orm.Query, error) {
 }
 
 func (pagination Pagination) GetNextPageLink() *string {
-	if pagination.GetLastPage() == pagination.GetCurrentPage() {
+	if pagination.GetLastPage() == 0 || pagination.GetLastPage() == pagination.GetCurrentPage() {
 		return nil
 	}
 
@@ -51,7 +51,11 @@ func (pagination Pagination) GetNextPageLink() *string {
 }
 
 func (pagination Pagination) GetLastPageLink() *string {
-	lastPage := strconv.Itoa(pagination.GetLastPage())
+	lastPage := "1"
+	if pagination.GetLastPage() != 0 {
+		lastPage = strconv.Itoa(pagination.GetLastPage())
+	}
+
 	query := pagination.Request.URL.Query()
 	query.Set("page", lastPage)
 

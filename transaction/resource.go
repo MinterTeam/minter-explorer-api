@@ -3,6 +3,7 @@ package transaction
 import (
 	"encoding/base64"
 	"encoding/json"
+	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/transaction/data_resources"
@@ -20,7 +21,7 @@ type Resource struct {
 	Nonce     uint64                 `json:"nonce"`
 	Block     uint64                 `json:"height"`
 	Timestamp string                 `json:"timestamp"`
-	GasCoin   string                 `json:"gas_coin"`
+	GasCoin   resource.Interface     `json:"gas_coin"`
 	Gas       string                 `json:"gas"`
 	GasPrice  uint64                 `json:"gas_price"`
 	Fee       string                 `json:"fee"`
@@ -42,7 +43,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Gas:       strconv.FormatUint(tx.Gas, 10),
 		GasPrice:  tx.GasPrice,
 		Fee:       helpers.Fee2Bip(tx.GetFee()),
-		GasCoin:   tx.GasCoin.Symbol,
+		GasCoin:   new(coins.IdResource).Transform(*tx.GasCoin),
 		Type:      tx.Type,
 		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
