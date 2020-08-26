@@ -13,14 +13,14 @@ import (
 
 // ApplyRoutes applies router to the gin Engine
 func ApplyRoutes(r *gin.RouterGroup) {
-	v1 := r.Group("/v2")
+	v2 := r.Group("/v2")
 	{
-		blocks.ApplyRoutes(v1)
-		coins.ApplyRoutes(v1)
-		addresses.ApplyRoutes(v1)
-		transactions.ApplyRoutes(v1)
-		validators.ApplyRoutes(v1)
-		statistics.ApplyRoutes(v1)
-		status.ApplyRoutes(v1)
+		blocks.ApplyRoutes(v2)
+		coins.ApplyRoutes(v2)
+		addresses.ApplyRoutes(v2)
+		transactions.ApplyRoutes(v2)
+		validators.ApplyRoutes(v2)
+		statistics.ApplyRoutes(v2)
+		status.ApplyRoutes(v2)
 	}
 }

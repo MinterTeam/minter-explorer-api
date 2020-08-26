@@ -17,7 +17,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 	wl := model.(models.StakeKick)
 
 	return Resource{
-		Value:     wl.Amount,
+		Value:     wl.Value,
 		Coin:      new(coins.IdResource).Transform(*wl.Coin),
 		Validator: new(validator.Resource).Transform(*wl.Validator),
 	}

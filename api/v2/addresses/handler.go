@@ -13,6 +13,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
+	"github.com/MinterTeam/minter-explorer-api/waitlist"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -29,6 +30,10 @@ type GetAddressRequestQuery struct {
 
 type GetAddressesRequest struct {
 	Addresses []string `form:"addresses[]" binding:"required,minterAddress,max=50"`
+}
+
+type GetWaitlistQueryRequest struct {
+	PublicKey *string `form:"public_key" binding:"omitempty,minterPubKey"`
 }
 
 // TODO: replace string to int
@@ -291,6 +296,33 @@ func GetRewardsStatistics(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(chartData, chart.RewardResource{}),
+	})
+}
+
+func GetWaitlist(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	minterAddress, err := GetAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	var requestQuery GetWaitlistQueryRequest
+	if err := c.ShouldBindQuery(&requestQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	wl, err := explorer.WaitlistRepository.GetListByAddress(*minterAddress, waitlist.SelectFilter{
+		PublicKey: requestQuery.PublicKey,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(wl, waitlist.Resource{}),
 	})
 }
 

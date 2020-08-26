@@ -34,7 +34,7 @@ type Explorer struct {
 	MarketService                *market.Service
 	BalanceService               *balance.Service
 	ValidatorService             *services.ValidatorService
-	WaitlistRepository           *waitlist.Repository
+	WaitlistRepository           waitlist.Repository
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -52,6 +52,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),
 		RewardRepository:             *reward.NewRepository(db),
 		SlashRepository:              *slash.NewRepository(db),
+		WaitlistRepository:           *waitlist.NewRepository(db),
 		ValidatorRepository:          *validatorRepository,
 		StakeRepository:              *stakeRepository,
 		Environment:                  *env,

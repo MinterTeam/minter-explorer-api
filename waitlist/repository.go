@@ -9,17 +9,18 @@ type Repository struct {
 	db *pg.DB
 }
 
-func NewRepository() *Repository {
-	return &Repository{}
+func NewRepository(db *pg.DB) *Repository {
+	return &Repository{db}
 }
 
-func (r *Repository) GetListByAddress(address string) ([]models.StakeKick, error) {
+func (r *Repository) GetListByAddress(address string, filter SelectFilter) ([]models.StakeKick, error) {
 	var wl []models.StakeKick
 
 	err := r.db.Model(&wl).
 		Column("Coin", "Validator").
-		Join("addresses").
-		Where("address_id = ?", address).
+		Join("JOIN addresses ON addresses.id = stake_kick.address_id").
+		Where("addresses.address = ?", address).
+		Apply(filter.Filter).
 		Select()
 
 	if err != nil {
