@@ -21,7 +21,8 @@ func (repository Repository) GetByPublicKey(publicKey string) *models.Validator 
 
 	err := repository.db.Model(&validator).
 		Column("Stakes").
-		Where("public_key = ?", publicKey).
+		Join("JOIN validator_public_keys ON validator_public_keys.validator_id = validator.id").
+		Where("validator_public_keys.key = ?", publicKey).
 		Select()
 
 	if err != nil {
