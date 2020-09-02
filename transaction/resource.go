@@ -60,7 +60,7 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeSend):                {Model: new(api_pb.SendData), Resource: data_resources.Send{}},
 	uint8(transaction.TypeSellCoin):            {Model: new(api_pb.SellCoinData), Resource: data_resources.SellCoin{}},
 	uint8(transaction.TypeSellAllCoin):         {Model: new(api_pb.SellAllCoinData), Resource: data_resources.SellAllCoin{}},
-	uint8(transaction.TypeBuyCoin):             {Model: new(api_pb.BuyCoin), Resource: data_resources.BuyCoin{}},
+	uint8(transaction.TypeBuyCoin):             {Model: new(api_pb.BuyCoinData), Resource: data_resources.BuyCoin{}},
 	uint8(transaction.TypeCreateCoin):          {Model: new(api_pb.CreateCoinData), Resource: data_resources.CreateCoin{}},
 	uint8(transaction.TypeDeclareCandidacy):    {Model: new(api_pb.DeclareCandidacyData), Resource: data_resources.DeclareCandidacy{}},
 	uint8(transaction.TypeDelegate):            {Model: new(api_pb.DelegateData), Resource: data_resources.Delegate{}},

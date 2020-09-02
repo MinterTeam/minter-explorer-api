@@ -16,7 +16,7 @@ type BuyCoin struct {
 }
 
 func (BuyCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.BuyCoin)
+	data := txData.(*api_pb.BuyCoinData)
 	model := params[0].(models.Transaction)
 
 	return BuyCoin{
