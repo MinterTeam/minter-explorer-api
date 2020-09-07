@@ -23,6 +23,8 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 	ownerAddress := new(string)
 	if coin.OwnerAddressId != 0 {
 		*ownerAddress = coin.OwnerAddress.GetAddress()
+	} else {
+		ownerAddress = nil
 	}
 
 	return Resource{
@@ -32,7 +34,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Reserve:      helpers.PipStr2Bip(coin.Reserve),
 		MaxSupply:    helpers.PipStr2Bip(coin.MaxSupply),
 		Name:         coin.Name,
-		Symbol:       coin.Symbol,
+		Symbol:       coin.GetSymbol(),
 		OwnerAddress: ownerAddress,
 	}
 }
@@ -47,6 +49,6 @@ func (IdResource) Transform(model resource.ItemInterface, params ...resource.Par
 
 	return IdResource{
 		ID:     uint32(coin.ID),
-		Symbol: coin.Symbol,
+		Symbol: coin.GetSymbol(),
 	}
 }

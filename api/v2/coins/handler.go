@@ -3,6 +3,7 @@ package coins
 import (
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
@@ -14,10 +15,9 @@ const CacheBlocksCount = 1
 // Get list of coins
 func GetCoins(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
-	symbol := c.Query("symbol")
+	symbol, version := helpers.GetSymbolAndVersionFromStr(c.Query("symbol"))
 
 	var data []models.Coin
-
 	if symbol == "" {
 		// fetch coins resource
 		data = explorer.Cache.Get("coins", func() interface{} {
@@ -25,7 +25,7 @@ func GetCoins(c *gin.Context) {
 		}, CacheBlocksCount).([]models.Coin)
 	} else {
 		// fetch coins by symbol
-		data = explorer.CoinRepository.GetBySymbol(symbol)
+		data = explorer.CoinRepository.GetBySymbolAndVersion(symbol, version)
 	}
 
 	// make response as empty array if no models found
