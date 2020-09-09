@@ -35,16 +35,20 @@ func (repository *Repository) GetCoins() []models.Coin {
 }
 
 // Get coin detail by symbol
-func (repository *Repository) GetBySymbolAndVersion(symbol string, version uint64) []models.Coin {
+func (repository *Repository) GetBySymbolAndVersion(symbol string, version *uint64) []models.Coin {
 	var coins []models.Coin
 
-	err := repository.DB.Model(&coins).
+	query := repository.DB.Model(&coins).
 		Column("OwnerAddress").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
-		Where("version = ?", version).
 		Where("deleted_at IS NULL").
-		Order("reserve DESC").
-		Select()
+		Order("reserve DESC")
+
+	if version != nil {
+		query.Where("version = ?", version)
+	}
+
+	err := query.Select()
 	helpers.CheckErr(err)
 
 	return coins

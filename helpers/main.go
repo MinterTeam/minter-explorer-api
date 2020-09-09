@@ -37,13 +37,14 @@ func StartOfTheDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
 
-func GetSymbolAndVersionFromStr(symbol string) (string, uint64) {
+func GetSymbolAndVersionFromStr(symbol string) (string, *uint64) {
 	items := strings.Split(symbol, "-")
-	symbol, version := items[0], uint64(0)
+	baseSymbol := items[0]
 
 	if len(items) == 2 {
-		version, _ = strconv.ParseUint(items[1], 10, 64)
+		version, _ := strconv.ParseUint(items[1], 10, 64)
+		return baseSymbol, &version
 	}
 
-	return symbol, version
+	return baseSymbol, nil
 }
