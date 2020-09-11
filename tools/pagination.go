@@ -18,13 +18,19 @@ type Pagination struct {
 }
 
 func NewPagination(request *http.Request) Pagination {
-	pager := urlstruct.NewPager(request.URL.Query())
+	query := request.URL.Query()
+	if query.Get("limit") == "" {
+		query.Set("limit", strconv.FormatInt(config.DefaultPaginationLimit, 10))
+	}
+
+	limit, _ := strconv.ParseUint(query.Get("limit"), 10, 64)
+	if limit > config.MaxPaginationLimit {
+		query.Set("limit", strconv.FormatInt(config.MaxPaginationLimit, 10))
+	}
+
+	pager := urlstruct.NewPager(query)
 	pager.MaxOffset = config.MaxPaginationOffset
 	pager.MaxLimit = config.MaxPaginationLimit
-
-	if pager.Limit == 0 {
-		pager.Limit = config.DefaultPaginationLimit
-	}
 
 	return Pagination{
 		Pager:      pager,
