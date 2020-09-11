@@ -6,12 +6,11 @@ require (
 	github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200907131547-0fa52278f740
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk v1.1.6
-	github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20200902174536-634af31729ed
-	github.com/MinterTeam/node-grpc-gateway v1.1.3-0.20200827131141-8b2620700577
+	github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20200910133802-89ec522a7cb5
+	github.com/MinterTeam/node-grpc-gateway v1.1.3-0.20200910081617-1c9f3b1d580c
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.5.0
-	github.com/go-pg/pg v8.0.7+incompatible
 	github.com/go-pg/pg/v9 v9.1.2
 	github.com/go-pg/urlstruct v0.2.8
 	github.com/joho/godotenv v1.3.0

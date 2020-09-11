@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-go-sdk/transaction"
+	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 )
 
@@ -15,8 +15,8 @@ type RedeemCheck struct {
 }
 
 type CheckData struct {
-	Coin     string `json:"coin"`
-	GasCoin  string `json:"gas_coin"`
+	Coin     uint32 `json:"coin"`
+	GasCoin  uint32 `json:"gas_coin"`
 	Nonce    string `json:"nonce"`
 	Value    string `json:"value"`
 	Sender   string `json:"sender"`
@@ -37,7 +37,7 @@ func (RedeemCheck) Transform(txData resource.ItemInterface, params ...resource.P
 }
 
 func TransformCheckData(raw string) (CheckData, error) {
-	data, err := transaction.DecodeCheck(raw)
+	data, err := transaction.DecodeCheckBase64(raw)
 	if err != nil {
 		return CheckData{}, err
 	}
@@ -48,8 +48,8 @@ func TransformCheckData(raw string) (CheckData, error) {
 	}
 
 	return CheckData{
-		Coin:     string(data.Coin[:]),
-		GasCoin:  string(data.GasCoin[:]),
+		Coin:     uint32(data.Coin),
+		GasCoin:  uint32(data.GasCoin),
 		Nonce:    base64.StdEncoding.EncodeToString(data.Nonce),
 		Value:    helpers.PipStr2Bip(data.Value.String()),
 		Sender:   sender,
