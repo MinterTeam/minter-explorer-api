@@ -1,0 +1,11 @@
+version: 0.1.0
+apiVersion: v2
+
+name: minter-explorer-api
+description: A Helm chart for Minter Explorer Api
+
+appVersion: latest
+
+home: https://github.com/MinterTeam/minter-explorer-api
+keywords:
+  - minter-explorer-api
