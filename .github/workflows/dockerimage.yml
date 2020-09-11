@@ -28,9 +28,8 @@ jobs:
         uses: wahyd4/kubectl-helm-action@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          TAG_NAME: ${{ github.sha }}
         with:
-          args: helm upgrade explorer-api-chilinet helm/ --reuse-values --atomic --timeout 100s --set values.image.tag=$TAG_NAME
+          args: helm upgrade explorer-api-chilinet helm/ --reuse-values --atomic --timeout 100s --set values.image.tag=$GITHUB_SHA
 
       - name: notification
         if: cancelled() == false
