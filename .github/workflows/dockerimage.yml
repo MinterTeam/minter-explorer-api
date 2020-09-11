@@ -29,7 +29,7 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          args: helm upgrade explorer-api-chilinet helm/ --reuse-values --atomic --timeout 100s --set values.image.tag=$GITHUB_SHA
+          args: helm upgrade explorer-api-chilinet helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
 
       - name: notification
         if: cancelled() == false
