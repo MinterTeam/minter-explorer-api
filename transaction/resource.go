@@ -75,6 +75,7 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeRecreateCoin):        {Model: new(api_pb.RecreateCoinData), Resource: data_resources.RecreateCoin{}},
 	uint8(transaction.TypeChangeCoinOwner):     {Model: new(api_pb.EditCoinOwnerData), Resource: data_resources.EditCoinOwner{}},
 	uint8(transaction.TypeEditMultisigOwners):  {Model: new(api_pb.EditMultisigOwnersData), Resource: data_resources.EditMultisigOwners{}},
+	uint8(transaction.TypePriceVote):           {Model: new(api_pb.PriceVoteData), Resource: data_resources.PriceVote{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {
