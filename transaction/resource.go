@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
@@ -29,11 +30,12 @@ type Resource struct {
 	Payload   string                 `json:"payload"`
 	From      string                 `json:"from"`
 	Data      resource.ItemInterface `json:"data"`
+	RawTx     string                 `json:"raw_tx"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.Transaction)
-
+	
 	return Resource{
 		Txn:       tx.ID,
 		Hash:      tx.GetHash(),
@@ -48,6 +50,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
 		From:      tx.FromAddress.GetAddress(),
 		Data:      TransformTxData(tx),
+		RawTx:     hex.EncodeToString(tx.RawTx),
 	}
 }
 
