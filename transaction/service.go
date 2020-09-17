@@ -3,7 +3,7 @@ package transaction
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/coins"
-	txModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
+	dataModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
@@ -44,7 +44,7 @@ func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Trans
 			return nil, err
 		}
 
-		tx.IData = txModels.Check{
+		tx.IData = dataModels.Check{
 			RawCheck: data.RawCheck,
 			Proof:    data.Proof,
 			Check:    *checkData,
@@ -54,7 +54,7 @@ func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Trans
 	return tx, nil
 }
 
-func (s Service) transformCheckDataToModel(raw string) (*txModels.CheckData, error) {
+func (s Service) transformCheckDataToModel(raw string) (*dataModels.CheckData, error) {
 	data, err := transaction.DecodeCheckBase64(raw)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (s Service) transformCheckDataToModel(raw string) (*txModels.CheckData, err
 		return nil, err
 	}
 
-	return &txModels.CheckData{
+	return &dataModels.CheckData{
 		Coin:     coin,
 		GasCoin:  gasCoin,
 		Nonce:    data.Nonce,

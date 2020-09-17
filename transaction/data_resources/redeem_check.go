@@ -5,7 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	txModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
+	dataModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 )
 
@@ -26,7 +26,7 @@ type CheckData struct {
 
 func (RedeemCheck) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := params[0].(models.Transaction)
-	model := tx.IData.(txModels.Check)
+	model := tx.IData.(dataModels.Check)
 
 	return RedeemCheck{
 		RawCheck: model.RawCheck,
