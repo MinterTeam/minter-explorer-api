@@ -83,6 +83,9 @@ func GetTransactions(c *gin.Context) {
 		}
 	}
 
+	txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+	helpers.CheckErr(err)
+
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 
@@ -113,6 +116,9 @@ func GetTransaction(c *gin.Context) {
 		})
 		return
 	}
+
+	tx, err = explorer.TransactionService.PrepareTransactionModel(tx)
+	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": new(transaction.Resource).Transform(*tx),

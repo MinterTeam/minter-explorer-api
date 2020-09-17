@@ -35,6 +35,7 @@ type Explorer struct {
 	BalanceService               *balance.Service
 	ValidatorService             *services.ValidatorService
 	WaitlistRepository           waitlist.Repository
+	TransactionService           *transaction.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -43,10 +44,12 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	validatorRepository := validator.NewRepository(db)
 	stakeRepository := stake.NewRepository(db)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
+	coinRepository := *coins.NewRepository(db, env.BaseCoin)
+	transactionService := transaction.NewService(&coinRepository)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
-		CoinRepository:               *coins.NewRepository(db, env.BaseCoin),
+		CoinRepository:               coinRepository,
 		AddressRepository:            *address.NewRepository(db),
 		TransactionRepository:        *transaction.NewRepository(db),
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),
@@ -58,6 +61,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		Environment:                  *env,
 		Cache:                        cacheService,
 		MarketService:                marketService,
+		TransactionService:           transactionService,
 		BalanceService:               balance.NewService(env.BaseCoin, marketService),
 		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 	}

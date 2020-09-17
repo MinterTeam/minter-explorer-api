@@ -71,3 +71,14 @@ func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData,
 
 	return data, err
 }
+
+func (repository *Repository) FindByID(id uint) (models.Coin, error) {
+	var coin models.Coin
+
+	err := repository.DB.Model(&coin).
+		Where("id = ?", id).
+		Where("deleted_at IS NULL").
+		Select()
+
+	return coin, err
+}

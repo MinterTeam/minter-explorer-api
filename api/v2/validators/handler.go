@@ -59,6 +59,9 @@ func GetValidatorTransactions(c *gin.Context) {
 		EndBlock:        request.EndBlock,
 	}, &pagination)
 
+	txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+	helpers.CheckErr(err)
+
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 

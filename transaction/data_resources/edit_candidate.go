@@ -6,10 +6,10 @@ import (
 )
 
 type EditCandidate struct {
-	PubKey         string  `json:"pub_key"`
-	RewardAddress  string  `json:"reward_address"`
-	OwnerAddress   string  `json:"owner_address"`
-	ControlAddress string  `json:"control_address"`
+	PubKey         string `json:"pub_key"`
+	RewardAddress  string `json:"reward_address"`
+	OwnerAddress   string `json:"owner_address"`
+	ControlAddress string `json:"control_address"`
 }
 
 func (EditCandidate) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {

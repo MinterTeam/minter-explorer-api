@@ -183,6 +183,9 @@ func GetTransactions(c *gin.Context) {
 			EndBlock:   requestQuery.EndBlock,
 		}, &pagination)
 
+	txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+	helpers.CheckErr(err)
+
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 
