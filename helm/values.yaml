@@ -29,11 +29,11 @@ ingress:
     kubernetes.io/tls-acme: "true"
   path: /
   hosts:
-    - explorer-api.chilinet.minter.network
+    - explorer-api.testnet.minter.network
   tls:
-    secret: explorer-api-chilinet
+    secret: explorer-api-testnet
     hosts:
-      - explorer-api.chilinet.minter.network
+      - explorer-api.testnet.minter.network
 
 
 resources: {}
