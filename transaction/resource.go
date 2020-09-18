@@ -77,7 +77,7 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeSetHaltBlock):           {Model: new(api_pb.SetHaltBlockData), Resource: data_resources.SetHaltBlock{}},
 	uint8(transaction.TypeRecreateCoin):           {Model: new(api_pb.RecreateCoinData), Resource: data_resources.RecreateCoin{}},
 	uint8(transaction.TypeEditCoinOwner):          {Model: new(api_pb.EditCoinOwnerData), Resource: data_resources.EditCoinOwner{}},
-	uint8(transaction.TypeEditMultisigOwners):     {Model: new(api_pb.EditMultisigOwnersData), Resource: data_resources.EditMultisigOwners{}},
+	uint8(transaction.TypeEditMultisig):           {Model: new(api_pb.EditMultisigData), Resource: data_resources.EditMultisigData{}},
 	uint8(transaction.TypePriceVote):              {Model: new(api_pb.PriceVoteData), Resource: data_resources.PriceVote{}},
 	uint8(transaction.TypeEditCandidatePublicKey): {Model: new(api_pb.EditCandidatePublicKeyData), Resource: data_resources.EditCandidatePublicKey{}},
 }

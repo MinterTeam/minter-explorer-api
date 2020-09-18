@@ -5,16 +5,16 @@ import (
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 )
 
-type EditMultisigOwners struct {
+type EditMultisigData struct {
 	Threshold string   `json:"threshold"`
 	Weights   []string `json:"weights"`
 	Addresses []string `json:"addresses"`
 }
 
-func (EditMultisigOwners) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.EditMultisigOwnersData)
+func (EditMultisigData) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	data := txData.(*api_pb.EditMultisigData)
 
-	return EditMultisigOwners{
+	return EditMultisigData{
 		Threshold: data.GetThreshold(),
 		Weights:   data.GetWeights(),
 		Addresses: data.GetAddresses(),
