@@ -12,6 +12,7 @@ type Resource struct {
 	Address  string             `json:"address"`
 	Value    string             `json:"value"`
 	BipValue string             `json:"bip_value"`
+	IsKicked bool               `json:"is_kicked"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -22,5 +23,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Address:  stake.OwnerAddress.GetAddress(),
 		Value:    helpers.PipStr2Bip(stake.Value),
 		BipValue: helpers.PipStr2Bip(stake.BipValue),
+		IsKicked: stake.IsKicked,
 	}
 }

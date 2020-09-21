@@ -13,7 +13,7 @@ type Resource struct {
 	Address          string             `json:"address"`
 	Value            string             `json:"value"`
 	Validator        resource.Interface `json:"validator"`
-	CreatedAtBlockID uint64             `json:"created_at_block_id"`
+	CreatedAtBlockID uint               `json:"created_at_block_id"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -24,6 +24,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Address:          unbond.Address.GetAddress(),
 		Value:            helpers.PipStr2Bip(unbond.Value),
 		Validator:        new(validator.Resource).Transform(*unbond.Validator),
-		CreatedAtBlockID: 0, // TODO: fix
+		CreatedAtBlockID: unbond.BlockId,
 	}
 }

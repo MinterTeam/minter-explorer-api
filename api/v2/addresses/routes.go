@@ -9,7 +9,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		addresses.GET("", GetAddresses)
 		addresses.GET("/:address", GetAddress)
 		addresses.GET("/:address/transactions", GetTransactions)
-		addresses.GET("/:address/waitlist", GetWaitlist)
 		addresses.GET("/:address/events/unbonds", GetUnbonds)
 		addresses.GET("/:address/events/slashes", GetSlashes)
 		addresses.GET("/:address/delegations", GetDelegations)

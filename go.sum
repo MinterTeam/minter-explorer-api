@@ -44,6 +44,8 @@ github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200907131547-0fa522
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200907131547-0fa52278f740/go.mod h1:DUqKme+2AYIO8zdy4kaaB+hIAkQ3bPQ5m/ppUa5lA58=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200921101900-996334475492 h1:pzQvcGZWi2K/Kcpe+dlJ3f7+d+u/le9to0CEpJ8Kf3M=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200921101900-996334475492/go.mod h1:y1jiXqXaH6wBoiluDz7ZX04Ei11+auaejje9RsiATTw=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200921121059-a9bd28930388 h1:WH2oKW43K7j3BaJpCAgOgrMHVGwhPFGGS5nP9Lk25NY=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200921121059-a9bd28930388/go.mod h1:y1jiXqXaH6wBoiluDz7ZX04Ei11+auaejje9RsiATTw=
 github.com/MinterTeam/minter-explorer-tools v1.5.2 h1:p+MIw4jaddH4NRM9DXdQjUsGVGoesIKreLwv64iZp+c=
 github.com/MinterTeam/minter-explorer-tools v1.5.2/go.mod h1:owuL/5tZGB+sGlQh88XFyCB5RobQGc5yWs5jm2BqQl4=
 github.com/MinterTeam/minter-explorer-tools/v4 v4.2.3 h1:0hqzLuvGUn+LWbPyI275LSOYDS4UzCD3UI0eIDZqbms=
