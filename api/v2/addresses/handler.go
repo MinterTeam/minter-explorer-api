@@ -13,6 +13,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/slash"
 	"github.com/MinterTeam/minter-explorer-api/tools"
 	"github.com/MinterTeam/minter-explorer-api/transaction"
+	"github.com/MinterTeam/minter-explorer-api/unbond"
 	"github.com/MinterTeam/minter-explorer-api/waitlist"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
@@ -326,6 +327,25 @@ func GetWaitlist(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(wl, waitlist.Resource{}),
+	})
+}
+
+func GetUnbonds(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	filter, pagination, err := prepareEventsRequest(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	wl, err := explorer.UnbondRepository.GetListByAddress(filter, pagination)
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(wl, unbond.Resource{}),
 	})
 }
 
