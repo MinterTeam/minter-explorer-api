@@ -12,11 +12,15 @@ type Repository struct {
 	baseCoinSymbol string
 }
 
+var GlobalRepository *Repository
+
 func NewRepository(db *pg.DB, baseCoinSymbol string) *Repository {
-	return &Repository{
+	GlobalRepository = &Repository{
 		DB:             db,
 		baseCoinSymbol: baseCoinSymbol,
 	}
+
+	return GlobalRepository
 }
 
 // Get list of coins
