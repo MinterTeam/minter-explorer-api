@@ -13,6 +13,12 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Version
+        uses: pCYSl5EDgo/cat@master
+        id: version
+        with:
+          path: VERSION
+          
       - name: Build & Push to Docker Hub
         uses: opspresso/action-docker@master
         env:
