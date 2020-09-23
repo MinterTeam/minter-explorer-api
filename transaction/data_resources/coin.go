@@ -17,7 +17,7 @@ func (Coin) Transform(data *api_pb.Coin) Coin {
 
 	coin, err := coins.GlobalRepository.FindByID(uint(id))
 	helpers.CheckErr(err)
-	
+
 	return Coin{
 		ID:     uint32(id),
 		Symbol: coin.GetSymbol(),

@@ -13,6 +13,7 @@ type Resource struct {
 	Value     string             `json:"value"`
 	BipValue  string             `json:"bip_value"`
 	Validator resource.Interface `json:"validator"`
+	IsKicked  bool               `json:"is_kicked"`
 }
 
 func (resource Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
