@@ -7,8 +7,8 @@ import (
 )
 
 type CreateMultisig struct {
-	Threshold       string   `json:"threshold"`
-	Weights         []string `json:"weights"`
+	Threshold       uint64   `json:"threshold"`
+	Weights         []uint64 `json:"weights"`
 	Addresses       []string `json:"addresses"`
 	MultisigAddress string   `json:"multisig_address"`
 }

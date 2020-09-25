@@ -11,7 +11,7 @@ type RecreateCoin struct {
 	Symbol               string `json:"symbol"`
 	InitialAmount        string `json:"initial_amount"`
 	InitialReserve       string `json:"initial_reserve"`
-	ConstantReserveRatio string `json:"constant_reserve_ratio"`
+	ConstantReserveRatio uint64 `json:"constant_reserve_ratio"`
 	MaxSupply            string `json:"max_supply"`
 }
 

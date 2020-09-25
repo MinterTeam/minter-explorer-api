@@ -6,7 +6,7 @@ import (
 )
 
 type SetHaltBlock struct {
-	Height string `json:"height"`
+	Height uint64 `json:"height"`
 	PubKey string `json:"pub_key"`
 }
 

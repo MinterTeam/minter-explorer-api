@@ -5,7 +5,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
-	"strconv"
 )
 
 type Multisend struct {
@@ -26,7 +25,7 @@ func (Multisend) Transform(txData resource.ItemInterface, params ...resource.Par
 func (Multisend) TransformByTxOutput(txData resource.ItemInterface) resource.Interface {
 	data := txData.(*models.TransactionOutput)
 	coin := &api_pb.Coin{
-		Id:     strconv.FormatUint(uint64(data.Coin.ID), 10),
+		Id:     uint64(data.Coin.ID),
 		Symbol: data.Coin.Symbol,
 	}
 

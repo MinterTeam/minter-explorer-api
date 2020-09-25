@@ -9,7 +9,7 @@ import (
 type DeclareCandidacy struct {
 	Address    string `json:"address"`
 	PubKey     string `json:"pub_key"`
-	Commission string `json:"commission"`
+	Commission uint64 `json:"commission"`
 	Coin       Coin   `json:"coin"`
 	Stake      string `json:"stake"`
 }
