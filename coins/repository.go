@@ -8,16 +8,14 @@ import (
 )
 
 type Repository struct {
-	DB             *pg.DB
-	baseCoinSymbol string
+	DB *pg.DB
 }
 
 var GlobalRepository *Repository
 
-func NewRepository(db *pg.DB, baseCoinSymbol string) *Repository {
+func NewRepository(db *pg.DB) *Repository {
 	GlobalRepository = &Repository{
-		DB:             db,
-		baseCoinSymbol: baseCoinSymbol,
+		DB: db,
 	}
 
 	return GlobalRepository
@@ -70,7 +68,7 @@ func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData,
 	err := repository.DB.
 		Model(&models.Coin{}).
 		ColumnExpr("SUM(reserve) as reserve_sum, COUNT(*) as count").
-		Where("symbol != ?", repository.baseCoinSymbol).
+		Where("id != ?", 0).
 		Select(&data)
 
 	return data, err

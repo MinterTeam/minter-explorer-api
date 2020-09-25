@@ -44,7 +44,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	validatorRepository := validator.NewRepository(db)
 	stakeRepository := stake.NewRepository(db)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
-	coinRepository := *coins.NewRepository(db, env.BaseCoin)
+	coinRepository := *coins.NewRepository(db)
 	transactionService := transaction.NewService(&coinRepository)
 
 	return &Explorer{
