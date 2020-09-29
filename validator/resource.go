@@ -33,7 +33,7 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 
 	validatorStakePart, totalStake := "0", "0"
 	if helpers.InArray(validator.ID, params.ActiveValidatorsIDs) && validator.TotalStake != nil {
-		validatorStakePart = helpers.CalculatePercent(*validator.TotalStake, *validator.TotalStake)
+		validatorStakePart = helpers.CalculatePercent(*validator.TotalStake, params.TotalStake)
 	}
 
 	if validator.TotalStake != nil {

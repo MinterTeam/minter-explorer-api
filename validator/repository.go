@@ -84,7 +84,7 @@ func (repository Repository) GetActiveCandidatesCount() int {
 func (repository Repository) GetValidators() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Select()
+	err := repository.db.Model(&validators).Column("Stakes").Select()
 	helpers.CheckErr(err)
 
 	return validators
