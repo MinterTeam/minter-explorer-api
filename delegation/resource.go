@@ -9,20 +9,21 @@ import (
 )
 
 type Resource struct {
-	Coin      resource.Interface `json:"coin"`
-	Value     string             `json:"value"`
-	BipValue  string             `json:"bip_value"`
-	Validator resource.Interface `json:"validator"`
-	IsKicked  bool               `json:"is_kicked"`
+	Coin         resource.Interface `json:"coin"`
+	Value        string             `json:"value"`
+	BipValue     string             `json:"bip_value"`
+	Validator    resource.Interface `json:"validator"`
+	IsWaitlisted bool               `json:"is_waitlisted"`
 }
 
 func (resource Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	stake := model.(models.Stake)
 
 	return Resource{
-		Coin:      new(coins.IdResource).Transform(*stake.Coin),
-		Value:     helpers.PipStr2Bip(stake.Value),
-		BipValue:  helpers.PipStr2Bip(stake.BipValue),
-		Validator: new(validator.Resource).Transform(*stake.Validator),
+		Coin:         new(coins.IdResource).Transform(*stake.Coin),
+		Value:        helpers.PipStr2Bip(stake.Value),
+		BipValue:     helpers.PipStr2Bip(stake.BipValue),
+		Validator:    new(validator.Resource).Transform(*stake.Validator),
+		IsWaitlisted: stake.IsKicked,
 	}
 }
