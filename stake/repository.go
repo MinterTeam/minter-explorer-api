@@ -23,6 +23,7 @@ func (repository Repository) GetAllByAddress(address string) ([]models.Stake, er
 	err := repository.db.Model(&stakes).
 		Column("Coin", "Validator", "OwnerAddress._").
 		Where("owner_address.address = ?", address).
+		Order("bip_value DESC").
 		Select()
 
 	return stakes, err
@@ -58,7 +59,7 @@ func (repository Repository) GetPaginatedByValidator(
 	pagination.Total, err = repository.db.Model(&stakes).
 		Column("Coin.symbol", "OwnerAddress.address").
 		Where("validator_id = ?", validator.ID).
-		Order("id DESC").
+		Order("bip_value DESC").
 		Apply(pagination.Filter).
 		SelectAndCount()
 
