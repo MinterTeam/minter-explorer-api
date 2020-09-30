@@ -19,7 +19,7 @@ func (RecreateCoin) Transform(txData resource.ItemInterface, params ...resource.
 	data := txData.(*api_pb.RecreateCoinData)
 
 	return RecreateCoin{
-		Name:                 "", // TODO: set value
+		Name:                 data.Name,
 		Symbol:               data.Symbol,
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),
 		InitialReserve:       helpers.PipStr2Bip(data.InitialReserve),
