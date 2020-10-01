@@ -77,6 +77,10 @@ func GetAddresses(c *gin.Context) {
 	// fetch addresses
 	addresses := explorer.AddressRepository.GetByAddresses(minterAddresses)
 
+	for k, addr := range addresses {
+		addresses[k] = extendModelWithBaseSymbolBalance(addr, addr.Address, explorer.Environment.BaseCoin)
+	}
+
 	// extend the model array with empty model if not exists
 	if len(addresses) != len(minterAddresses) {
 		for _, item := range minterAddresses {
@@ -84,7 +88,7 @@ func GetAddresses(c *gin.Context) {
 				continue
 			}
 
-			addresses = append(addresses, *makeEmptyAddressModel(item, explorer.Environment.BaseCoin))
+			addresses = append(addresses, makeEmptyAddressModel(item, explorer.Environment.BaseCoin))
 		}
 	}
 
@@ -113,11 +117,7 @@ func GetAddress(c *gin.Context) {
 
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
-
-	// if model not found
-	if model == nil || len(model.Balances) == 0 {
-		model = makeEmptyAddressModel(*minterAddress, explorer.Environment.BaseCoin)
-	}
+	model = extendModelWithBaseSymbolBalance(model, *minterAddress, explorer.Environment.BaseCoin)
 
 	// calculate overall address balance in base coin and fiat
 	if request.WithSum {
@@ -362,7 +362,7 @@ func makeEmptyAddressModel(minterAddress string, baseCoin string) *models.Addres
 }
 
 // Check that array of address models contain exact minter address
-func isModelsContainAddress(minterAddress string, models []models.Address) bool {
+func isModelsContainAddress(minterAddress string, models []*models.Address) bool {
 	for _, item := range models {
 		if item.Address == minterAddress {
 			return true
@@ -370,4 +370,27 @@ func isModelsContainAddress(minterAddress string, models []models.Address) bool 
 	}
 
 	return false
+}
+
+func extendModelWithBaseSymbolBalance(model *models.Address, minterAddress, baseCoin string) *models.Address {
+	// if model not found
+	if model == nil || len(model.Balances) == 0 {
+		return makeEmptyAddressModel(minterAddress, baseCoin)
+	}
+
+	isBaseSymbolExists := false
+	for _, b := range model.Balances {
+		if b.ID == 0 {
+			isBaseSymbolExists = true
+		}
+	}
+
+	if !isBaseSymbolExists {
+		model.Balances = append(model.Balances, &models.Balance{
+			Value: "0",
+			Coin:  &models.Coin{Symbol: baseCoin},
+		})
+	}
+
+	return model
 }
