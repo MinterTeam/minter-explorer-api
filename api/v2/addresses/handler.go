@@ -380,7 +380,7 @@ func extendModelWithBaseSymbolBalance(model *models.Address, minterAddress, base
 
 	isBaseSymbolExists := false
 	for _, b := range model.Balances {
-		if b.ID == 0 {
+		if b.CoinID == 0 {
 			isBaseSymbolExists = true
 		}
 	}
