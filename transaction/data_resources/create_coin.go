@@ -3,10 +3,13 @@ package data_resources
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
+	"strconv"
 )
 
 type CreateCoin struct {
+	CreatedCoinID        uint64 `json:"created_coin_id"`
 	Name                 string `json:"name"`
 	Symbol               string `json:"symbol"`
 	InitialAmount        string `json:"initial_amount"`
@@ -16,9 +19,11 @@ type CreateCoin struct {
 }
 
 func (CreateCoin) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.CreateCoinData)
+	data, model := txData.(*api_pb.CreateCoinData), params[0].(models.Transaction)
+	coinID, _ := strconv.ParseUint(model.Tags["tx.coin_id"], 10, 64)
 
 	return CreateCoin{
+		CreatedCoinID:        coinID,
 		Name:                 data.Name,
 		Symbol:               data.Symbol,
 		InitialAmount:        helpers.PipStr2Bip(data.InitialAmount),
