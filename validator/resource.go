@@ -23,7 +23,7 @@ type ResourceDetailed struct {
 type Params struct {
 	TotalStake          string // total stake of current active validator ids (by last block)
 	MinStake            string
-	ActiveValidatorsIDs []uint64
+	ActiveValidatorsIDs []uint
 }
 
 // Required extra params: object type of Params.
