@@ -9,5 +9,7 @@ func ApplyRoutes(r *gin.RouterGroup) {
 	coins := r.Group("/coins")
 	{
 		coins.GET("", GetCoins)
+		coins.GET("symbol/:symbol", GetCoinBySymbol)
+		coins.GET("id/:id", GetCoinByID)
 	}
 }

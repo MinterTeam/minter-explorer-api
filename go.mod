@@ -9,7 +9,7 @@ require (
 	github.com/MinterTeam/node-grpc-gateway v1.1.3-0.20200925002945-15b5cde8e354
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
-	github.com/gin-gonic/gin v1.5.0
+	github.com/gin-gonic/gin v1.6.3
 	github.com/go-pg/pg/v9 v9.1.2
 	github.com/go-pg/urlstruct v0.2.8
 	github.com/joho/godotenv v1.3.0
