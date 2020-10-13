@@ -57,7 +57,7 @@ func (repository Repository) GetPaginatedByValidator(
 	var err error
 
 	pagination.Total, err = repository.db.Model(&stakes).
-		Column("Coin.symbol", "OwnerAddress.address").
+		Column("Coin", "OwnerAddress.address").
 		Where("validator_id = ?", validator.ID).
 		Order("bip_value DESC").
 		Apply(pagination.Filter).
