@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-api/validator"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/MinterTeam/minter-go-node/formula"
 )
 
 type Resource struct {
@@ -22,8 +23,22 @@ func (resource Resource) Transform(model resource.ItemInterface, params ...resou
 	return Resource{
 		Coin:         new(coins.IdResource).Transform(*stake.Coin),
 		Value:        helpers.PipStr2Bip(stake.Value),
-		BipValue:     helpers.PipStr2Bip(stake.BipValue),
+		BipValue:     helpers.PipStr2Bip(getBipValueInBaseValue(stake)),
 		Validator:    new(validator.Resource).Transform(*stake.Validator),
 		IsWaitlisted: stake.IsKicked,
 	}
+}
+
+
+func getBipValueInBaseValue(stake models.Stake) string {
+	if !stake.IsKicked || stake.Coin.ID == 0 {
+		return stake.BipValue
+	}
+
+	return formula.CalculateSaleReturn(
+		helpers.StringToBigInt(stake.Coin.Volume),
+		helpers.StringToBigInt(stake.Coin.Reserve),
+		stake.Coin.Crr,
+		helpers.StringToBigInt(stake.Value),
+	).String()
 }
