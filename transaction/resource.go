@@ -3,7 +3,6 @@ package transaction
 import (
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
@@ -11,6 +10,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"reflect"
 	"strconv"
 	"time"
@@ -85,8 +86,8 @@ var transformConfig = map[uint8]TransformTxConfig{
 func TransformTxData(tx models.Transaction) resource.Interface {
 	config := transformConfig[tx.Type]
 
-	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface()
-	err := json.Unmarshal(tx.Data, val)
+	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface().(proto.Message)
+	err := protojson.Unmarshal(tx.Data, val)
 	helpers.CheckErr(err)
 
 	return config.Resource.Transform(val, tx)
