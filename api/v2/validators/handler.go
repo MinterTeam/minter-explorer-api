@@ -169,6 +169,9 @@ func GetValidatorStakes(c *gin.Context) {
 	stakes, err := explorer.StakeRepository.GetPaginatedByValidator(*v, &pagination)
 	helpers.CheckErr(err)
 
+	stakes, err = explorer.StakeService.PrepareStakesModels(stakes)
+	helpers.CheckErr(err)
+
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(stakes, stake.Resource{}, pagination))
 }
 

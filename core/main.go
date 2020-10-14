@@ -36,6 +36,7 @@ type Explorer struct {
 	ValidatorService             *services.ValidatorService
 	TransactionService           *transaction.Service
 	UnbondRepository             *unbond.Repository
+	StakeService                 *stake.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -64,5 +65,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		BalanceService:               balance.NewService(env.BaseCoin, marketService),
 		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 		UnbondRepository:             unbond.NewRepository(db),
+		StakeService:                 stake.NewService(stakeRepository),
 	}
 }

@@ -77,3 +77,14 @@ func (repository Repository) GetMinStakes() ([]models.Stake, error) {
 
 	return stakes, err
 }
+
+func (repository Repository) GetSumValueByCoin(coinID uint) (string, error) {
+	var sum string
+
+	err := repository.db.Model(new(models.Stake)).
+		ColumnExpr("SUM(value)").
+		Where("coin_id = ?", coinID).
+		Select(&sum)
+
+	return sum, err
+}

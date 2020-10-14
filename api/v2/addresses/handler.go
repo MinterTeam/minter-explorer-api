@@ -242,7 +242,13 @@ func GetDelegations(c *gin.Context) {
 	stakesCh := make(chan helpers.ChannelData)
 	go func(ch chan helpers.ChannelData) {
 		value, err := explorer.StakeRepository.GetAllByAddress(*minterAddress)
-		ch <- helpers.NewChannelData(value, err)
+		if err != nil {
+			ch <- helpers.NewChannelData(value, err)
+			return
+		}
+
+		stakes, err := explorer.StakeService.PrepareStakesModels(value)
+		ch <- helpers.NewChannelData(stakes, err)
 	}(stakesCh)
 
 	// get address total delegated sum in base coin
