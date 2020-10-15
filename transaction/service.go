@@ -1,12 +1,12 @@
 package transaction
 
 import (
-	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/coins"
 	dataModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type Service struct {
@@ -34,7 +34,7 @@ func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Trans
 	if tx.Type == uint8(transaction.TypeRedeemCheck) {
 		data := new(api_pb.RedeemCheckData)
 
-		err := json.Unmarshal(tx.Data, data)
+		err := protojson.Unmarshal(tx.Data, data)
 		if err != nil {
 			return nil, err
 		}
