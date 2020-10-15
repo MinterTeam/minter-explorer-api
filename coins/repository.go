@@ -8,7 +8,8 @@ import (
 )
 
 type Repository struct {
-	DB *pg.DB
+	DB        *pg.DB
+	baseModel *models.Coin
 }
 
 var GlobalRepository *Repository
@@ -77,10 +78,18 @@ func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData,
 func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 	var coin models.Coin
 
+	if id == 0 && repository.baseModel != nil {
+		return *repository.baseModel, nil
+	}
+
 	err := repository.DB.Model(&coin).
 		Where("id = ?", id).
 		Where("deleted_at IS NULL").
 		Select()
+
+	if id == 0 && repository.baseModel == nil {
+		repository.baseModel = &coin
+	}
 
 	return coin, err
 }
