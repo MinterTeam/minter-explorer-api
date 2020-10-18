@@ -120,5 +120,8 @@ func GetBlockTransactions(c *gin.Context) {
 		BlockId: blockId,
 	}, &pagination)
 
+	txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+	helpers.CheckErr(err)
+
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
