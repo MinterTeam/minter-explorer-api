@@ -1,13 +1,6 @@
-<p align="center" background="black"><img src="minter-logo.svg" width="400"></p>
-
-
 # Minter Explorer api
 
 The official repository of Minter Explorer API service.
-
-_NOTE: This project in active development stage so feel free to send us questions, issues, and wishes_
-
-<p align="center" background="black"><img src="minter-explorer.jpeg" width="400"></p>
 
 ## API Docs
 https://app.swaggerhub.com/apis-docs/GrKamil/minter-explorer_api
@@ -21,9 +14,9 @@ https://app.swaggerhub.com/apis-docs/GrKamil/minter-explorer_api
 
 ## BUILD
 
-- dep ensure
+- `go mod download`
 
-- run `make build`
+- `go build ./cmd/explorer.go`
 
 ## USE
 
@@ -41,38 +34,25 @@ https://app.swaggerhub.com/apis-docs/GrKamil/minter-explorer_api
 
 - build and move the compiled file to the directory e.g. `/opt/minter/explorer`
 
-- copy config.json.example to config.json file in extender's directory and fill with own values
+- copy .env file in extender's directory and fill with own values
 
 #### Run
 
-./explorer -config=/path/to/config.json
+./explorer
 
-### Config file
+### Env file
 
-Support JSON and YAML formats 
-
-```{
-     "name": "Minter Explorer Api",
-     "debug": true,
-     "baseCoin": "MNT",  -- MNT for testnet / BIP for mainnet
-     "database": {
-       "host": "localhost",
-       "name": "explorer",
-       "user": "minter",
-       "password": "password",
-       "poolSize": 20
-     },
-     "server": {
-       "port": "8080"
-     },
-     "extender": {
-       "ws": {
-           "address": "wss://centrifugo.url/connection/websocket",
-           "channel_blocks": "blocks"
-       }
-     },
-     "market": {
-       "host": ""
-     }
-   }
+```
+EXPLORER_DEBUG=1
+APP_BASE_COIN=BIP
+CENTRIFUGO_LINK=wss://exporer-rtm.minter.network/connection/websocket
+CENTRIFUGO_BLOCK_CHANNEL=blocks
+DB_HOST=localhost
+DB_PORT=5432
+DB_POOL_SIZE=20
+DB_NAME=explorer
+DB_USER=minter
+DB_PASSWORD=password
+EXPLORER_PORT=8080
+MARKET_HOST=https://api.coingecko.com
 ```
