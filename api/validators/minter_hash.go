@@ -1,16 +1,12 @@
 package validators
 
 import (
-	"gopkg.in/go-playground/validator.v8"
-	"reflect"
+	"gopkg.in/go-playground/validator.v9"
 	"regexp"
 )
 
-func MinterTxHash(
-	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
-	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
-) bool {
-	return isValidMinterHash(field.String())
+func MinterTxHash(fl validator.FieldLevel) bool {
+	return isValidMinterHash(fl.Field().Interface().(string))
 }
 
 func isValidMinterHash(hash string) bool {

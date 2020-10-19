@@ -1,8 +1,8 @@
 package invalid_transaction
 
 import (
-	"github.com/MinterTeam/minter-explorer-tools/models"
-	"github.com/go-pg/pg"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-pg/pg/v9"
 )
 
 type Repository struct {

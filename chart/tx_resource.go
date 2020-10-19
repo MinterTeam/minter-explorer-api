@@ -8,7 +8,7 @@ import (
 
 type TransactionResource struct {
 	Date    string `json:"date"`
-	TxCount uint64 `json:"txCount"`
+	TxCount uint64 `json:"transaction_count"`
 }
 
 func (TransactionResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {

@@ -1,10 +1,9 @@
 package validator
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/blocks"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-tools/models"
-	"github.com/go-pg/pg"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-pg/pg/v9"
 )
 
 type Repository struct {
@@ -21,8 +20,9 @@ func (repository Repository) GetByPublicKey(publicKey string) *models.Validator 
 	var validator models.Validator
 
 	err := repository.db.Model(&validator).
-		Column("Stakes", "Stakes.Coin", "Stakes.OwnerAddress").
-		Where("public_key = ?", publicKey).
+		Column("Stakes").
+		Join("JOIN validator_public_keys ON validator_public_keys.validator_id = validator.id").
+		Where("validator_public_keys.key = ?", publicKey).
 		Select()
 
 	if err != nil {
@@ -32,7 +32,7 @@ func (repository Repository) GetByPublicKey(publicKey string) *models.Validator 
 	return &validator
 }
 
-func (repository Repository) GetTotalStakeByActiveValidators(ids []uint64) string {
+func (repository Repository) GetTotalStakeByActiveValidators(ids []uint) string {
 	var total string
 
 	// get total stake of active validators
@@ -46,14 +46,20 @@ func (repository Repository) GetTotalStakeByActiveValidators(ids []uint64) strin
 	return total
 }
 
-func (repository Repository) GetActiveValidatorIds() []uint64 {
+func (repository Repository) GetActiveValidatorIds() []uint {
 	var blockValidator models.BlockValidator
-	var ids []uint64
+	var lastBlock models.Block
+	var ids []uint
+
+	lastBlockQuery := repository.db.Model(&lastBlock).
+		Column("id").
+		Order("id DESC").
+		Limit(1)
 
 	// get active validators by last block
 	err := repository.db.Model(&blockValidator).
 		Column("validator_id").
-		Where("block_id = ?", blocks.NewRepository(repository.db).GetLastBlock().ID).
+		Where("block_id = (?)", lastBlockQuery).
 		Select(&ids)
 
 	helpers.CheckErr(err)
@@ -78,7 +84,7 @@ func (repository Repository) GetActiveCandidatesCount() int {
 func (repository Repository) GetValidators() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Select()
+	err := repository.db.Model(&validators).Column("Stakes").Select()
 	helpers.CheckErr(err)
 
 	return validators

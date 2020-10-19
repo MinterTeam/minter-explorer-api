@@ -1,17 +1,12 @@
 package validators
 
 import (
-	"gopkg.in/go-playground/validator.v8"
-	"reflect"
+	"gopkg.in/go-playground/validator.v9"
 	"regexp"
 )
 
-func MinterAddress(
-	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
-	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
-) bool {
-	if fieldType.String() == "[]string" {
-		data, _ := field.Interface().([]string)
+func MinterAddress(fl validator.FieldLevel) bool {
+	if data, ok := fl.Field().Interface().([]string); ok {
 		for _, address := range data {
 			if !isValidMinterAddress(address) {
 				return false
@@ -21,7 +16,7 @@ func MinterAddress(
 		return true
 	}
 
-	return isValidMinterAddress(field.String())
+	return isValidMinterAddress(fl.Field().Interface().(string))
 }
 
 func isValidMinterAddress(address string) bool {

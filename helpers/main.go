@@ -2,6 +2,8 @@ package helpers
 
 import (
 	"reflect"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -33,4 +35,16 @@ func InArray(needle interface{}, haystack interface{}) bool {
 
 func StartOfTheDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+}
+
+func GetSymbolAndVersionFromStr(symbol string) (string, *uint64) {
+	items := strings.Split(symbol, "-")
+	baseSymbol := items[0]
+
+	if len(items) == 2 {
+		version, _ := strconv.ParseUint(items[1], 10, 64)
+		return baseSymbol, &version
+	}
+
+	return baseSymbol, nil
 }

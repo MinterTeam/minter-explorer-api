@@ -1,9 +1,10 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/core"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/v9"
 )
 
 func Connect(env *core.Environment) *pg.DB {
@@ -12,7 +13,7 @@ func Connect(env *core.Environment) *pg.DB {
 		Password: env.DbPassword,
 		Database: env.DbName,
 		PoolSize: env.DbPoolSize,
-		Addr:     env.DbHost,
+		Addr:     fmt.Sprintf("%s:%s", env.DbHost, env.DbPort),
 	}
 
 	db := pg.Connect(options)
@@ -36,8 +37,11 @@ func Close(db *pg.DB) {
 
 type dbLogger struct{}
 
-func (d dbLogger) BeforeQuery(q *pg.QueryEvent) {}
+func (d dbLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Context, error) {
+	return ctx, nil
+}
 
-func (d dbLogger) AfterQuery(q *pg.QueryEvent) {
+func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
 	fmt.Println(q.FormattedQuery())
+	return nil
 }

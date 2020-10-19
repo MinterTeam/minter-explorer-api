@@ -3,20 +3,23 @@ package coins
 import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-tools/models"
-	"github.com/go-pg/pg"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-pg/pg/v9"
 )
 
 type Repository struct {
-	DB             *pg.DB
-	baseCoinSymbol string
+	DB        *pg.DB
+	baseModel *models.Coin
 }
 
-func NewRepository(db *pg.DB, baseCoinSymbol string) *Repository {
-	return &Repository{
-		DB:             db,
-		baseCoinSymbol: baseCoinSymbol,
+var GlobalRepository *Repository
+
+func NewRepository(db *pg.DB) *Repository {
+	GlobalRepository = &Repository{
+		DB: db,
 	}
+
+	return GlobalRepository
 }
 
 // Get list of coins
@@ -24,9 +27,9 @@ func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
 	err := repository.DB.Model(&coins).
-		Column("crr", "volume", "reserve_balance", "name", "symbol").
+		Column("OwnerAddress").
 		Where("deleted_at IS NULL").
-		Order("reserve_balance DESC").
+		Order("reserve DESC").
 		Select()
 
 	helpers.CheckErr(err)
@@ -35,15 +38,20 @@ func (repository *Repository) GetCoins() []models.Coin {
 }
 
 // Get coin detail by symbol
-func (repository *Repository) GetBySymbol(symbol string) []models.Coin {
+func (repository *Repository) GetBySymbolAndVersion(symbol string, version *uint64) []models.Coin {
 	var coins []models.Coin
 
-	err := repository.DB.Model(&coins).
-		Column("crr", "volume", "reserve_balance", "name", "symbol").
+	query := repository.DB.Model(&coins).
+		Column("OwnerAddress").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Where("deleted_at IS NULL").
-		Order("reserve_balance DESC").
-		Select()
+		Order("reserve DESC")
+
+	if version != nil {
+		query.Where("version = ?", version)
+	}
+
+	err := query.Select()
 	helpers.CheckErr(err)
 
 	return coins
@@ -60,9 +68,28 @@ func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData,
 
 	err := repository.DB.
 		Model(&models.Coin{}).
-		ColumnExpr("SUM(reserve_balance) as reserve_sum, COUNT(*) as count").
-		Where("symbol != ?", repository.baseCoinSymbol).
+		ColumnExpr("SUM(reserve) as reserve_sum, COUNT(*) as count").
+		Where("id != ?", 0).
 		Select(&data)
 
 	return data, err
+}
+
+func (repository *Repository) FindByID(id uint) (models.Coin, error) {
+	var coin models.Coin
+
+	if id == 0 && repository.baseModel != nil {
+		return *repository.baseModel, nil
+	}
+
+	err := repository.DB.Model(&coin).
+		Where("id = ?", id).
+		Where("deleted_at IS NULL").
+		Select()
+
+	if id == 0 && repository.baseModel == nil {
+		repository.baseModel = &coin
+	}
+
+	return coin, err
 }

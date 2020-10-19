@@ -1,16 +1,12 @@
 package validators
 
 import (
-	"gopkg.in/go-playground/validator.v8"
-	"reflect"
+	"gopkg.in/go-playground/validator.v9"
 	"time"
 )
 
-func Timestamp(
-	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,
-	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
-) bool {
-	timestamp := field.String()
+func Timestamp(fl validator.FieldLevel) bool {
+	timestamp := fl.Field().Interface().(string)
 	_, err := time.Parse("2006-01-02", timestamp)
 	if err == nil {
 		return true

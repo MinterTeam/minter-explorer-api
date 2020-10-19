@@ -3,7 +3,7 @@ package invalid_transaction
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"time"
 )
 

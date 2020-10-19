@@ -1,10 +1,9 @@
 package stake
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/tools"
-	"github.com/MinterTeam/minter-explorer-tools/models"
-	"github.com/go-pg/pg"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-pg/pg/v9"
 )
 
 type Repository struct {
@@ -18,30 +17,14 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get list of stakes by Minter address
-func (repository Repository) GetByAddress(address string) []*models.Stake {
-	var stakes []*models.Stake
+func (repository Repository) GetAllByAddress(address string) ([]models.Stake, error) {
+	var stakes []models.Stake
 
 	err := repository.db.Model(&stakes).
-		Column("Coin", "OwnerAddress._").
+		Column("Coin", "Validator", "OwnerAddress._").
 		Where("owner_address.address = ?", address).
+		Order("bip_value DESC").
 		Select()
-
-	helpers.CheckErr(err)
-
-	return stakes
-}
-
-// Get paginated list of stakes by Minter address
-func (repository Repository) GetPaginatedByAddress(address string, pagination *tools.Pagination) ([]models.Stake, error) {
-	var stakes []models.Stake
-	var err error
-
-	pagination.Total, err = repository.db.Model(&stakes).
-		Column("Coin.symbol", "Validator.public_key", "OwnerAddress._").
-		Column("Validator.name", "Validator.description", "Validator.icon_url", "Validator.site_url").
-		Where("owner_address.address = ?", address).
-		Apply(pagination.Filter).
-		SelectAndCount()
 
 	return stakes, err
 }
@@ -60,6 +43,49 @@ func (repository Repository) GetSumInBipValueByAddress(address string) (string, 
 		Column("OwnerAddress._").
 		ColumnExpr("SUM(bip_value)").
 		Where("owner_address.address = ?", address).
+		Select(&sum)
+
+	return sum, err
+}
+
+// Get paginated list of stakes by validator
+func (repository Repository) GetPaginatedByValidator(
+	validator models.Validator,
+	pagination *tools.Pagination,
+) ([]models.Stake, error) {
+	var stakes []models.Stake
+	var err error
+
+	pagination.Total, err = repository.db.Model(&stakes).
+		Column("Coin", "OwnerAddress.address").
+		Where("validator_id = ?", validator.ID).
+		Order("bip_value DESC").
+		Apply(pagination.Filter).
+		SelectAndCount()
+
+	return stakes, err
+}
+
+func (repository Repository) GetMinStakes() ([]models.Stake, error) {
+	var stakes []models.Stake
+
+	err := repository.db.Model(&stakes).
+		ColumnExpr("min(bip_value) as bip_value").
+		Column("validator_id").
+		Where("bip_value != 0").
+		Where("is_kicked = false").
+		Group("validator_id").
+		Select()
+
+	return stakes, err
+}
+
+func (repository Repository) GetSumValueByCoin(coinID uint) (string, error) {
+	var sum string
+
+	err := repository.db.Model(new(models.Stake)).
+		ColumnExpr("SUM(value)").
+		Where("coin_id = ?", coinID).
 		Select(&sum)
 
 	return sum, err

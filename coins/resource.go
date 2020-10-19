@@ -3,26 +3,52 @@ package coins
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 )
 
 type Resource struct {
-	Crr            uint64 `json:"crr"`
-	Volume         string `json:"volume"`
-	ReserveBalance string `json:"reserveBalance"`
-	MaxSupply      string `json:"max_supply"`
-	Name           string `json:"name"`
-	Symbol         string `json:"symbol"`
+	ID           uint    `json:"id"`
+	Crr          uint    `json:"crr"`
+	Volume       string  `json:"volume"`
+	Reserve      string  `json:"reserve_balance"`
+	MaxSupply    string  `json:"max_supply"`
+	Name         string  `json:"name"`
+	Symbol       string  `json:"symbol"`
+	OwnerAddress *string `json:"owner_address"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	coin := model.(models.Coin)
+
+	ownerAddress := new(string)
+	if coin.OwnerAddressId != 0 {
+		*ownerAddress = coin.OwnerAddress.GetAddress()
+	} else {
+		ownerAddress = nil
+	}
+
 	return Resource{
-		Crr:            coin.Crr,
-		Volume:         helpers.PipStr2Bip(coin.Volume),
-		ReserveBalance: helpers.PipStr2Bip(coin.ReserveBalance),
-		MaxSupply:      helpers.PipStr2Bip(coin.MaxSupply),
-		Name:           coin.Name,
-		Symbol:         coin.Symbol,
+		ID:           coin.ID,
+		Crr:          coin.Crr,
+		Volume:       helpers.PipStr2Bip(coin.Volume),
+		Reserve:      helpers.PipStr2Bip(coin.Reserve),
+		MaxSupply:    helpers.PipStr2Bip(coin.MaxSupply),
+		Name:         coin.Name,
+		Symbol:       coin.GetSymbol(),
+		OwnerAddress: ownerAddress,
+	}
+}
+
+type IdResource struct {
+	ID     uint32 `json:"id"`
+	Symbol string `json:"symbol"`
+}
+
+func (IdResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	coin := model.(models.Coin)
+
+	return IdResource{
+		ID:     uint32(coin.ID),
+		Symbol: coin.GetSymbol(),
 	}
 }

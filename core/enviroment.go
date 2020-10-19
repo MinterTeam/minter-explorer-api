@@ -1,7 +1,9 @@
 package core
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/core/config"
+	"log"
+	"os"
+	"strconv"
 )
 
 type Environment struct {
@@ -10,6 +12,7 @@ type Environment struct {
 	DbPassword      string
 	DbPoolSize      int
 	DbHost          string
+	DbPort          string
 	BaseCoin        string
 	ServerPort      string
 	IsDebug         bool
@@ -19,20 +22,24 @@ type Environment struct {
 }
 
 func NewEnvironment() *Environment {
-	cfg := config.NewViperConfig()
+	dbPoolSize, err := strconv.ParseInt(os.Getenv("DB_POOL_SIZE"), 10, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	env := Environment{
-		DbName:          cfg.GetString("database.name"),
-		DbUser:          cfg.GetString("database.user"),
-		DbPassword:      cfg.GetString("database.password"),
-		DbPoolSize:      cfg.GetInt("database.poolSize"),
-		DbHost:          cfg.GetString("database.host"),
-		BaseCoin:        cfg.GetString("baseCoin"),
-		ServerPort:      cfg.GetString("server.port"),
-		IsDebug:         cfg.GetBool("debug"),
-		WsServer:        cfg.GetString("extender.ws.address"),
-		WsBlocksChannel: cfg.GetString("extender.ws.channel_blocks"),
-		MarketHost:      cfg.GetString("market.host"),
+		DbName:          os.Getenv("DB_NAME"),
+		DbUser:          os.Getenv("DB_USER"),
+		DbPassword:      os.Getenv("DB_PASSWORD"),
+		DbPort:          os.Getenv("DB_PORT"),
+		DbPoolSize:      int(dbPoolSize),
+		DbHost:          os.Getenv("DB_HOST"),
+		BaseCoin:        os.Getenv("APP_BASE_COIN"),
+		ServerPort:      os.Getenv("EXPLORER_PORT"),
+		IsDebug:         os.Getenv("EXPLORER_DEBUG") == "1",
+		WsServer:        os.Getenv("CENTRIFUGO_LINK"),
+		WsBlocksChannel: os.Getenv("CENTRIFUGO_BLOCK_CHANNEL"),
+		MarketHost:      os.Getenv("MARKET_HOST"),
 	}
 
 	return &env

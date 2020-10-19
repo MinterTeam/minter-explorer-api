@@ -2,8 +2,8 @@ package address
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-tools/models"
-	"github.com/go-pg/pg"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-pg/pg/v9"
 )
 
 type Repository struct {
@@ -30,11 +30,11 @@ func (repository Repository) GetByAddress(minterAddress string) *models.Address 
 }
 
 // Get list of addresses models
-func (repository Repository) GetByAddresses(minterAddresses []string) []models.Address {
-	var addresses []models.Address
+func (repository Repository) GetByAddresses(minterAddresses []string) []*models.Address {
+	var addresses []*models.Address
 
 	err := repository.DB.Model(&addresses).Column("Balances", "Balances.Coin").
-		WhereIn("address IN (?)", pg.In(minterAddresses)).Select()
+		WhereIn("address IN (?)", minterAddresses).Select()
 
 	helpers.CheckErr(err)
 

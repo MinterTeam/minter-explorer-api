@@ -1,8 +1,7 @@
 package api
 
 import (
-	"github.com/Depado/ginprom"
-	"github.com/MinterTeam/minter-explorer-api/api/v1"
+	"github.com/MinterTeam/minter-explorer-api/api/v2"
 	"github.com/MinterTeam/minter-explorer-api/api/validators"
 	"github.com/MinterTeam/minter-explorer-api/core"
 	"github.com/MinterTeam/minter-explorer-api/errors"
@@ -10,9 +9,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/v9"
+	"github.com/sirupsen/logrus"
+	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
-	"gopkg.in/go-playground/validator.v8"
+	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"sync"
 )
@@ -34,16 +35,13 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 
 	router := gin.Default()
 
-	p := ginprom.New(
-		ginprom.Engine(router),
-		ginprom.Subsystem("gin"),
-		ginprom.Path("/metrics"),
-	)
+	// metrics
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(router)
 
-	router.Use(p.Instrument())              // metrics
-	router.Use(cors.Default())              // CORS
-	router.Use(gin.ErrorLogger())           // print all errors
-	router.Use(apiRecovery)                 // returns 500 on any code panics
+	router.Use(cors.Default())    // CORS
+	router.Use(gin.ErrorLogger()) // print all errors
+	//router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// Default handler 404
@@ -54,8 +52,8 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	// Create base api prefix
 	api := router.Group("/api")
 	{
-		// apply routes of version 1.0
-		apiV1.ApplyRoutes(api)
+		// apply routes of version 2.0
+		apiV2.ApplyRoutes(api)
 	}
 
 	// Register validator for api requests
@@ -94,6 +92,7 @@ func registerApiValidators() {
 func apiRecovery(c *gin.Context) {
 	defer func(c *gin.Context) {
 		if rec := recover(); rec != nil {
+			logrus.WithField("err", rec).Error("API error")
 			errors.SetErrorResponse(http.StatusInternalServerError, -1, "Internal server error", c)
 		}
 	}(c)

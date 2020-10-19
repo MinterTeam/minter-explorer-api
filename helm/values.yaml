@@ -1,0 +1,59 @@
+replicaCount: 1
+
+image:
+  repository: minterteam/explorer-api
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  port: 8080
+
+#ingress:
+#  enabled: false
+#  domain: [] 
+#  tls: []
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - explorer-api.minter.network
+  tls:
+    secret: explorer-api
+    hosts:
+      - explorer-api.minter.network
+
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  EXPLORER_DEBUG: "false"
+  APP_BASE_COIN: "BIP"
+  CENTRIFUGO_LINK: "" 
+  CENTRIFUGO_BLOCK_CHANNEL: ""
+  DB_HOST: ""
+  DB_PORT: ""
+  DB_POOL_SIZE: ""
+  DB_NAME: ""
+  DB_USER: ""
+  DB_PASSWORD: ""
+  EXPLORER_PORT: ""
+  MARKET_HOST: "https://api.coingecko.com"

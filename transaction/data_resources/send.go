@@ -3,20 +3,20 @@ package data_resources
 import (
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-tools/models"
+	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 )
 
 type Send struct {
-	Coin  string `json:"coin"`
+	Coin  Coin   `json:"coin"`
 	To    string `json:"to"`
 	Value string `json:"value"`
 }
 
 func (Send) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*models.SendTxData)
+	data := txData.(*api_pb.SendData)
 
 	return Send{
-		Coin:  data.Coin,
+		Coin:  new(Coin).Transform(data.Coin),
 		To:    data.To,
 		Value: helpers.PipStr2Bip(data.Value),
 	}
