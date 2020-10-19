@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/helpers"
 	"github.com/MinterTeam/minter-explorer-api/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
@@ -40,6 +41,11 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		totalStake = *validator.TotalStake
 	}
 
+	delegatorCount := len(validator.Stakes)
+	if delegatorCount > config.MaxDelegatorCount {
+		delegatorCount -= delegatorCount - config.MaxDelegatorCount
+	}
+
 	result := ResourceDetailed{
 		PublicKey:      validator.GetPublicKey(),
 		Status:         validator.Status,
@@ -51,7 +57,7 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		Commission:     validator.Commission,
 		Part:           validatorStakePart,
 		MinStake:       helpers.PipStr2Bip(params.MinStake),
-		DelegatorCount: len(validator.Stakes),
+		DelegatorCount: delegatorCount,
 	}
 
 	return result
