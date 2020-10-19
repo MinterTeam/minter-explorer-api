@@ -88,7 +88,7 @@ func GetValidator(c *gin.Context) {
 
 	activeValidatorIDs := getActiveValidatorIDs(explorer)
 	totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
-	minStake := explorer.ValidatorService.GetMinStakesByValidator(data.ID)
+	minStake := explorer.ValidatorService.GetMinStakesByValidator(data)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": validator.ResourceDetailed{}.Transform(*data, validator.Params{
@@ -113,7 +113,8 @@ func GetValidators(c *gin.Context) {
 
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		minStake := explorer.ValidatorService.GetMinStakesByValidator(model.(models.Validator).ID)
+		v := model.(models.Validator)
+		minStake := explorer.ValidatorService.GetMinStakesByValidator(&v)
 
 		params := validator.Params{
 			MinStake:            minStake,

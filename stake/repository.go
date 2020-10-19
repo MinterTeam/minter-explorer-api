@@ -72,6 +72,8 @@ func (repository Repository) GetMinStakes() ([]models.Stake, error) {
 	err := repository.db.Model(&stakes).
 		ColumnExpr("min(bip_value) as bip_value").
 		Column("validator_id").
+		Where("bip_value != 0").
+		Where("is_kicked = false").
 		Group("validator_id").
 		Select()
 

@@ -1,9 +1,11 @@
 package services
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/core/config"
 	"github.com/MinterTeam/minter-explorer-api/stake"
 	"github.com/MinterTeam/minter-explorer-api/tools/cache"
 	"github.com/MinterTeam/minter-explorer-api/validator"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,7 +33,11 @@ const (
 
 type ValidatorsMinStake map[uint]string
 
-func (s *ValidatorService) GetMinStakesByValidator(validatorId uint) string {
+func (s *ValidatorService) GetMinStakesByValidator(validator *models.Validator) string {
+	if len(validator.Stakes) < config.MaxDelegatorCount {
+		return "0"
+	}
+
 	var stakes ValidatorsMinStake
 
 	if s.cache.GetLastBlock().ID%120 == 0 {
@@ -43,7 +49,7 @@ func (s *ValidatorService) GetMinStakesByValidator(validatorId uint) string {
 		}, minStakeCacheTime).(ValidatorsMinStake)
 	}
 
-	if bipStake, ok := stakes[validatorId]; ok {
+	if bipStake, ok := stakes[validator.ID]; ok {
 		return bipStake
 	}
 
