@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ chilinet ]
+    branches: [ rc ]
 
 jobs:
   docker:
@@ -33,15 +33,15 @@ jobs:
       - name: Deploy
         uses: wahyd4/kubectl-helm-action@master
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
         with:
-          args: helm upgrade explorer-api-chilinet helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
+          args: helm upgrade api helm/ --reuse-values --atomic --timeout 150s --set image.tag=$GITHUB_SHA -n mainnet
 
       - name: notification
         if: cancelled() == false
         uses: xinthink/action-telegram@v1.1
         with:
-          botToken: ${{ secrets.TELEGRAM_TOKEN }}
-          chatId: ${{ secrets.TELEGRAM_TO }}
+          botToken: ${{ secrets.TELEGRAM_CI_TOKEN }}
+          chatId: ${{ secrets.TELEGRAM_CI_PROD_TO }}
           jobStatus: ${{ job.status }}
           skipSuccess: false
