@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/MinterTeam/minter-explorer-api/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/go-pg/pg/v9"
 )
 

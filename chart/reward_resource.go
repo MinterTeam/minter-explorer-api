@@ -1,9 +1,9 @@
 package chart
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-api/reward"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/reward"
 	"time"
 )
 

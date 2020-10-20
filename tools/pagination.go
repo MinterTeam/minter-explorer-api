@@ -2,7 +2,7 @@ package tools
 
 import (
 	"fmt"
-	"github.com/MinterTeam/minter-explorer-api/core/config"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/go-pg/urlstruct"
 	"math"

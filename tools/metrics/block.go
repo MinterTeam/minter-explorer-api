@@ -2,8 +2,8 @@ package metrics
 
 import (
 	"encoding/json"
-	"github.com/MinterTeam/minter-explorer-api/blocks"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/centrifugal/centrifuge-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"time"

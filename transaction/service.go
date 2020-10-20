@@ -1,8 +1,8 @@
 package transaction
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/coins"
-	dataModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
+	dataModels "github.com/MinterTeam/minter-explorer-api/v2/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"

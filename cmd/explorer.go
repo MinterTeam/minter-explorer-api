@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/api"
-	"github.com/MinterTeam/minter-explorer-api/core"
-	"github.com/MinterTeam/minter-explorer-api/database"
-	"github.com/MinterTeam/minter-explorer-api/tools/metrics"
+	"github.com/MinterTeam/minter-explorer-api/v2/api"
+	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/database"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
 	"github.com/joho/godotenv"
 	"log"
 )

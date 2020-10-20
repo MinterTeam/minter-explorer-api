@@ -2,10 +2,10 @@ package data_resources
 
 import (
 	"encoding/base64"
-	"github.com/MinterTeam/minter-explorer-api/coins"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/resource"
-	dataModels "github.com/MinterTeam/minter-explorer-api/transaction/data_models"
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	dataModels "github.com/MinterTeam/minter-explorer-api/v2/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 )
 

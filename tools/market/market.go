@@ -1,7 +1,7 @@
 package market
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/core/config"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"time"
 )
 

@@ -1,8 +1,8 @@
 package chart
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-api/transaction"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"time"
 )
 

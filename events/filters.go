@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/blocks"
+	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/go-pg/pg/v9/orm"
 )
 

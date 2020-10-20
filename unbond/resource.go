@@ -1,10 +1,10 @@
 package unbond
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/coins"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/resource"
-	"github.com/MinterTeam/minter-explorer-api/validator"
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/validator"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 )
 

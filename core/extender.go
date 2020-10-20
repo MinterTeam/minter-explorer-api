@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/centrifugal/centrifuge-go"
 )
 

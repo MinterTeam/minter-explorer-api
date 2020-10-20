@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/tools"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 )
 
 type PaginationResource struct {

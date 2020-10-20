@@ -2,8 +2,8 @@ package cache
 
 import (
 	"encoding/json"
-	"github.com/MinterTeam/minter-explorer-api/blocks"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/centrifugal/centrifuge-go"
 	"sync"

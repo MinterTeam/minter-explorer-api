@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/api/v2"
-	"github.com/MinterTeam/minter-explorer-api/api/validators"
-	"github.com/MinterTeam/minter-explorer-api/core"
-	"github.com/MinterTeam/minter-explorer-api/errors"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/validators"
+	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/errors"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"

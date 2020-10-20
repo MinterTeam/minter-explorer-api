@@ -1,9 +1,9 @@
 package slash
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/events"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/tools"
+	"github.com/MinterTeam/minter-explorer-api/v2/events"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v9"
 )

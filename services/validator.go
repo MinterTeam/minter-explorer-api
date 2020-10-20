@@ -1,10 +1,10 @@
 package services
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/core/config"
-	"github.com/MinterTeam/minter-explorer-api/stake"
-	"github.com/MinterTeam/minter-explorer-api/tools/cache"
-	"github.com/MinterTeam/minter-explorer-api/validator"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
+	"github.com/MinterTeam/minter-explorer-api/v2/stake"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools/cache"
+	"github.com/MinterTeam/minter-explorer-api/v2/validator"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/sirupsen/logrus"
 )

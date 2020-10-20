@@ -1,4 +1,4 @@
-module github.com/MinterTeam/minter-explorer-api
+module github.com/MinterTeam/minter-explorer-api/v2
 
 go 1.13
 

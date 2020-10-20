@@ -1,12 +1,12 @@
 package statistics
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/chart"
-	"github.com/MinterTeam/minter-explorer-api/core"
-	"github.com/MinterTeam/minter-explorer-api/core/config"
-	"github.com/MinterTeam/minter-explorer-api/errors"
-	"github.com/MinterTeam/minter-explorer-api/helpers"
-	"github.com/MinterTeam/minter-explorer-api/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/chart"
+	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
+	"github.com/MinterTeam/minter-explorer-api/v2/errors"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"

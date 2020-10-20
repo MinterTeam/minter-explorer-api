@@ -1,13 +1,13 @@
 package apiV2
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/api/v2/addresses"
-	"github.com/MinterTeam/minter-explorer-api/api/v2/blocks"
-	"github.com/MinterTeam/minter-explorer-api/api/v2/coins"
-	"github.com/MinterTeam/minter-explorer-api/api/v2/statistics"
-	"github.com/MinterTeam/minter-explorer-api/api/v2/status"
-	"github.com/MinterTeam/minter-explorer-api/api/v2/transactions"
-	"github.com/MinterTeam/minter-explorer-api/api/v2/validators"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/addresses"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/blocks"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/statistics"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/status"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/transactions"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/validators"
 	"github.com/gin-gonic/gin"
 )
 
