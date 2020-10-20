@@ -22,7 +22,7 @@ func (r *Repository) GetListByAddress(filter *events.SelectFilter, pagination *t
 	pagination.Total, err = r.db.Model(&unbonds).
 		Relation("Coin").
 		Relation("Validator").
-		ColumnExpr("address.address as address__address").
+		ColumnExpr("unbond.block_id, unbond.value, address.address as address__address").
 		Join("JOIN addresses as address ON address.id = unbond.address_id").
 		Apply(filter.Filter).
 		SelectAndCount()
