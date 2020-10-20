@@ -9,21 +9,21 @@ import (
 )
 
 type Resource struct {
-	Coin             resource.Interface `json:"coin"`
-	Address          string             `json:"address"`
-	Value            string             `json:"value"`
-	Validator        resource.Interface `json:"validator"`
-	CreatedAtBlockID uint               `json:"created_at_block_id"`
+	Coin      resource.Interface `json:"coin"`
+	Address   string             `json:"address"`
+	Value     string             `json:"value"`
+	Validator resource.Interface `json:"validator"`
+	BlockID   uint               `json:"block_id"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	unbond := model.(models.Unbond)
 
 	return Resource{
-		Coin:             new(coins.IdResource).Transform(*unbond.Coin),
-		Address:          unbond.Address.GetAddress(),
-		Value:            helpers.PipStr2Bip(unbond.Value),
-		Validator:        new(validator.Resource).Transform(*unbond.Validator),
-		CreatedAtBlockID: unbond.BlockId,
+		Coin:      new(coins.IdResource).Transform(*unbond.Coin),
+		Address:   unbond.Address.GetAddress(),
+		Value:     helpers.PipStr2Bip(unbond.Value),
+		Validator: new(validator.Resource).Transform(*unbond.Validator),
+		BlockID:   unbond.BlockId,
 	}
 }

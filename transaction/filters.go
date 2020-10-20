@@ -56,7 +56,7 @@ func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		q.Where("transaction.from_address_id = a.id")
 	}
 
-	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}
+	blocksRange := blocks.RangeSelectFilter{Prefix: "transaction.", StartBlock: f.StartBlock, EndBlock: f.EndBlock}
 	q = q.Apply(blocksRange.Filter)
 
 	return q, nil
