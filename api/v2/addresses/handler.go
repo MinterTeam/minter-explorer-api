@@ -78,7 +78,7 @@ func GetAddresses(c *gin.Context) {
 	addresses := explorer.AddressRepository.GetByAddresses(minterAddresses)
 
 	for k, addr := range addresses {
-		addresses[k] = extendModelWithBaseSymbolBalance(addr, addr.Address, explorer.Environment.BaseCoin)
+		addresses[k] = extendModelWithBaseSymbolBalance(addr, addr.Address, explorer.Environment.Basecoin)
 	}
 
 	// extend the model array with empty model if not exists
@@ -88,7 +88,7 @@ func GetAddresses(c *gin.Context) {
 				continue
 			}
 
-			addresses = append(addresses, makeEmptyAddressModel(item, explorer.Environment.BaseCoin))
+			addresses = append(addresses, makeEmptyAddressModel(item, explorer.Environment.Basecoin))
 		}
 	}
 
@@ -117,7 +117,7 @@ func GetAddress(c *gin.Context) {
 
 	// fetch address
 	model := explorer.AddressRepository.GetByAddress(*minterAddress)
-	model = extendModelWithBaseSymbolBalance(model, *minterAddress, explorer.Environment.BaseCoin)
+	model = extendModelWithBaseSymbolBalance(model, *minterAddress, explorer.Environment.Basecoin)
 
 	// calculate overall address balance in base coin and fiat
 	if request.WithSum {

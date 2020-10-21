@@ -1,11 +1,8 @@
 package cache
 
 import (
-	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
-	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/centrifugal/centrifuge-go"
 	"sync"
 	"time"
 )
@@ -83,11 +80,6 @@ func (c *ExplorerCache) GetLastBlock() blocks.Resource {
 }
 
 // update last block id by ws data
-func (c *ExplorerCache) OnPublish(sub *centrifuge.Subscription, e centrifuge.PublishEvent) {
-	var block blocks.Resource
-	err := json.Unmarshal(e.Data, &block)
-	helpers.CheckErr(err)
-
-	// update last block id
+func (c *ExplorerCache) OnNewBlock(block blocks.Resource) {
 	c.SetLastBlock(block)
 }

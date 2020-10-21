@@ -13,7 +13,7 @@ type Environment struct {
 	DbPoolSize      int
 	DbHost          string
 	DbPort          string
-	BaseCoin        string
+	Basecoin        string
 	ServerPort      string
 	IsDebug         bool
 	WsServer        string
@@ -34,7 +34,7 @@ func NewEnvironment() *Environment {
 		DbPort:          os.Getenv("DB_PORT"),
 		DbPoolSize:      int(dbPoolSize),
 		DbHost:          os.Getenv("DB_HOST"),
-		BaseCoin:        os.Getenv("APP_BASE_COIN"),
+		Basecoin:        os.Getenv("APP_BASE_COIN"),
 		ServerPort:      os.Getenv("EXPLORER_PORT"),
 		IsDebug:         os.Getenv("EXPLORER_DEBUG") == "1",
 		WsServer:        os.Getenv("CENTRIFUGO_LINK"),

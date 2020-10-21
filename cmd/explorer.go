@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/api"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/ws"
 	"github.com/MinterTeam/minter-explorer-api/v2/database"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
 	"github.com/joho/godotenv"
@@ -29,21 +30,18 @@ func main() {
 	go explorer.MarketService.Run()
 
 	// create ws extender
-	extender := core.NewExtenderWsClient(explorer)
+	extender := ws.NewExtenderWsClient(explorer)
 	defer extender.Close()
+
+	// create ws channel handler
+	blocksChannelHandler := ws.NewBlocksChannelHandler()
+	blocksChannelHandler.AddSubscriber(explorer.Cache)
+	blocksChannelHandler.AddSubscriber(metrics.NewLastBlockMetric())
 
 	// subscribe to channel and add cache handler
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)
-	sub.OnPublish(explorer.Cache)
+	sub.OnPublish(blocksChannelHandler)
 	extender.Subscribe(sub)
-
-	// TODO: refactor
-	// create ws extender for metrics
-	extender2 := core.NewExtenderWsClient(explorer)
-	defer extender2.Close()
-	metricSub := extender2.CreateSubscription(explorer.Environment.WsBlocksChannel)
-	metricSub.OnPublish(metrics.NewLastBlockMetric())
-	extender2.Subscribe(metricSub)
 
 	// run api
 	api.Run(db, explorer)

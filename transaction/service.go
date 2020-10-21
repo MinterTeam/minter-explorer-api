@@ -70,9 +70,12 @@ func (s Service) transformCheckDataToModel(raw string) (*dataModels.CheckData, e
 		return nil, err
 	}
 
-	gasCoin, err := s.coinRepository.FindByID(uint(data.GasCoin))
-	if err != nil {
-		return nil, err
+	gasCoin := coin
+	if data.Coin != data.GasCoin {
+		gasCoin, err = s.coinRepository.FindByID(uint(data.GasCoin))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &dataModels.CheckData{
