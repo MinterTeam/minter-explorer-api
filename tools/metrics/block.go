@@ -1,10 +1,8 @@
 package metrics
 
 import (
-	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
-	"github.com/centrifugal/centrifuge-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"time"
 )
@@ -14,6 +12,7 @@ type LastBlockMetric struct {
 	time prometheus.Gauge
 }
 
+// Constructor for prometheus metrics
 func NewLastBlockMetric() *LastBlockMetric {
 	prometheusLastBlockIdMetric := prometheus.NewGauge(
 		prometheus.GaugeOpts{
@@ -36,11 +35,8 @@ func NewLastBlockMetric() *LastBlockMetric {
 	}
 }
 
-func (m *LastBlockMetric) OnPublish(sub *centrifuge.Subscription, e centrifuge.PublishEvent) {
-	var block blocks.Resource
-	err := json.Unmarshal(e.Data, &block)
-	helpers.CheckErr(err)
-
+// Update last block for prometheus metric
+func (m *LastBlockMetric) OnNewBlock(block blocks.Resource) {
 	blockTime, err := time.Parse(time.RFC3339, block.Timestamp)
 	helpers.CheckErr(err)
 

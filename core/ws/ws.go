@@ -1,6 +1,7 @@
-package core
+package ws
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/centrifugal/centrifuge-go"
 )
@@ -10,7 +11,7 @@ type ExtenderWsClient struct {
 }
 
 // create new extender connection
-func NewExtenderWsClient(explorer *Explorer) *ExtenderWsClient {
+func NewExtenderWsClient(explorer *core.Explorer) *ExtenderWsClient {
 	c := centrifuge.New(explorer.Environment.WsServer, centrifuge.DefaultConfig())
 
 	err := c.Connect()

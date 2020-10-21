@@ -32,7 +32,12 @@ func (repository Repository) GetAllByAddress(address string) ([]models.Stake, er
 // Get total delegated bip value
 func (repository Repository) GetSumInBipValue() (string, error) {
 	var sum string
-	err := repository.db.Model(&models.Stake{}).ColumnExpr("SUM(bip_value)").Select(&sum)
+
+	err := repository.db.Model(&models.Stake{}).
+		Where("is_kicked = false").
+		ColumnExpr("SUM(bip_value)").
+		Select(&sum)
+
 	return sum, err
 }
 
@@ -42,6 +47,7 @@ func (repository Repository) GetSumInBipValueByAddress(address string) (string, 
 	err := repository.db.Model(&models.Stake{}).
 		Column("OwnerAddress._").
 		ColumnExpr("SUM(bip_value)").
+		Where("is_kicked = false").
 		Where("owner_address.address = ?", address).
 		Select(&sum)
 

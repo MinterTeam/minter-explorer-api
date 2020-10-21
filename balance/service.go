@@ -42,6 +42,10 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
 	sum := big.NewInt(0)
 
 	for _, stake := range stakes {
+		if stake.IsKicked {
+			continue
+		}
+
 		// just add base coin to sum
 		if stake.Coin.Symbol == s.baseCoin {
 			sum = sum.Add(sum, helpers.StringToBigInt(stake.Value))

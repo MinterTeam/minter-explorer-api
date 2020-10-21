@@ -40,17 +40,17 @@ type Explorer struct {
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
-	marketService := market.NewService(coingecko.NewService(env.MarketHost), env.BaseCoin)
+	marketService := market.NewService(coingecko.NewService(env.MarketHost), env.Basecoin)
 	blockRepository := *blocks.NewRepository(db)
 	validatorRepository := validator.NewRepository(db)
 	stakeRepository := stake.NewRepository(db)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
-	coinRepository := *coins.NewRepository(db)
-	transactionService := transaction.NewService(&coinRepository)
+	coinRepository := coins.NewRepository(db)
+	transactionService := transaction.NewService(coinRepository)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
-		CoinRepository:               coinRepository,
+		CoinRepository:               *coinRepository,
 		AddressRepository:            *address.NewRepository(db),
 		TransactionRepository:        *transaction.NewRepository(db),
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),
@@ -62,7 +62,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		Cache:                        cacheService,
 		MarketService:                marketService,
 		TransactionService:           transactionService,
-		BalanceService:               balance.NewService(env.BaseCoin, marketService),
+		BalanceService:               balance.NewService(env.Basecoin, marketService),
 		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 		UnbondRepository:             unbond.NewRepository(db),
 		StakeService:                 stake.NewService(stakeRepository),
