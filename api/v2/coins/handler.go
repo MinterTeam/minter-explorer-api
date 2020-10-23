@@ -26,7 +26,7 @@ func GetCoins(c *gin.Context) {
 		}, CacheBlocksCount).([]models.Coin)
 	} else {
 		// fetch coins by symbol
-		data = explorer.CoinRepository.GetBySymbolAndVersion(symbol, version)
+		data = explorer.CoinRepository.GetLikeSymbolAndVersion(symbol, version)
 	}
 
 	// make response as empty array if no models found
