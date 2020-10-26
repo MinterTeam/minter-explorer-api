@@ -10,6 +10,7 @@ import (
 
 type Resource struct {
 	TimeID    string             `json:"time_id"`
+	Timestamp string             `json:"timestamp"`
 	Role      string             `json:"role"`
 	Amount    string             `json:"amount"`
 	Address   string             `json:"address"`
@@ -21,6 +22,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 
 	return Resource{
 		TimeID:    reward.TimeID.Format(time.RFC3339),
+		Timestamp: reward.TimeID.Format(time.RFC3339),
 		Role:      reward.Role,
 		Amount:    helpers.PipStr2Bip(reward.Amount),
 		Address:   reward.Address.GetAddress(),
