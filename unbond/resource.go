@@ -13,7 +13,7 @@ type Resource struct {
 	Address   string             `json:"address"`
 	Value     string             `json:"value"`
 	Validator resource.Interface `json:"validator"`
-	BlockID   uint               `json:"block_id"`
+	BlockID   uint               `json:"height"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
