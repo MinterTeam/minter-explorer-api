@@ -39,9 +39,9 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	p := ginprometheus.NewPrometheus("gin")
 	p.Use(router)
 
-	router.Use(cors.Default())    // CORS
-	router.Use(gin.ErrorLogger()) // print all errors
-	//router.Use(apiRecovery)                 // returns 500 on any code panics
+	router.Use(cors.Default())              // CORS
+	router.Use(gin.ErrorLogger())           // print all errors
+	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// Default handler 404
