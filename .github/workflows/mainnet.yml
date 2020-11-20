@@ -31,7 +31,7 @@ jobs:
           DOCKER_BUILD_ARGS: --build-arg VERSION=${{ steps.version.outputs.text }}
      
       - name: DigitalOcean Kubernetes
-        uses: matootie/dokube@v1.3.2
+        uses: matootie/dokube@master
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: k8s-prod-do
