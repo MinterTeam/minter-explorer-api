@@ -35,13 +35,13 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_STAGE_CONFIG_DATA }}
         with:
-          args: helm upgrade -i minter-explorer-api  chart/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
+          args: helm upgrade -i explorer-api  chart/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
 
       - name: notification
         if: cancelled() == false
         uses: xinthink/action-telegram@v1.1
         with:
-          botToken: ${{ secrets.TELEGRAM_CI_TOKEN }}
-          chatId: ${{ secrets.TELEGRAM_CI_PROD_TO }}
+          botToken: ${{ secrets.TELEGRAM_TOKEN }}
+          chatId: ${{ secrets.TELEGRAM_TO }}
           jobStatus: ${{ job.status }}
           skipSuccess: false
