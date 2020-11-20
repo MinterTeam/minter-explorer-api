@@ -19,8 +19,6 @@ tmp/
 media/
 
 config.json
-<<<<<<< HEAD
-helm/values-prod.yaml
-=======
+values-prod.yaml
+values.*.yaml
 .env
->>>>>>> origin/chilinet
