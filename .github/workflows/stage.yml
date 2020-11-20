@@ -35,7 +35,7 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_STAGE_CONFIG_DATA }}
         with:
-          args: helm upgrade -i explorer-api  chart/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
+          args: helm upgrade -i explorer-api  helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
 
       - name: notification
         if: cancelled() == false
