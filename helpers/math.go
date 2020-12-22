@@ -9,7 +9,7 @@ import (
 // default amount of pips in 1 bip
 var pipInBip = big.NewFloat(1000000000000000000)
 
-var feeDefaultMultiplier = big.NewInt(10000000000000000)
+var feeDefaultMultiplier = big.NewInt(100000000000000000)
 
 // default amount of unit in one bip
 const unitInBip = 1000
