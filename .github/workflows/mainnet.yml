@@ -49,7 +49,7 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
         with:
-          args: helm upgrade api helm/ --reuse-values --atomic --timeout 150s --set image.tag=$GITHUB_SHA -n mainnet
+          args: helm upgrade api helm/ --reuse-values --atomic --timeout 150s --set image.tag=$GITHUB_SHA -n mainnet-reserved
 
       - name: notification
         if: cancelled() == false
