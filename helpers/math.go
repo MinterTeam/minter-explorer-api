@@ -12,7 +12,7 @@ var pipInBip = big.NewFloat(1000000000000000000)
 var feeDefaultMultiplier = big.NewInt(100000000000000000)
 
 // default amount of unit in one bip
-const unitInBip = 1000
+const unitInBip = 10
 
 func PipStr2Bip(value string) string {
 	if value == "" {
