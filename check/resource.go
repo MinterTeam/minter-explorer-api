@@ -36,6 +36,6 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 		Nonce:       base64.StdEncoding.EncodeToString(data.Nonce),
 		Value:       helpers.PipStr2Bip(data.Value.String()),
 		DueBlock:    data.DueBlock,
-		RawCheck:    `Mx` + c.Data,
+		RawCheck:    `Mc` + c.Data,
 	}
 }
