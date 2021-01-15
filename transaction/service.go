@@ -39,7 +39,7 @@ func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Trans
 			return nil, err
 		}
 
-		checkData, err := s.transformCheckDataToModel(data.RawCheck)
+		checkData, err := s.TransformBase64CheckToModel(data.RawCheck)
 		if err != nil {
 			return nil, err
 		}
@@ -54,12 +54,25 @@ func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Trans
 	return tx, nil
 }
 
-func (s Service) transformCheckDataToModel(raw string) (*dataModels.CheckData, error) {
+func (s Service) TransformBase64CheckToModel(raw string) (*dataModels.CheckData, error) {
 	data, err := transaction.DecodeCheckBase64(raw)
 	if err != nil {
 		return nil, err
 	}
 
+	return s.transformCheckDataToModel(data)
+}
+
+func (s Service) TransformBaseCheckToModel(raw string) (*dataModels.CheckData, error) {
+	data, err := transaction.DecodeCheck(raw)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.transformCheckDataToModel(data)
+}
+
+func (s Service) transformCheckDataToModel(data *transaction.CheckData) (*dataModels.CheckData, error) {
 	sender, err := data.Sender()
 	if err != nil {
 		return nil, err

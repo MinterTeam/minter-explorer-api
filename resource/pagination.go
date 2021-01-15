@@ -30,8 +30,29 @@ func TransformPaginatedCollection(collection interface{}, resource Interface, pa
 	return transformPaginatedCollection(collection, resource, pagination, nil)
 }
 
-func TransformPaginatedCollectionWithAdditionalFields(collection interface{}, resource Interface, pagination tools.Pagination, additional map[string]interface{}) PaginationResource {
-	return transformPaginatedCollection(collection, resource, pagination, additional)
+func TransformPaginatedCollectionWithCallback(collection interface{}, resource Interface, pagination tools.Pagination, callbackFunc func(model ParamInterface) ParamsInterface) PaginationResource {
+	models := makeItemsFromModelsCollection(collection)
+	result := make([]Interface, len(models))
+	for i := range models {
+		result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
+	}
+
+	return PaginationResource{
+		Data: result,
+		Links: PaginationLinksResource{
+			First: pagination.GetFirstPageLink(),
+			Last:  pagination.GetLastPageLink(),
+			Prev:  pagination.GetPrevPageLink(),
+			Next:  pagination.GetNextPageLink(),
+		},
+		Meta: PaginationMetaResource{
+			CurrentPage: pagination.GetCurrentPage(),
+			LastPage:    pagination.GetLastPage(),
+			Path:        pagination.GetPath(),
+			PerPage:     pagination.GetPerPage(),
+			Total:       pagination.Total,
+		},
+	}
 }
 
 func transformPaginatedCollection(collection interface{}, resource Interface, pagination tools.Pagination, additional map[string]interface{}) PaginationResource {
