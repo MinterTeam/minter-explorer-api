@@ -17,6 +17,7 @@ type Resource struct {
 	Nonce       string             `json:"nonce"`
 	Value       string             `json:"value"`
 	DueBlock    uint64             `json:"due_block"`
+	RawCheck    string             `json:"raw_check"`
 }
 
 type Params struct {
@@ -35,5 +36,6 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 		Nonce:       base64.StdEncoding.EncodeToString(data.Nonce),
 		Value:       helpers.PipStr2Bip(data.Value.String()),
 		DueBlock:    data.DueBlock,
+		RawCheck:    `Mx` + c.Data,
 	}
 }
