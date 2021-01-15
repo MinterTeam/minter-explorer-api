@@ -69,7 +69,5 @@ func GetChecks(c *gin.Context) {
 		return resource.ParamsInterface{check.Params{CheckData: checkData}}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformPaginatedCollectionWithCallback(checks, check.Resource{}, pagination, resourceCallback),
-	})
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(checks, check.Resource{}, pagination, resourceCallback))
 }
