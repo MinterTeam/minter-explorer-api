@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/checks"
 	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/pools"
 	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/statistics"
 	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/status"
 	"github.com/MinterTeam/minter-explorer-api/v2/api/v2/transactions"
@@ -24,5 +25,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		statistics.ApplyRoutes(v2)
 		status.ApplyRoutes(v2)
 		checks.ApplyRoutes(v2)
+		pools.ApplyRoutes(v2)
 	}
 }

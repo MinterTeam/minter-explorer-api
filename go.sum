@@ -70,10 +70,20 @@ github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200921121059-a9bd28
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200921121059-a9bd28930388/go.mod h1:y1jiXqXaH6wBoiluDz7ZX04Ei11+auaejje9RsiATTw=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210111151948-e749e6752158 h1:dud4Uzj4XsiJkGIpKc9uGsSKgC+L24CZD7cQUXWzO8c=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210111151948-e749e6752158/go.mod h1:3g4TzaOh5bQNqDjaHqs7Lj/2mB3viYL7DCVQr8j4YUs=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210114171257-e0874981881b h1:qgOwXmjrfXG1v2bAvhF6oplU6josQtNleIgYKSQ7BXc=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210114171257-e0874981881b/go.mod h1:4IJEl02Kn2UQ1SAwkXolqwd0qXgOcWJ99OJn2rkzDFM=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210115073427-cd49bd363580 h1:vq0kMvffGiI7nBYHeqOSUXLY41MV+vhTf1hGcrWRdD0=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210115073427-cd49bd363580/go.mod h1:3g4TzaOh5bQNqDjaHqs7Lj/2mB3viYL7DCVQr8j4YUs=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210115074032-c177fbbe1c0d h1:qgW2HngNo/pUpCPBsoj2noBtCVgQugG/JL5wMr+wqaA=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210115074032-c177fbbe1c0d/go.mod h1:3g4TzaOh5bQNqDjaHqs7Lj/2mB3viYL7DCVQr8j4YUs=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118080556-d0df3093028e h1:uStthIynkF4do3gHi0A3GgVUTrJyafg5ilQgZygEOMI=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118080556-d0df3093028e/go.mod h1:4IJEl02Kn2UQ1SAwkXolqwd0qXgOcWJ99OJn2rkzDFM=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118081249-5642807ddb1f h1:85v6gSi11g0W0B4TUB6h8x2gRKXnHakTWtsl5yphUSU=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118081249-5642807ddb1f/go.mod h1:4IJEl02Kn2UQ1SAwkXolqwd0qXgOcWJ99OJn2rkzDFM=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118094322-37b66740c89a h1:iNJc+SDXDPFFP+QWSKKHllKRfiaUvddk9gN/vuUwO0Q=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118094322-37b66740c89a/go.mod h1:4IJEl02Kn2UQ1SAwkXolqwd0qXgOcWJ99OJn2rkzDFM=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118103823-bedfc6bf5101 h1:dXv4ocl+QtSsxyIw11cJjJdiv0TjzSl3AxeKZDY/6p8=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210118103823-bedfc6bf5101/go.mod h1:4IJEl02Kn2UQ1SAwkXolqwd0qXgOcWJ99OJn2rkzDFM=
 github.com/MinterTeam/minter-explorer-tools v1.5.2 h1:p+MIw4jaddH4NRM9DXdQjUsGVGoesIKreLwv64iZp+c=
 github.com/MinterTeam/minter-explorer-tools v1.5.2/go.mod h1:owuL/5tZGB+sGlQh88XFyCB5RobQGc5yWs5jm2BqQl4=
 github.com/MinterTeam/minter-explorer-tools/v4 v4.1.0/go.mod h1:OMgo5DGLbhUlUnU21DF6iJDoMiIOn/BbDG9FOw03Sik=
@@ -97,6 +107,7 @@ github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20200920180942-a75383c270a2/go.mod
 github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20200925010749-81e29232e7e3 h1:UtFzWb8QYvkH/qfcrg6L/iddf97MeLQCeiuavytr4GE=
 github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20200925010749-81e29232e7e3/go.mod h1:H60KTb5mvAx4wsQumjbuTdED1NcyEiniJpO8K3/5pcA=
 github.com/MinterTeam/minter-go-sdk/v2 v2.0.0-20201016141625-fb50c352ef65/go.mod h1:jZqlfoPbQxWyNGfjhdfiPZ7BjCnThaYdB/4Yoh/b82o=
+github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210113102832-670fe41d26e9/go.mod h1:4b0RPg05B11jOEcwZFB+y/npC8ivP9Gglqk+7jP2JUE=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0 h1:x5GR/Ap2yoCcKGJzBXqX8K2eN3Iy2fLtvXlmGAtBhIs=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0/go.mod h1:1GSb34ypb2JHzlL9Ns+2aQFSOE9dKvQtGy8Zly58QQQ=
 github.com/MinterTeam/minter-node-go-api v1.3.5 h1:5LM9sGnBweKymTMQyjeTDMPsioZ1sFBUw3xCR739iX4=
@@ -116,6 +127,8 @@ github.com/MinterTeam/node-grpc-gateway v1.1.3-0.20200925002945-15b5cde8e354/go.
 github.com/MinterTeam/node-grpc-gateway v1.1.3-0.20201016140502-48720810e1d0/go.mod h1:49888tivqufwv7KMC0QVZLGJP3wW2cQQazccvOYWCiE=
 github.com/MinterTeam/node-grpc-gateway v1.2.1 h1:Y+86Sc3WpGbdiDZLI7DyEUS7Y3qaNUtXjYMzRBhsDmE=
 github.com/MinterTeam/node-grpc-gateway v1.2.1/go.mod h1:oyBmm4OA4XyHpfbz7gHmP4j82qO3Xb2Z31hydzP192w=
+github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210113101747-ac22264d6105 h1:rY7u04iiVG2dXD7a17dSbusD+MzuW1L1ybpdYNqM34U=
+github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210113101747-ac22264d6105/go.mod h1:oyBmm4OA4XyHpfbz7gHmP4j82qO3Xb2Z31hydzP192w=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OneOfOne/xxhash v1.2.5/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=

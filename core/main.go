@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/coingecko"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/invalid_transaction"
+	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/reward"
 	"github.com/MinterTeam/minter-explorer-api/v2/services"
 	"github.com/MinterTeam/minter-explorer-api/v2/slash"
@@ -39,6 +40,7 @@ type Explorer struct {
 	UnbondRepository             *unbond.Repository
 	StakeService                 *stake.Service
 	CheckRepository              *check.Repository
+	PoolRepository               *pool.Repository
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -69,5 +71,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		UnbondRepository:             unbond.NewRepository(db),
 		StakeService:                 stake.NewService(stakeRepository),
 		CheckRepository:              check.NewRepository(db),
+		PoolRepository:               pool.NewRepository(db),
 	}
 }
