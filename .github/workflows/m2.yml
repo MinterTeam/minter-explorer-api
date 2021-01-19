@@ -1,0 +1,47 @@
+name: M2
+
+on:
+  push:
+    branches: [ taconet ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 5
+
+      - name: Version
+        uses: pCYSl5EDgo/cat@master
+        id: version
+        with:
+          path: VERSION
+
+      - name: Build & Push to Docker Hub
+        uses: opspresso/action-docker@master
+        env:
+          USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+          PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          IMAGE_NAME: "minterteam/explorer-api"
+          LATEST: "true"
+          VERSION: "${{ steps.version.outputs.text }}"
+          TAG_NAME: ${{ github.sha }}
+          DOCKER_BUILD_ARGS: --build-arg VERSION=${{ steps.version.outputs.text }}
+
+      - name: Deploy
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_STAGE_CONFIG_DATA }}
+        with:
+          args: helm upgrade -i m2-explorer-api  helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
+
+      - name: notification
+        if: cancelled() == false
+        uses: xinthink/action-telegram@v1.1
+        with:
+          botToken: ${{ secrets.TELEGRAM_TOKEN }}
+          chatId: ${{ secrets.TELEGRAM_TO }}
+          jobStatus: ${{ job.status }}
+          skipSuccess: false
