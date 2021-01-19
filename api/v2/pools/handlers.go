@@ -12,8 +12,8 @@ import (
 )
 
 type GetSwapPoolRequest struct {
-	Coin0 uint64 `uri:"coin0" binding:"numeric"`
-	Coin1 uint64 `uri:"coin1" binding:"numeric"`
+	Coin0 string `uri:"coin0"`
+	Coin1 string `uri:"coin1"`
 }
 
 func GetSwapPool(c *gin.Context) {
@@ -26,7 +26,7 @@ func GetSwapPool(c *gin.Context) {
 		return
 	}
 
-	p, err := explorer.PoolRepository.FindByCoins(req.Coin0, req.Coin1)
+	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1})
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
 		return
@@ -38,8 +38,8 @@ func GetSwapPool(c *gin.Context) {
 }
 
 type GetSwapPoolProviderRequest struct {
-	Coin0   uint64 `uri:"coin0" binding:"numeric"`
-	Coin1   uint64 `uri:"coin1" binding:"numeric"`
+	Coin0   string `uri:"coin0" binding:""`
+	Coin1   string `uri:"coin1" binding:""`
 	Address string `uri:"address" binding:"minterAddress"`
 }
 
@@ -53,7 +53,7 @@ func GetSwapPoolProvider(c *gin.Context) {
 		return
 	}
 
-	p, err := explorer.PoolRepository.FindProvider(req.Coin0, req.Coin1, helpers.RemoveMinterPrefix(req.Address))
+	p, err := explorer.PoolRepository.FindProvider(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1}, helpers.RemoveMinterPrefix(req.Address))
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Provider not found.", c)
 		return
@@ -65,7 +65,7 @@ func GetSwapPoolProvider(c *gin.Context) {
 }
 
 type GetSwapPoolsRequest struct {
-	Coin    *uint64 `form:"coin_id" binding:"omitempty,numeric"`
+	Coin    *string `form:"coin"     binding:"omitempty"`
 	Address *string `form:"provider" binding:"omitempty,minterAddress"`
 }
 
@@ -81,7 +81,7 @@ func GetSwapPools(c *gin.Context) {
 
 	pagination := tools.NewPagination(c.Request)
 	pools, err := explorer.PoolRepository.GetPools(pool.SelectPoolsFilter{
-		CoinId:          req.Coin,
+		Coin:            req.Coin,
 		ProviderAddress: req.Address,
 	}, &pagination)
 

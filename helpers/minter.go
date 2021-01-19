@@ -1,6 +1,10 @@
 package helpers
 
-import "math"
+import (
+	"math"
+	"strconv"
+	"strings"
+)
 
 func RemoveMinterPrefix(raw string) string {
 	return raw[2:]
@@ -26,4 +30,25 @@ func CalculateEmission(blockId uint64) uint64 {
 	sum += (blockId % uint64(blocksPerReward)) * uint64(reward)
 
 	return sum
+}
+
+func GetSymbolAndVersionFromStr(symbol string) (string, *uint64) {
+	items := strings.Split(symbol, "-")
+	baseSymbol := items[0]
+
+	if len(items) == 2 {
+		version, _ := strconv.ParseUint(items[1], 10, 64)
+		return baseSymbol, &version
+	}
+
+	return baseSymbol, nil
+}
+
+func GetSymbolAndDefaultVersionFromStr(symbol string) (string, uint64) {
+	symbol, version := GetSymbolAndVersionFromStr(symbol)
+	if version == nil {
+		return symbol, 0
+	}
+
+	return symbol, *version
 }

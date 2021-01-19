@@ -14,28 +14,30 @@ func NewRepository(db *pg.DB) *Repository {
 	return &Repository{db}
 }
 
-func (r *Repository) FindByCoins(coin0 uint64, coin1 uint64) (models.LiquidityPool, error) {
+func (r *Repository) FindByCoins(filter SelectByCoinsFilter) (models.LiquidityPool, error) {
 	var pool models.LiquidityPool
 
 	err := r.db.Model(&pool).
 		Relation("FirstCoin").
 		Relation("SecondCoin").
-		Where("first_coin_id = ?", coin0).
-		Where("second_coin_id = ?", coin1).
+		Apply(filter.Filter).
 		First()
 
 	return pool, err
 }
 
-func (r *Repository) FindProvider(coin0 uint64, coin1 uint64, address string) (models.AddressLiquidityPool, error) {
+func (r *Repository) FindProvider(filter SelectByCoinsFilter, address string) (models.AddressLiquidityPool, error) {
 	var provider models.AddressLiquidityPool
 
 	err := r.db.Model(&provider).
 		Relation("Address").
 		Relation("LiquidityPool").
+		Join("JOIN coins as first_coin").
+		JoinOn("first_coin.id = liquidity_pool.first_coin_id").
+		Join("JOIN coins as second_coin").
+		JoinOn("second_coin.id = liquidity_pool.second_coin_id").
 		Where("address.address = ?", address).
-		Where("liquidity_pool.first_coin_id = ?", coin0).
-		Where("liquidity_pool.second_coin_id = ?", coin1).
+		Apply(filter.Filter).
 		First()
 
 	return provider, err
