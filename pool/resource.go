@@ -20,8 +20,8 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	pool := model.(models.LiquidityPool)
 
 	return Resource{
-		Coin0:     new(coins.Resource).Transform(*pool.FirstCoin),
-		Coin1:     new(coins.Resource).Transform(*pool.SecondCoin),
+		Coin0:     new(coins.IdResource).Transform(*pool.FirstCoin),
+		Coin1:     new(coins.IdResource).Transform(*pool.SecondCoin),
 		Amount0:   helpers.PipStr2Bip(pool.FirstCoinVolume),
 		Amount1:   helpers.PipStr2Bip(pool.SecondCoinVolume),
 		Liquidity: helpers.PipStr2Bip(pool.Liquidity),
