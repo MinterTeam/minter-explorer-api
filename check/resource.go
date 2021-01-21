@@ -2,7 +2,6 @@ package check
 
 import (
 	"encoding/base64"
-	"encoding/hex"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
@@ -11,7 +10,7 @@ import (
 )
 
 type Resource struct {
-	RawTx       string             `json:"raw_tx"`
+	TxHash      string             `json:"tx_hash"`
 	BlockID     uint64             `json:"block_id"`
 	FromAddress string             `json:"address_from"`
 	ToAddress   string             `json:"address_to"`
@@ -32,7 +31,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	data := resourceParams[0].(Params).CheckData
 
 	return Resource{
-		RawTx:       hex.EncodeToString(c.Transaction.RawTx),
+		TxHash:      c.Transaction.GetHash(),
 		BlockID:     c.Transaction.BlockID,
 		FromAddress: c.FromAddress.GetAddress(),
 		ToAddress:   c.ToAddress.GetAddress(),
