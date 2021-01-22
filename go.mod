@@ -3,10 +3,10 @@ module github.com/MinterTeam/minter-explorer-api/v2
 go 1.13
 
 require (
-	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210121090249-11c6faa077db
+	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210122125525-c4124b1bc91c
 	github.com/MinterTeam/minter-go-node v1.0.5
-	github.com/MinterTeam/minter-go-sdk/v2 v2.1.0
-	github.com/MinterTeam/node-grpc-gateway v1.2.1
+	github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210119100929-c518a13575a5
+	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210118214154-aa5e198dc587
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.5.0
