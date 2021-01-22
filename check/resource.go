@@ -10,6 +10,8 @@ import (
 )
 
 type Resource struct {
+	TxHash      string             `json:"tx_hash"`
+	BlockID     uint64             `json:"block_id"`
 	FromAddress string             `json:"address_from"`
 	ToAddress   string             `json:"address_to"`
 	Coin        resource.Interface `json:"coin"`
@@ -29,6 +31,8 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	data := resourceParams[0].(Params).CheckData
 
 	return Resource{
+		TxHash:      c.Transaction.GetHash(),
+		BlockID:     c.Transaction.BlockID,
 		FromAddress: c.FromAddress.GetAddress(),
 		ToAddress:   c.ToAddress.GetAddress(),
 		Coin:        new(coins.IdResource).Transform(data.Coin),

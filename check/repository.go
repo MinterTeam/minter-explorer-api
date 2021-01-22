@@ -20,6 +20,7 @@ func (r *Repository) GetByRawCheck(raw string) (models.Check, error) {
 	err := r.db.Model(&check).
 		Relation("FromAddress").
 		Relation("ToAddress").
+		Relation("Transaction").
 		Where("data = ?", raw).
 		Select()
 
@@ -30,6 +31,7 @@ func (r *Repository) GetListByFilter(filter SelectFilter, pagination *tools.Pagi
 	pagination.Total, err = r.db.Model(&checks).
 		Relation("FromAddress").
 		Relation("ToAddress").
+		Relation("Transaction").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		SelectAndCount()
