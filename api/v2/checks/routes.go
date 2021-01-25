@@ -4,9 +4,9 @@ import "github.com/gin-gonic/gin"
 
 // ApplyRoutes applies router to the gin Engine
 func ApplyRoutes(r *gin.RouterGroup) {
-	blocks := r.Group("/checks")
+	checks := r.Group("/checks")
 	{
-		blocks.GET("/", GetChecks)
-		blocks.GET("/:raw", GetCheck)
+		checks.GET("", GetChecks)
+		checks.GET("/:raw", GetCheck)
 	}
 }
