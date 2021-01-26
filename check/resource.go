@@ -7,11 +7,13 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"time"
 )
 
 type Resource struct {
 	TxHash      string             `json:"tx_hash"`
 	BlockID     uint64             `json:"block_id"`
+	Timestamp   string             `json:"timestamp"`
 	FromAddress string             `json:"address_from"`
 	ToAddress   string             `json:"address_to"`
 	Coin        resource.Interface `json:"coin"`
@@ -33,6 +35,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	return Resource{
 		TxHash:      c.Transaction.GetHash(),
 		BlockID:     c.Transaction.BlockID,
+		Timestamp:   c.Transaction.CreatedAt.Format(time.RFC3339),
 		FromAddress: c.FromAddress.GetAddress(),
 		ToAddress:   c.ToAddress.GetAddress(),
 		Coin:        new(coins.IdResource).Transform(data.Coin),
