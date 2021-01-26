@@ -9,11 +9,16 @@ import (
 )
 
 type Resource struct {
-	Coin0     resource.Interface `json:"coin0"`
-	Coin1     resource.Interface `json:"coin1"`
-	Amount0   string             `json:"amount0"`
-	Amount1   string             `json:"amount1"`
-	Liquidity string             `json:"liquidity"`
+	Coin0          resource.Interface `json:"coin0"`
+	Coin1          resource.Interface `json:"coin1"`
+	Amount0        string             `json:"amount0"`
+	Amount1        string             `json:"amount1"`
+	Liquidity      string             `json:"liquidity"`
+	LiquidityInBip string             `json:"liquidity_bip"`
+}
+
+type Params struct {
+	LiquidityInBip *big.Int
 }
 
 func (r Resource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {
@@ -25,6 +30,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 		Amount0:   helpers.PipStr2Bip(pool.FirstCoinVolume),
 		Amount1:   helpers.PipStr2Bip(pool.SecondCoinVolume),
 		Liquidity: helpers.PipStr2Bip(pool.Liquidity),
+		LiquidityInBip: helpers.PipStr2Bip(resourceParams[0].(Params).LiquidityInBip.String()),
 	}
 }
 

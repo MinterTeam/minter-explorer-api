@@ -41,6 +41,7 @@ type Explorer struct {
 	StakeService                 *stake.Service
 	CheckRepository              *check.Repository
 	PoolRepository               *pool.Repository
+	PoolService                  *pool.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -72,5 +73,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		StakeService:                 stake.NewService(stakeRepository),
 		CheckRepository:              check.NewRepository(db),
 		PoolRepository:               pool.NewRepository(db),
+		PoolService:                  pool.NewService(),
 	}
 }

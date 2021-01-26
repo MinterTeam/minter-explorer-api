@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -32,8 +33,10 @@ func GetSwapPool(c *gin.Context) {
 		return
 	}
 
+	bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.Resource).Transform(p),
+		"data": new(pool.Resource).Transform(p, pool.Params{LiquidityInBip: bipValue}),
 	})
 }
 
@@ -87,5 +90,11 @@ func GetSwapPools(c *gin.Context) {
 
 	helpers.CheckErr(err)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(pools, pool.Resource{}, pagination))
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		bipValue := explorer.PoolService.GetPoolLiquidityInBip(model.(models.LiquidityPool))
+		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.Resource{}, pagination, resourceCallback))
 }
