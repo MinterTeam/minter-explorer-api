@@ -15,6 +15,8 @@ type Resource struct {
 	Name         string  `json:"name"`
 	Symbol       string  `json:"symbol"`
 	OwnerAddress *string `json:"owner_address"`
+	Burnable     bool    `json:"burnable"`
+	Mintable     bool    `json:"mintable"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -36,6 +38,8 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Name:         coin.Name,
 		Symbol:       coin.GetSymbol(),
 		OwnerAddress: ownerAddress,
+		Burnable:     coin.Burnable,
+		Mintable:     coin.Mintable,
 	}
 }
 
