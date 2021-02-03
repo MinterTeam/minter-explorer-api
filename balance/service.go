@@ -20,6 +20,10 @@ func NewService(baseCoin string, marketService *market.Service) *Service {
 func (s *Service) GetTotalBalance(address *models.Address) *big.Float {
 	sum := big.NewInt(0)
 	for _, balance := range address.Balances {
+		if balance.Coin.Crr == 0 {
+			continue
+		}
+
 		// just add base coin to sum
 		if balance.Coin.Symbol == s.baseCoin {
 			sum = sum.Add(sum, helpers.StringToBigInt(balance.Value))
@@ -42,7 +46,7 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
 	sum := big.NewInt(0)
 
 	for _, stake := range stakes {
-		if stake.IsKicked {
+		if stake.IsKicked || stake.Coin.Crr == 0 {
 			continue
 		}
 
