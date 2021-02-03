@@ -83,14 +83,18 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeEditCandidatePublicKey):  {Model: new(api_pb.EditCandidatePublicKeyData), Resource: data_resources.EditCandidatePublicKey{}},
 	uint8(transaction.TypeAddLiquidity):            {Model: new(api_pb.AddLiquidityData), Resource: data_resources.AddLiquidity{}},
 	uint8(transaction.TypeRemoveLiquidity):         {Model: new(api_pb.RemoveLiquidityData), Resource: data_resources.RemoveLiquidity{}},
+	uint8(transaction.TypeSellSwapPool):            {Model: new(api_pb.SellSwapPoolData), Resource: data_resources.SellSwapPool{}},
+	uint8(transaction.TypeBuySwapPool):             {Model: new(api_pb.BuySwapPoolData), Resource: data_resources.BuySwapPool{}},
+	uint8(transaction.TypeSellAllSwapPool):         {Model: new(api_pb.SellAllSwapPoolData), Resource: data_resources.SellAllSwapPool{}},
+	uint8(transaction.TypeEditCommissionCandidate): {Model: new(api_pb.EditCandidateCommission), Resource: data_resources.EditCandidateCommission{}},
+	uint8(transaction.TypeMoveStake):               {Model: new(api_pb.MoveStakeData), Resource: data_resources.MoveStake{}},
 	uint8(transaction.TypeMintToken):               {Model: new(api_pb.MintTokenData), Resource: data_resources.MintToken{}},
 	uint8(transaction.TypeBurnToken):               {Model: new(api_pb.BurnTokenData), Resource: data_resources.BurnToken{}},
 	uint8(transaction.TypeCreateToken):             {Model: new(api_pb.CreateTokenData), Resource: data_resources.CreateToken{}},
-	uint8(transaction.TypeBuySwapPool):             {Model: new(api_pb.BuySwapPoolData), Resource: data_resources.BuySwapPool{}},
-	uint8(transaction.TypeSellSwapPool):            {Model: new(api_pb.SellSwapPoolData), Resource: data_resources.SellSwapPool{}},
-	uint8(transaction.TypeSellAllSwapPool):         {Model: new(api_pb.SellAllSwapPoolData), Resource: data_resources.SellAllSwapPool{}},
-	uint8(transaction.TypeMoveStake):               {Model: new(api_pb.MoveStakeData), Resource: data_resources.MoveStake{}},
-	uint8(transaction.TypeEditCommissionCandidate): {Model: new(api_pb.EditCandidateCommission), Resource: data_resources.EditCandidateCommission{}},
+	uint8(transaction.TypeRecreateToken):           {Model: new(api_pb.RecreateTokenData), Resource: data_resources.RecreateToken{}},
+	uint8(transaction.TypeVoteCommission):          {Model: new(api_pb.VoteCommissionData), Resource: data_resources.VoteCommission{}},
+	uint8(transaction.TypeVoteUpdate):              {Model: new(api_pb.VoteUpdateData), Resource: data_resources.VoteUpdate{}},
+	uint8(transaction.TypeCreateSwapPool):          {Model: new(api_pb.CreateSwapPoolData), Resource: data_resources.CreateSwapPool{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {

@@ -29,7 +29,7 @@ func getCoinBalanceInBaseValue(balance models.Balance) *big.Int {
 	if balance.Coin.Crr == 0 {
 		return big.NewInt(0)
 	}
-	
+
 	if balance.Coin.ID == 0 {
 		return helpers.StringToBigInt(balance.Value)
 	}
