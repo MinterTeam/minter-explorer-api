@@ -20,7 +20,11 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 		secondCoinInBip = helpers.StringToBigInt(pool.SecondCoinVolume)
 	)
 
-	if pool.FirstCoinId != 0 && pool.FirstCoin.Crr != 0 {
+	if pool.FirstCoin.Crr == 0 || pool.SecondCoin.Crr == 0 {
+		return big.NewInt(0)
+	}
+
+	if pool.FirstCoinId != 0 {
 		firstCoinInBip = formula.CalculateSaleReturn(
 			helpers.StringToBigInt(pool.FirstCoin.Volume),
 			helpers.StringToBigInt(pool.FirstCoin.Reserve),
@@ -29,7 +33,7 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 		)
 	}
 
-	if pool.SecondCoinId != 0 && pool.SecondCoin.Crr != 0 {
+	if pool.SecondCoinId != 0 {
 		secondCoinInBip = formula.CalculateSaleReturn(
 			helpers.StringToBigInt(pool.SecondCoin.Volume),
 			helpers.StringToBigInt(pool.SecondCoin.Reserve),
