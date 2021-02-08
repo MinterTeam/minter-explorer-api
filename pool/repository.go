@@ -20,7 +20,7 @@ func (r *Repository) FindByCoins(filter SelectByCoinsFilter) (models.LiquidityPo
 	err := r.db.Model(&pool).
 		Relation("FirstCoin").
 		Relation("SecondCoin").
-		Apply(filter.Filter).
+		Apply(filter.Filter("first_coin", "second_coin")).
 		First()
 
 	return pool, err
@@ -34,24 +34,33 @@ func (r *Repository) FindProvider(filter SelectByCoinsFilter, address string) (m
 		Relation("LiquidityPool").
 		Relation("LiquidityPool.FirstCoin").
 		Relation("LiquidityPool.SecondCoin").
-		Join("JOIN coins as first_coin").
-		JoinOn("first_coin.id = liquidity_pool.first_coin_id").
-		Join("JOIN coins as second_coin").
-		JoinOn("second_coin.id = liquidity_pool.second_coin_id").
 		Where("address.address = ?", address).
-		Apply(filter.Filter).
+		Apply(filter.Filter("liquidity_pool__first_coin", "liquidity_pool__second_coin")).
 		First()
 
 	return provider, err
 }
 
-func (r *Repository) GetPools(filter SelectPoolsFilter, pagination *tools.Pagination) (provider []models.LiquidityPool, err error) {
-	pagination.Total, err = r.db.Model(&provider).
+func (r *Repository) GetPools(filter SelectPoolsFilter, pagination *tools.Pagination) (pool []models.LiquidityPool, err error) {
+	pagination.Total, err = r.db.Model(&pool).
 		Relation("FirstCoin").
 		Relation("SecondCoin").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		SelectAndCount()
 
-	return provider, err
+	return pool, err
+}
+
+func (r *Repository) GetProviders(filter SelectByCoinsFilter, pagination *tools.Pagination) (providers []models.AddressLiquidityPool, err error) {
+	pagination.Total, err = r.db.Model(&providers).
+		Relation("Address").
+		Relation("LiquidityPool").
+		Relation("LiquidityPool.FirstCoin").
+		Relation("LiquidityPool.SecondCoin").
+		Apply(filter.Filter("liquidity_pool__first_coin", "liquidity_pool__second_coin")).
+		Apply(pagination.Filter).
+		SelectAndCount()
+
+	return providers, err
 }

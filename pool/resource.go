@@ -35,6 +35,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 }
 
 type ProviderResource struct {
+	Address        string             `json:"address"`
 	Coin0          resource.Interface `json:"coin0"`
 	Coin1          resource.Interface `json:"coin1"`
 	Amount0        string             `json:"amount0"`
@@ -57,6 +58,7 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	liquidityInBip, _ := new(big.Float).Mul(part, new(big.Float).SetInt(resourceParams[0].(Params).LiquidityInBip)).Int(nil)
 
 	return ProviderResource{
+		Address:        provider.Address.GetAddress(),
 		Coin0:          new(coins.IdResource).Transform(*provider.LiquidityPool.FirstCoin),
 		Coin1:          new(coins.IdResource).Transform(*provider.LiquidityPool.SecondCoin),
 		Amount0:        helpers.PipStr2Bip(amount0.String()),

@@ -92,6 +92,11 @@ func GetSwapPools(c *gin.Context) {
 
 	helpers.CheckErr(err)
 
+	if len(pools) == 0 {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
+		return
+	}
+
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		bipValue := explorer.PoolService.GetPoolLiquidityInBip(model.(models.LiquidityPool))
@@ -99,4 +104,40 @@ func GetSwapPools(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.Resource{}, pagination, resourceCallback))
+}
+
+type GetSwapPoolProvidersRequest struct {
+	Coin0 string `uri:"coin0" binding:""`
+	Coin1 string `uri:"coin1" binding:""`
+}
+
+func GetSwapPoolProviders(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetSwapPoolProvidersRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	pagination := tools.NewPagination(c.Request)
+	providers, err := explorer.PoolRepository.GetProviders(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1}, &pagination)
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Provider not found.", c)
+		return
+	}
+
+	if len(providers) == 0 {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Providers not found.", c)
+		return
+	}
+
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
+		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(providers, pool.ProviderResource{}, pagination, resourceCallback))
 }

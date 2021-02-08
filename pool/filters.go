@@ -40,20 +40,24 @@ type SelectByCoinsFilter struct {
 	Coin1 string
 }
 
-func (f SelectByCoinsFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	if id, err := strconv.Atoi(f.Coin0); err == nil {
-		q = q.Where("first_coin_id = ?", id)
-	} else {
-		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin0)
-		q = q.Where(`"first_coin"."symbol" = ?`, symbol).Where(`"first_coin"."version" = ?`, version)
-	}
+func (f SelectByCoinsFilter) Filter(firstCoinAlias, secondCoinAlias string) func(q *orm.Query) (*orm.Query, error) {
+	return func(q *orm.Query) (*orm.Query, error) {
+		if id, err := strconv.Atoi(f.Coin0); err == nil {
+			q = q.Where("first_coin_id = ?", id)
+		} else {
+			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin0)
+			q = q.Where(`"` + firstCoinAlias + `"."symbol" = ?`, symbol).
+				Where(`"` + firstCoinAlias + `"."version" = ?`, version)
+		}
 
-	if id, err := strconv.Atoi(f.Coin1); err == nil {
-		q = q.Where("second_coin_id = ?", id)
-	} else {
-		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin1)
-		q = q.Where(`"second_coin"."symbol" = ?`, symbol).Where(`"second_coin"."version" = ?`, version)
-	}
+		if id, err := strconv.Atoi(f.Coin1); err == nil {
+			q = q.Where("second_coin_id = ?", id)
+		} else {
+			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin1)
+			q = q.Where(`"` + secondCoinAlias + `"."symbol" = ?`, symbol).
+				Where(`"` + secondCoinAlias + `"."version" = ?`, version)
+		}
 
-	return q, nil
+		return q, nil
+	}
 }
