@@ -36,6 +36,10 @@ func GetSymbolAndVersionFromStr(symbol string) (string, *uint64) {
 	items := strings.Split(symbol, "-")
 	baseSymbol := items[0]
 
+	if baseSymbol == "P" {
+		return symbol, nil
+	}
+
 	if len(items) == 2 {
 		version, _ := strconv.ParseUint(items[1], 10, 64)
 		return baseSymbol, &version
