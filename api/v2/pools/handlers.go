@@ -144,3 +144,35 @@ func GetSwapPoolProviders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(providers, pool.ProviderResource{}, pagination, resourceCallback))
 }
+
+type GetSwapPoolsByProviderRequest struct {
+	Address string `uri:"address" binding:"required,minterAddress"`
+}
+
+func GetSwapPoolsByProvider(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetSwapPoolsByProviderRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	pagination := tools.NewPagination(c.Request)
+	pools, err := explorer.PoolRepository.GetPoolsByProvider(helpers.RemoveMinterPrefix(req.Address), &pagination)
+	helpers.CheckErr(err)
+
+	if len(pools) == 0 {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
+		return
+	}
+
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
+		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.ProviderResource{}, pagination, resourceCallback))
+}

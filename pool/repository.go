@@ -55,6 +55,20 @@ func (r *Repository) GetPools(filter SelectPoolsFilter, pagination *tools.Pagina
 	return pool, err
 }
 
+func (r *Repository) GetPoolsByProvider(provider string, pagination *tools.Pagination) (pools []models.AddressLiquidityPool, err error) {
+	pagination.Total, err = r.db.Model(&pools).
+		Relation("Address").
+		Relation("LiquidityPool").
+		Relation("LiquidityPool.Token").
+		Relation("LiquidityPool.FirstCoin").
+		Relation("LiquidityPool.SecondCoin").
+		Where("address.address = ?", provider).
+		Apply(pagination.Filter).
+		SelectAndCount()
+
+	return pools, err
+}
+
 func (r *Repository) GetProviders(filter SelectByCoinsFilter, pagination *tools.Pagination) (providers []models.AddressLiquidityPool, err error) {
 	pagination.Total, err = r.db.Model(&providers).
 		Relation("Address").
