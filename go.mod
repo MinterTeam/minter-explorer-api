@@ -3,7 +3,7 @@ module github.com/MinterTeam/minter-explorer-api/v2
 go 1.13
 
 require (
-	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210122125525-c4124b1bc91c
+	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210208085033-98de4ba7428c
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210203185945-46081e511af9
 	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210203185717-20213a918398
@@ -17,9 +17,6 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
-	google.golang.org/genproto v0.0.0-20210203152818-3206188e46ba // indirect
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0 // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/go-playground/validator.v9 v9.31.0
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

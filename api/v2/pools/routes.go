@@ -7,8 +7,11 @@ func ApplyRoutes(r *gin.RouterGroup) {
 	pools := r.Group("/pools")
 	{
 		pools.GET("", GetSwapPools)
-		pools.GET("/:coin0/:coin1", GetSwapPool)
-		pools.GET("/:coin0/:coin1/providers", GetSwapPoolProviders)
-		pools.GET("/:coin0/:coin1/providers/:address", GetSwapPoolProvider)
+		pools.GET("/token/:token", GetSwapPool)
+		pools.GET("/coins/:coin0/:coin1", GetSwapPool)
+		pools.GET("/token/:token/providers", GetSwapPoolProviders)
+		pools.GET("/coins/:coin0/:coin1/providers", GetSwapPoolProviders)
+		pools.GET("/token/:token/providers/:address", GetSwapPoolProvider)
+		pools.GET("/coins/:coin0/:coin1/providers/:address", GetSwapPoolProvider)
 	}
 }
