@@ -62,8 +62,10 @@ func GetSwapPoolProvider(c *gin.Context) {
 		return
 	}
 
+	bipValue := explorer.PoolService.GetPoolLiquidityInBip(*p.LiquidityPool)
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.ProviderResource).Transform(p),
+		"data": new(pool.ProviderResource).Transform(p, pool.Params{LiquidityInBip: bipValue}),
 	})
 }
 

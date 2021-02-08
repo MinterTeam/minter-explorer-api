@@ -32,6 +32,8 @@ func (r *Repository) FindProvider(filter SelectByCoinsFilter, address string) (m
 	err := r.db.Model(&provider).
 		Relation("Address").
 		Relation("LiquidityPool").
+		Relation("LiquidityPool.FirstCoin").
+		Relation("LiquidityPool.SecondCoin").
 		Join("JOIN coins as first_coin").
 		JoinOn("first_coin.id = liquidity_pool.first_coin_id").
 		Join("JOIN coins as second_coin").

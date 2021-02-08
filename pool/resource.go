@@ -35,9 +35,12 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 }
 
 type ProviderResource struct {
-	Amount0   string `json:"amount0"`
-	Amount1   string `json:"amount1"`
-	Liquidity string `json:"liquidity"`
+	Coin0          resource.Interface `json:"coin0"`
+	Coin1          resource.Interface `json:"coin1"`
+	Amount0        string             `json:"amount0"`
+	Amount1        string             `json:"amount1"`
+	Liquidity      string             `json:"liquidity"`
+	LiquidityInBip string             `json:"liquidity_bip"`
 }
 
 func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {
@@ -51,9 +54,14 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	amount0, _ := new(big.Float).Mul(part, new(big.Float).SetInt(helpers.StringToBigInt(provider.LiquidityPool.FirstCoinVolume))).Int(nil)
 	amount1, _ := new(big.Float).Mul(part, new(big.Float).SetInt(helpers.StringToBigInt(provider.LiquidityPool.SecondCoinVolume))).Int(nil)
 
+	liquidityInBip, _ := new(big.Float).Mul(part, new(big.Float).SetInt(resourceParams[0].(Params).LiquidityInBip)).Int(nil)
+
 	return ProviderResource{
-		Amount0:   helpers.PipStr2Bip(amount0.String()),
-		Amount1:   helpers.PipStr2Bip(amount1.String()),
-		Liquidity: helpers.PipStr2Bip(provider.Liquidity),
+		Coin0:          new(coins.IdResource).Transform(*provider.LiquidityPool.FirstCoin),
+		Coin1:          new(coins.IdResource).Transform(*provider.LiquidityPool.SecondCoin),
+		Amount0:        helpers.PipStr2Bip(amount0.String()),
+		Amount1:        helpers.PipStr2Bip(amount1.String()),
+		Liquidity:      helpers.PipStr2Bip(provider.Liquidity),
+		LiquidityInBip: helpers.PipStr2Bip(liquidityInBip.String()),
 	}
 }
