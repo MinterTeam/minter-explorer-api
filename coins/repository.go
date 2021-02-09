@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v9"
+	"strconv"
 )
 
 type Repository struct {
@@ -112,4 +113,18 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 	}
 
 	return coin, err
+}
+
+func (repository *Repository) FindIdBySymbol(symbol string) (uint, error) {
+	if id, err := strconv.Atoi(symbol); err != nil {
+		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(symbol)
+		coins := repository.GetBySymbolAndVersion(symbol, &version)
+		if len(coins) == 0 {
+			return 0, pg.ErrNoRows
+		}
+
+		return coins[0].ID, nil
+	} else {
+		return uint(id), nil
+	}
 }

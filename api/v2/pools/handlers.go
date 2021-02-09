@@ -176,3 +176,32 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.ProviderResource{}, pagination, resourceCallback))
 }
+
+type FindSwapPoolRouteRequest struct {
+	Coin0 string `uri:"coin0" validate:"required_with=coin0"`
+	Coin1 string `uri:"coin1" validate:"required_with=coin1"`
+}
+
+func FindSwapPoolRoute(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req FindSwapPoolRouteRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	pools, err := explorer.PoolRepository.FindRoutePath(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1})
+	if err != nil || len(pools) == 0 {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
+		return
+	}
+
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		bipValue := explorer.PoolService.GetPoolLiquidityInBip(model.(models.LiquidityPool))
+		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(pools, pool.Resource{}, resourceCallback))
+}
