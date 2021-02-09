@@ -10,6 +10,7 @@ import (
 type RemoveLiquidity struct {
 	Coin0          Coin   `json:"coin0"`
 	Coin1          Coin   `json:"coin1"`
+	PoolToken      Coin   `json:"pool_token"`
 	Liquidity      string `json:"liquidity"`
 	MinimumVolume0 string `json:"minimum_volume0"`
 	MinimumVolume1 string `json:"minimum_volume1"`
@@ -28,5 +29,9 @@ func (RemoveLiquidity) Transform(txData resource.ItemInterface, params ...resour
 		MinimumVolume1: helpers.PipStr2Bip(data.MinimumVolume1),
 		Volume0:        helpers.PipStr2Bip(model.Tags["tx.volume0"]),
 		Volume1:        helpers.PipStr2Bip(model.Tags["tx.volume1"]),
+		PoolToken: new(Coin).Transform(&api_pb.Coin{
+			Symbol: model.Tags["pool_token"],
+			Id:     helpers.StrToUint64(model.Tags["pool_token_id"]),
+		}),
 	}
 }

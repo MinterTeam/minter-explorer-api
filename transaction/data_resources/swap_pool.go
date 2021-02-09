@@ -70,6 +70,7 @@ func (SellAllSwapPool) Transform(txData resource.ItemInterface, params ...resour
 type CreateSwapPool struct {
 	Coin0     Coin   `json:"coin0"`
 	Coin1     Coin   `json:"coin1"`
+	PoolToken Coin   `json:"pool_token"`
 	Volume0   string `json:"volume0"`
 	Volume1   string `json:"volume1"`
 	Liquidity string `json:"liquidity"`
@@ -84,5 +85,9 @@ func (CreateSwapPool) Transform(txData resource.ItemInterface, params ...resourc
 		Volume0:   helpers.PipStr2Bip(data.Volume0),
 		Volume1:   helpers.PipStr2Bip(data.Volume1),
 		Liquidity: helpers.PipStr2Bip(model.Tags["liquidity"]),
+		PoolToken: new(Coin).Transform(&api_pb.Coin{
+			Symbol: model.Tags["pool_token"],
+			Id:     helpers.StrToUint64(model.Tags["pool_token_id"]),
+		}),
 	}
 }

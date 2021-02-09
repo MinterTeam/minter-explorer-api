@@ -10,6 +10,7 @@ import (
 type AddLiquidity struct {
 	Coin0          Coin   `json:"coin0"`
 	Coin1          Coin   `json:"coin1"`
+	PoolToken      Coin   `json:"pool_token"`
 	Volume0        string `json:"volume0"`
 	MaximumVolume1 string `json:"maximum_volume1"`
 	Volume1        string `json:"volume1"`
@@ -26,5 +27,9 @@ func (AddLiquidity) Transform(txData resource.ItemInterface, params ...resource.
 		MaximumVolume1: helpers.PipStr2Bip(data.MaximumVolume1),
 		Volume1:        helpers.PipStr2Bip(model.Tags["tx.volume1"]),
 		Liquidity:      helpers.PipStr2Bip(model.Tags["tx.liquidity"]),
+		PoolToken: new(Coin).Transform(&api_pb.Coin{
+			Symbol: model.Tags["pool_token"],
+			Id:     helpers.StrToUint64(model.Tags["pool_token_id"]),
+		}),
 	}
 }
