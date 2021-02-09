@@ -13,6 +13,7 @@ type AddLiquidity struct {
 	Volume0        string `json:"volume0"`
 	MaximumVolume1 string `json:"maximum_volume1"`
 	Volume1        string `json:"volume1"`
+	Liquidity      string `json:"liquidity"`
 }
 
 func (AddLiquidity) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -24,5 +25,6 @@ func (AddLiquidity) Transform(txData resource.ItemInterface, params ...resource.
 		Volume0:        helpers.PipStr2Bip(data.Volume0),
 		MaximumVolume1: helpers.PipStr2Bip(data.MaximumVolume1),
 		Volume1:        helpers.PipStr2Bip(model.Tags["tx.volume1"]),
+		Liquidity:      helpers.PipStr2Bip(model.Tags["tx.liquidity"]),
 	}
 }
