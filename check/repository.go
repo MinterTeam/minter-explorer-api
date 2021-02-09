@@ -21,7 +21,7 @@ func (r *Repository) GetByRawCheck(raw string) (models.Check, error) {
 		Relation("FromAddress").
 		Relation("ToAddress").
 		Relation("Transaction").
-		Where("data = ?", raw).
+		Where(`"check"."data" = ?`, raw).
 		Select()
 
 	return check, err
