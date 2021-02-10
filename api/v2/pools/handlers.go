@@ -94,11 +94,6 @@ func GetSwapPools(c *gin.Context) {
 
 	helpers.CheckErr(err)
 
-	if len(pools) == 0 {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
-		return
-	}
-
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		bipValue := explorer.PoolService.GetPoolLiquidityInBip(model.(models.LiquidityPool))
@@ -131,11 +126,6 @@ func GetSwapPoolProviders(c *gin.Context) {
 		return
 	}
 
-	if len(providers) == 0 {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Providers not found.", c)
-		return
-	}
-
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
@@ -163,11 +153,6 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 	pools, err := explorer.PoolRepository.GetPoolsByProvider(helpers.RemoveMinterPrefix(req.Address), &pagination)
 	helpers.CheckErr(err)
 
-	if len(pools) == 0 {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
-		return
-	}
-
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
@@ -193,7 +178,7 @@ func FindSwapPoolRoute(c *gin.Context) {
 	}
 
 	pools, err := explorer.PoolRepository.FindRoutePath(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1})
-	if err != nil || len(pools) == 0 {
+	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
 		return
 	}
