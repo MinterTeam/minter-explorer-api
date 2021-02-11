@@ -44,6 +44,7 @@ type ProviderResource struct {
 	Amount0        string             `json:"amount0"`
 	Amount1        string             `json:"amount1"`
 	Liquidity      string             `json:"liquidity"`
+	LiquidityShare float64            `json:"liquidity_share"`
 	LiquidityInBip string             `json:"liquidity_bip"`
 }
 
@@ -58,6 +59,7 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	amount0, _ := new(big.Float).Mul(part, new(big.Float).SetInt(helpers.StringToBigInt(provider.LiquidityPool.FirstCoinVolume))).Int(nil)
 	amount1, _ := new(big.Float).Mul(part, new(big.Float).SetInt(helpers.StringToBigInt(provider.LiquidityPool.SecondCoinVolume))).Int(nil)
 
+	liquidityShare, _ := part.Float64()
 	liquidityInBip, _ := new(big.Float).Mul(part, new(big.Float).SetInt(resourceParams[0].(Params).LiquidityInBip)).Int(nil)
 
 	return ProviderResource{
@@ -69,5 +71,6 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 		Amount1:        helpers.PipStr2Bip(amount1.String()),
 		Liquidity:      helpers.PipStr2Bip(provider.Liquidity),
 		LiquidityInBip: helpers.PipStr2Bip(liquidityInBip.String()),
+		LiquidityShare: liquidityShare,
 	}
 }
