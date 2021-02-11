@@ -27,9 +27,9 @@ func (AddLiquidity) Transform(txData resource.ItemInterface, params ...resource.
 		MaximumVolume1: helpers.PipStr2Bip(data.MaximumVolume1),
 		Volume1:        helpers.PipStr2Bip(model.Tags["tx.volume1"]),
 		Liquidity:      helpers.PipStr2Bip(model.Tags["tx.liquidity"]),
-		PoolToken: new(Coin).Transform(&api_pb.Coin{
-			Symbol: model.Tags["pool_token"],
-			Id:     helpers.StrToUint64(model.Tags["pool_token_id"]),
-		}),
+		PoolToken: Coin{
+			ID:     helpers.StrToUint64(model.Tags["tx.pool_token_id"]),
+			Symbol: model.Tags["tx.pool_token"],
+		},
 	}
 }

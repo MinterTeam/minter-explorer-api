@@ -29,9 +29,9 @@ func (RemoveLiquidity) Transform(txData resource.ItemInterface, params ...resour
 		MinimumVolume1: helpers.PipStr2Bip(data.MinimumVolume1),
 		Volume0:        helpers.PipStr2Bip(model.Tags["tx.volume0"]),
 		Volume1:        helpers.PipStr2Bip(model.Tags["tx.volume1"]),
-		PoolToken: new(Coin).Transform(&api_pb.Coin{
-			Symbol: model.Tags["pool_token"],
-			Id:     helpers.StrToUint64(model.Tags["pool_token_id"]),
-		}),
+		PoolToken: Coin{
+			Symbol: model.Tags["tx.pool_token"],
+			ID:     helpers.StrToUint64(model.Tags["tx.pool_token_id"]),
+		},
 	}
 }
