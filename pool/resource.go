@@ -71,6 +71,6 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 		Amount1:        helpers.PipStr2Bip(amount1.String()),
 		Liquidity:      helpers.PipStr2Bip(provider.Liquidity),
 		LiquidityInBip: helpers.PipStr2Bip(liquidityInBip.String()),
-		LiquidityShare: liquidityShare,
+		LiquidityShare: liquidityShare * 100,
 	}
 }
