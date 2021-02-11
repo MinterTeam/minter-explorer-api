@@ -17,6 +17,7 @@ type Resource struct {
 	OwnerAddress *string `json:"owner_address"`
 	Burnable     bool    `json:"burnable"`
 	Mintable     bool    `json:"mintable"`
+	Type         string  `json:"type"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -40,6 +41,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		OwnerAddress: ownerAddress,
 		Burnable:     coin.Burnable,
 		Mintable:     coin.Mintable,
+		Type:         helpers.GetCoinType(coin.Type),
 	}
 }
 

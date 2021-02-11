@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"math"
 	"strconv"
 	"strings"
@@ -55,4 +56,17 @@ func GetSymbolAndDefaultVersionFromStr(symbol string) (string, uint64) {
 	}
 
 	return symbol, *version
+}
+
+func GetCoinType(coinType models.CoinType) string {
+	switch coinType {
+	case models.CoinTypeBase:
+		return "coin"
+	case models.CoinTypeToken:
+		return "token"
+	case models.CoinTypePoolToken:
+		return "pool_token"
+	}
+
+	return ""
 }
