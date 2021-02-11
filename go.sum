@@ -114,6 +114,7 @@ github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210201213932-3e24f1f8d283 
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210201213932-3e24f1f8d283/go.mod h1:AAqDSw/LSLzhIBen3rmR+4glOYbyh0Vgmd3OAU6dfTw=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210203185945-46081e511af9 h1:F0HkESVdsuFrBABvPG5ZYOj4v8uE9wx2ZO5QzimLqLc=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210203185945-46081e511af9/go.mod h1:5GRJPskdY1VZyDJPHsnoSVk60kHYP9CL+BSrzneahvo=
+github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210209133819-011976d40e49 h1:Y2uwdEbqXK95hmZxD+cl1uZHa5Dx4xfGqOtWFCBCe3U=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210209133819-011976d40e49/go.mod h1:ysGyxp670uBb8cSJ3ePpDj6ol4m6Bo3i3X/3q6wntnw=
 github.com/MinterTeam/minter-node-go-api v1.3.5 h1:5LM9sGnBweKymTMQyjeTDMPsioZ1sFBUw3xCR739iX4=
 github.com/MinterTeam/minter-node-go-api v1.3.5/go.mod h1:y0z0cScz5N5mxlDcK+S1pRpSbSq4yVgOxq6pLR6YSvw=
@@ -139,6 +140,7 @@ github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210203185717-20213a918398 h1:
 github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210203185717-20213a918398/go.mod h1:d4Rw0MtsZTrFNLJJWr/jcurTYcqRVITzWuGDGo7aHxM=
 github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210204173011-0f5d7f8e206d h1:XmqECMfeYEjoDO59ZQ+pUjKwggBu+f87mx8oMmShr3Q=
 github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210204173011-0f5d7f8e206d/go.mod h1:d4Rw0MtsZTrFNLJJWr/jcurTYcqRVITzWuGDGo7aHxM=
+github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210209133243-8f08af6b7437 h1:yChc3tfydU6tqRr+ifuOor5LidfCmJpWKSY3pElkbsQ=
 github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210209133243-8f08af6b7437/go.mod h1:d4Rw0MtsZTrFNLJJWr/jcurTYcqRVITzWuGDGo7aHxM=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OneOfOne/xxhash v1.2.5/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
