@@ -101,12 +101,12 @@ func (r *Repository) FindRoutePath(filter SelectByCoinsFilter) ([]models.Liquidi
 
 	var path string
 	_, err = r.db.QueryOne(&path, `WITH RECURSIVE search_graph(first_coin_id, second_coin_id, depth, path) AS (      
-        SELECT g.first_coin_id, g.second_coin_id, 1 as depth, ARRAY[g.id] as path FROM liquidity_pools AS g WHERE first_coin_id = ?      
+        SELECT g.first_coin_id, g.second_coin_id, 1 as depth, ARRAY[g.id] as path FROM liquidity_pools AS g WHERE (first_coin_id = ? or second_coin_id = ?)      
       	UNION ALL      
         SELECT g.first_coin_id, g.second_coin_id, sg.depth + 1 as depth, path || g.id as path
         FROM liquidity_pools AS g, search_graph AS sg      
-        WHERE  g.first_coin_id = sg.second_coin_id AND (g.id <> ALL(sg.path)) AND sg.depth <= 3
-	) SELECT path FROM search_graph where second_coin_id = ? order by depth limit 1;`, fromCoinId, toCoinId)
+        WHERE (g.first_coin_id = sg.second_coin_id or g.first_coin_id = sg.first_coin_id) AND (g.id <> ALL(sg.path)) AND sg.depth <= 3
+	) SELECT path FROM search_graph where (second_coin_id = ? or first_coin_id = ?) order by depth limit 1;`, fromCoinId, fromCoinId, toCoinId, toCoinId)
 
 	if err != nil {
 		return nil, err

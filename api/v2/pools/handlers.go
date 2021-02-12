@@ -180,7 +180,7 @@ func FindSwapPoolRoute(c *gin.Context) {
 
 	pools, err := explorer.PoolRepository.FindRoutePath(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1})
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pools not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
 	}
 

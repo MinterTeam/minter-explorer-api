@@ -44,13 +44,6 @@ jobs:
           TAG_NAME: ${{ github.sha }}
         run: ./linux-amd64/helm upgrade -n taconet-reserved -i api helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
 
-      - name: Deploy
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
-        with:
-          args: helm upgrade -i api -n taconet-reserved  helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
-
       - name: notification
         if: cancelled() == false
         uses: xinthink/action-telegram@v1.1
