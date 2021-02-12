@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
@@ -88,41 +87,11 @@ func (r *Repository) GetProviders(filter SelectByCoinsFilter, pagination *tools.
 	return providers, err
 }
 
-func (r *Repository) FindRoutePath(filter SelectByCoinsFilter) ([]models.LiquidityPool, error) {
-	fromCoinId, err := r.coinRepository.FindIdBySymbol(filter.Coin0)
-	if err != nil {
-		return nil, err
-	}
-
-	toCoinId, err := r.coinRepository.FindIdBySymbol(filter.Coin1)
-	if err != nil {
-		return nil, err
-	}
-
-	var path string
-	_, err = r.db.QueryOne(&path, `WITH RECURSIVE search_graph(first_coin_id, second_coin_id, depth, path) AS (      
-        SELECT g.first_coin_id, g.second_coin_id, 1 as depth, ARRAY[g.id] as path FROM liquidity_pools AS g WHERE (first_coin_id = ? or second_coin_id = ?)      
-      	UNION ALL      
-        SELECT g.first_coin_id, g.second_coin_id, sg.depth + 1 as depth, path || g.id as path
-        FROM liquidity_pools AS g, search_graph AS sg      
-        WHERE (g.first_coin_id = sg.second_coin_id or g.first_coin_id = sg.first_coin_id) AND (g.id <> ALL(sg.path)) AND sg.depth <= 3
-	) SELECT path FROM search_graph where (second_coin_id = ? or first_coin_id = ?) order by depth limit 1;`, fromCoinId, fromCoinId, toCoinId, toCoinId)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var ids []uint64
-	if err := json.Unmarshal([]byte(`[`+path[1:len(path)-1]+`]`), &ids); err != nil {
-		return nil, err
-	}
-
-	var pools []models.LiquidityPool
+func (r *Repository) GetAll() (pools []models.LiquidityPool, err error) {
 	err = r.db.Model(&pools).
-		Relation("Token").
 		Relation("FirstCoin").
 		Relation("SecondCoin").
-		WhereIn("liquidity_pool.id IN (?)", ids).
+		Order("id").
 		Select()
 
 	return pools, err

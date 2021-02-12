@@ -1,6 +1,7 @@
 package pools
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
@@ -11,6 +12,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type GetSwapPoolRequest struct {
@@ -178,18 +180,32 @@ func FindSwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	pools, err := explorer.PoolRepository.FindRoutePath(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1})
+	var (
+		fromCoinId uint64
+		toCoinId   uint64
+	)
+
+	if id, err := strconv.ParseUint(req.Coin0, 10, 64); err == nil {
+		fromCoinId = id
+	} else {
+		fromCoinId, err = explorer.CoinRepository.FindIdBySymbol(req.Coin0)
+		helpers.CheckErr(err)
+	}
+
+	if id, err := strconv.ParseUint(req.Coin1, 10, 64); err == nil {
+		toCoinId = id
+	} else {
+		toCoinId, err = explorer.CoinRepository.FindIdBySymbol(req.Coin1)
+		helpers.CheckErr(err)
+	}
+
+	path, err := explorer.PoolService.FindSwapRoutePath(fromCoinId, toCoinId)
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
 	}
 
-	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		bipValue := explorer.PoolService.GetPoolLiquidityInBip(model.(models.LiquidityPool))
-		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
-	}
-
-	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(pools, pool.Resource{}, resourceCallback))
+	c.JSON(http.StatusOK, resource.TransformCollection(path, coins.IdResource{}))
 }
 
 type GetSwapPoolTransactionsRequest struct {

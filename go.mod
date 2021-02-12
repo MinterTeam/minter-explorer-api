@@ -15,6 +15,8 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.4.1
 	github.com/sirupsen/logrus v1.4.2
+	github.com/starwander/GoFibonacciHeap v0.0.0-20190508061137-ba2e4f01000a // indirect
+	github.com/starwander/goraph v0.0.0-20200325033650-cb8f0beb44cc
 	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	google.golang.org/genproto v0.0.0-20210207032614-bba0dbe2a9ea // indirect
