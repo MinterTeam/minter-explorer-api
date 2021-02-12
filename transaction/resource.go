@@ -36,7 +36,7 @@ type Resource struct {
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.Transaction)
-
+	//
 	return Resource{
 		Txn:       tx.ID,
 		Hash:      tx.GetHash(),
