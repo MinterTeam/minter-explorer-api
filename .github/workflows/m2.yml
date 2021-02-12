@@ -30,18 +30,32 @@ jobs:
           TAG_NAME: ${{ github.sha }}
           DOCKER_BUILD_ARGS: --build-arg VERSION=${{ steps.version.outputs.text }}
 
+      - name: DigitalOcean Kubernetes
+        uses: matootie/dokube@master
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: k8s-prod-do
+
+      - name: Install helm
+        run: wget https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz &> /dev/null && tar xvzf helm-v3.3.4-linux-amd64.tar.gz && chmod 777 linux-amd64/helm && ./linux-amd64/helm ls -n mainnet-reserved
+
+      - name: Deploy to DO
+        env:
+          TAG_NAME: ${{ github.sha }}
+        run: ./linux-amd64/helm upgrade -n mainnet-reserved -i api helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
+
       - name: Deploy
         uses: wahyd4/kubectl-helm-action@master
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_STAGE_CONFIG_DATA }}
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
         with:
-          args: helm upgrade -i m2-explorer-api  helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
+          args: helm upgrade -i api-minter-explorer-api -n taconet-reserved  helm/ --reuse-values --atomic --timeout 100s --set image.tag=$GITHUB_SHA
 
       - name: notification
         if: cancelled() == false
         uses: xinthink/action-telegram@v1.1
         with:
-          botToken: ${{ secrets.TELEGRAM_TOKEN }}
-          chatId: ${{ secrets.TELEGRAM_TO }}
+          botToken: ${{ secrets.TELEGRAM_CI_TOKEN }}
+          chatId: ${{ secrets.TELEGRAM_CI_PROD_TO }}
           jobStatus: ${{ job.status }}
           skipSuccess: false
