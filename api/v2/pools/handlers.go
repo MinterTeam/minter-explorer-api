@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
+	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -189,4 +190,38 @@ func FindSwapPoolRoute(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(pools, pool.Resource{}, resourceCallback))
+}
+
+type GetSwapPoolTransactionsRequest struct {
+	Token      string  `uri:"token" validate:"required_without_all=coin0 coin1"`
+	Coin0      string  `uri:"coin0" validate:"required_with=coin0"`
+	Coin1      string  `uri:"coin1" validate:"required_with=coin1"`
+	Page       string  `form:"page"         binding:"omitempty,numeric"`
+	StartBlock *string `form:"start_block"  binding:"omitempty,numeric"`
+	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
+}
+
+func GetSwapPoolTransactions(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetSwapPoolTransactionsRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	pagination := tools.NewPagination(c.Request)
+	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.PoolsFilter{
+		Coin0:      req.Coin0,
+		Coin1:      req.Coin1,
+		Token:      req.Token,
+		StartBlock: req.StartBlock,
+		EndBlock:   req.EndBlock,
+	}, &pagination)
+
+	txs, err := explorer.TransactionService.PrepareTransactionsModel(txs)
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }

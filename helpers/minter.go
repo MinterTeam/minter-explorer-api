@@ -70,3 +70,8 @@ func GetCoinType(coinType models.CoinType) string {
 
 	return ""
 }
+
+func GetPoolIdFromToken(token string) uint {
+	id, _ := strconv.ParseUint(token[2:], 10, 64)
+	return uint(id)
+}
