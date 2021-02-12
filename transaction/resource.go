@@ -45,7 +45,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Timestamp: tx.CreatedAt.Format(time.RFC3339),
 		Gas:       strconv.FormatUint(tx.Gas, 10),
 		GasPrice:  tx.GasPrice,
-		Fee:       helpers.Fee2Bip(tx.GetFee()),
+		Fee:       helpers.PipStr2Bip(tx.Commission),
 		GasCoin:   new(coins.IdResource).Transform(*tx.GasCoin),
 		Type:      tx.Type,
 		Payload:   base64.StdEncoding.EncodeToString(tx.Payload[:]),
