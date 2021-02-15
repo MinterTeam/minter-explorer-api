@@ -17,9 +17,9 @@ import (
 )
 
 type GetSwapPoolRequest struct {
-	Token string `uri:"token" binding:"required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" binding:"required_with=coin0"`
-	Coin1 string `uri:"coin1" binding:"required_with=coin1"`
+	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
+	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
 }
 
 func GetSwapPool(c *gin.Context) {
@@ -46,9 +46,9 @@ func GetSwapPool(c *gin.Context) {
 }
 
 type GetSwapPoolProviderRequest struct {
-	Token   string `uri:"token" binding:"required_without_all=coin0 coin1"`
-	Coin0   string `uri:"coin0" binding:"required_with=coin0"`
-	Coin1   string `uri:"coin1" binding:"required_with=coin1"`
+	Token   string `uri:"token"   binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0   string `uri:"coin0"   binding:"omitempty,required_with=coin0"`
+	Coin1   string `uri:"coin1"   binding:"omitempty,required_with=coin1"`
 	Address string `uri:"address" binding:"minterAddress"`
 }
 
@@ -108,9 +108,9 @@ func GetSwapPools(c *gin.Context) {
 }
 
 type GetSwapPoolProvidersRequest struct {
-	Token string `uri:"token" binding:"required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" binding:"required_with=coin0"`
-	Coin1 string `uri:"coin1" binding:"required_with=coin1"`
+	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
+	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
 }
 
 func GetSwapPoolProviders(c *gin.Context) {
@@ -234,9 +234,9 @@ func FindSwapPoolRoute(c *gin.Context) {
 }
 
 type GetSwapPoolTransactionsRequest struct {
-	Token      string  `uri:"token" validate:"required_without_all=coin0 coin1"`
-	Coin0      string  `uri:"coin0" validate:"required_with=coin0"`
-	Coin1      string  `uri:"coin1" validate:"required_with=coin1"`
+	Token      string  `uri:"token"         binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0      string  `uri:"coin0"         binding:"omitempty,required_with=coin0"`
+	Coin1      string  `uri:"coin1"         binding:"omitempty,required_with=coin1"`
 	Page       string  `form:"page"         binding:"omitempty,numeric"`
 	StartBlock *string `form:"start_block"  binding:"omitempty,numeric"`
 	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
