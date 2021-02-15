@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
@@ -16,9 +17,9 @@ import (
 )
 
 type GetSwapPoolRequest struct {
-	Token string `uri:"token" validate:"required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" validate:"required_with=coin0"`
-	Coin1 string `uri:"coin1" validate:"required_with=coin1"`
+	Token string `uri:"token" binding:"required_without_all=coin0 coin1"`
+	Coin0 string `uri:"coin0" binding:"required_with=coin0"`
+	Coin1 string `uri:"coin1" binding:"required_with=coin1"`
 }
 
 func GetSwapPool(c *gin.Context) {
@@ -45,9 +46,9 @@ func GetSwapPool(c *gin.Context) {
 }
 
 type GetSwapPoolProviderRequest struct {
-	Token   string `uri:"token" validate:"required_without_all=coin0 coin1"`
-	Coin0   string `uri:"coin0" validate:"required_with=coin0"`
-	Coin1   string `uri:"coin1" validate:"required_with=coin1"`
+	Token   string `uri:"token" binding:"required_without_all=coin0 coin1"`
+	Coin0   string `uri:"coin0" binding:"required_with=coin0"`
+	Coin1   string `uri:"coin1" binding:"required_with=coin1"`
 	Address string `uri:"address" binding:"minterAddress"`
 }
 
@@ -107,9 +108,9 @@ func GetSwapPools(c *gin.Context) {
 }
 
 type GetSwapPoolProvidersRequest struct {
-	Token string `uri:"token" validate:"required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" validate:"required_with=coin0"`
-	Coin1 string `uri:"coin1" validate:"required_with=coin1"`
+	Token string `uri:"token" binding:"required_without_all=coin0 coin1"`
+	Coin0 string `uri:"coin0" binding:"required_with=coin0"`
+	Coin1 string `uri:"coin1" binding:"required_with=coin1"`
 }
 
 func GetSwapPoolProviders(c *gin.Context) {
@@ -166,8 +167,13 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 }
 
 type FindSwapPoolRouteRequest struct {
-	Coin0 string `uri:"coin0" validate:"required_with=coin0"`
-	Coin1 string `uri:"coin1" validate:"required_with=coin1"`
+	Coin0 string `uri:"coin0"  binding:"required"`
+	Coin1 string `uri:"coin1"  binding:"required"`
+}
+
+type FindSwapPoolRouteRequestQuery struct {
+	Amount    string `form:"amount" binding:"required,numeric"`
+	TradeType string `form:"type"   binding:"required,oneof=input output"`
 }
 
 func FindSwapPoolRoute(c *gin.Context) {
@@ -180,11 +186,13 @@ func FindSwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	var (
-		fromCoinId uint64
-		toCoinId   uint64
-	)
+	var reqQuery FindSwapPoolRouteRequestQuery
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
 
+	fromCoinId, toCoinId := uint64(0), uint64(0)
 	if id, err := strconv.ParseUint(req.Coin0, 10, 64); err == nil {
 		fromCoinId = id
 	} else {
@@ -199,13 +207,30 @@ func FindSwapPoolRoute(c *gin.Context) {
 		helpers.CheckErr(err)
 	}
 
-	path, err := explorer.PoolService.FindSwapRoutePath(fromCoinId, toCoinId)
+	// define trade type
+	tradeType := swap.TradeTypeExactInput
+	if reqQuery.TradeType == "output" {
+		tradeType = swap.TradeTypeExactOutput
+	}
+
+	trade, err := explorer.PoolService.FindSwapRoutePath(fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
 	}
 
-	c.JSON(http.StatusOK, resource.TransformCollection(path, coins.IdResource{}))
+	path := make([]models.Coin, len(trade.Route.Path))
+	for i, t := range trade.Route.Path {
+		coin, err := explorer.CoinRepository.FindByID(uint(t.CoinID))
+		helpers.CheckErr(err)
+		path[i] = coin
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"amount_in":  helpers.Pip2Bip(trade.InputAmount.GetAmount()).Text('f', 18),
+		"amount_out": helpers.Pip2Bip(trade.OutputAmount.GetAmount()).Text('f', 18),
+		"coins":      resource.TransformCollection(path, coins.IdResource{}),
+	})
 }
 
 type GetSwapPoolTransactionsRequest struct {

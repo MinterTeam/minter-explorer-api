@@ -3,6 +3,7 @@ package pool
 import (
 	"errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
 	"github.com/starwander/goraph"
@@ -48,41 +49,54 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 	return new(big.Int).Add(firstCoinInBip, secondCoinInBip)
 }
 
-type myVertex struct {
-	id     uint64
-	outTo  map[uint64]float64
-	inFrom map[uint64]float64
-}
-
-type myEdge struct {
-	from   uint64
-	to     uint64
-	weight float64
-}
-
-func (vertex *myVertex) ID() goraph.ID {
-	return vertex.id
-}
-
-func (vertex *myVertex) Edges() (edges []goraph.Edge) {
-	edges = make([]goraph.Edge, len(vertex.outTo)+len(vertex.inFrom))
-	i := 0
-	for to, weight := range vertex.outTo {
-		edges[i] = &myEdge{vertex.id, to, weight}
-		i++
+func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+	paths, err := s.findSwapRoutePaths(fromCoinId, toCoinId)
+	if err != nil {
+		return nil, err
 	}
-	for from, weight := range vertex.inFrom {
-		edges[i] = &myEdge{from, vertex.id, weight}
-		i++
+
+	pools, err := s.getPathsRelatedPools(paths)
+	if err != nil {
+		return nil, err
 	}
-	return
+
+	pairs := make([]swap.Pair, 0)
+	for _, p := range pools {
+		pairs = append(pairs, swap.NewPair(
+			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
+			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
+		))
+	}
+
+	var trades []swap.Trade
+	if tradeType == swap.TradeTypeExactInput {
+		trades, err = swap.GetBestTradeExactIn(
+			pairs,
+			swap.NewToken(toCoinId),
+			swap.NewTokenAmount(swap.NewToken(fromCoinId), amount),
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 3},
+		)
+	} else {
+		trades, err = swap.GetBestTradeExactOut(
+			pairs,
+			swap.NewToken(fromCoinId),
+			swap.NewTokenAmount(swap.NewToken(toCoinId), amount),
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 3},
+		)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(trades) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	return &trades[0], nil
 }
 
-func (edge *myEdge) Get() (goraph.ID, goraph.ID, float64) {
-	return edge.from, edge.to, edge.weight
-}
-
-func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64) ([]*models.Coin, error) {
+func (s *Service) findSwapRoutePaths(fromCoinId, toCoinId uint64) ([][]goraph.ID, error) {
 	pools, err := s.repository.GetAll()
 	if err != nil {
 		return nil, err
@@ -96,21 +110,47 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64) ([]*models.Coin
 		graph.AddEdge(pool.SecondCoinId, pool.FirstCoinId, 1, nil)
 	}
 
-	_, path, err := graph.Yen(fromCoinId, toCoinId, 1)
+	_, paths, err := graph.Yen(fromCoinId, toCoinId, 1000)
 	if err != nil {
 		return nil, err
 	}
 
-	bestPath := path[0]
-	if len(bestPath) == 0 {
+	if len(paths[0]) == 0 {
 		return nil, errors.New("path not found")
 	}
 
-	coinPath := make([]*models.Coin, len(bestPath))
-	for i, id := range bestPath {
-		v, _ := graph.GetVertex(id)
-		coinPath[i] = v.(*models.Coin)
+	return paths, nil
+}
+
+func (s *Service) getPathsRelatedPools(paths [][]goraph.ID) ([]models.LiquidityPool, error) {
+	pools := make([]models.LiquidityPool, 0)
+	for _, path := range paths {
+		if len(path) == 0 {
+			break
+		}
+
+		for i, coinID := range path {
+			if i == 0 {
+				continue
+			}
+
+			p, err := s.repository.Find(path[i-1].(uint64), coinID.(uint64))
+			if err != nil {
+				return nil, err
+			}
+
+			isExists := false
+			for _, p2 := range pools {
+				if p.Id == p2.Id {
+					isExists = true
+				}
+			}
+
+			if !isExists {
+				pools = append(pools, p)
+			}
+		}
 	}
 
-	return coinPath, nil
+	return pools, nil
 }

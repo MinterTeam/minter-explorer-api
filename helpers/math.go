@@ -25,6 +25,10 @@ func PipStr2Bip(value string) string {
 	return new(big.Float).SetPrec(500).Quo(floatValue, pipInBip).Text('f', 18)
 }
 
+func Pip2Bip(pip *big.Int) *big.Float {
+	return new(big.Float).Quo(new(big.Float).SetInt(pip), pipInBip)
+}
+
 func Fee2Bip(value uint64) string {
 	return PipStr2Bip(new(big.Int).Mul(feeDefaultMultiplier, new(big.Int).SetUint64(value)).String())
 }

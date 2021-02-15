@@ -8,6 +8,7 @@ require (
 	github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210209133819-011976d40e49
 	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210209133243-8f08af6b7437
 	github.com/centrifugal/centrifuge-go v0.3.0
+	github.com/ethereum/go-ethereum v1.9.22
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-pg/pg/v9 v9.2.0

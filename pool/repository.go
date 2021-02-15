@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v9/orm"
 )
 
 type Repository struct {
@@ -95,4 +96,20 @@ func (r *Repository) GetAll() (pools []models.LiquidityPool, err error) {
 		Select()
 
 	return pools, err
+}
+
+func (r *Repository) Find(from, to uint64) (models.LiquidityPool, error) {
+	var pool models.LiquidityPool
+
+	err := r.db.Model(&pool).
+		WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+			return query.Where("first_coin_id = ?", from).Where("second_coin_id = ?", to), nil
+		}).
+		WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+			return query.Where("first_coin_id = ?", to).Where("second_coin_id = ?", from), nil
+		}).
+		Order("id").
+		First()
+
+	return pool, err
 }
