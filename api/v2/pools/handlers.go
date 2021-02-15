@@ -266,3 +266,12 @@ func GetSwapPoolTransactions(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
+
+func GetAutocompleteCoins(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	models, err := explorer.PoolRepository.GetPoolsCoins()
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, resource.TransformCollection(models, coins.IdResource{}))
+}

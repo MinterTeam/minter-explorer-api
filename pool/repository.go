@@ -113,3 +113,12 @@ func (r *Repository) Find(from, to uint64) (models.LiquidityPool, error) {
 
 	return pool, err
 }
+
+func (r *Repository) GetPoolsCoins() (coins []models.Coin, err error) {
+	err = r.db.Model(&coins).
+		Where(`exists (select * from liquidity_pools where first_coin_id = "coin"."id" or second_coin_id = "coin"."id")`).
+		Order("reserve DESC").
+		Select()
+
+	return coins, err
+}
