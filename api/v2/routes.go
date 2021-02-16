@@ -27,4 +27,7 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		checks.ApplyRoutes(v2)
 		pools.ApplyRoutes(v2)
 	}
+
+	// alias from v2
+	r.GET("/v1/info", status.GetInfo)
 }
