@@ -32,6 +32,51 @@ type GetSwapPoolRequest struct {
 	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
 }
 
+type GetSwapPoolProviderRequest struct {
+	Token   string `uri:"token"   binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0   string `uri:"coin0"   binding:"omitempty,required_with=coin0"`
+	Coin1   string `uri:"coin1"   binding:"omitempty,required_with=coin1"`
+	Address string `uri:"address" binding:"minterAddress"`
+}
+
+type GetSwapPoolsRequest struct {
+	Coin    *string `form:"coin"     binding:"omitempty"`
+	Address *string `form:"provider" binding:"omitempty,minterAddress"`
+}
+
+type GetSwapPoolProvidersRequest struct {
+	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
+	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
+}
+
+type GetSwapPoolsByProviderRequest struct {
+	Address string `uri:"address" binding:"required,minterAddress"`
+}
+
+type FindSwapPoolRouteRequest struct {
+	Coin0 string `uri:"coin0"  binding:"required"`
+	Coin1 string `uri:"coin1"  binding:"required"`
+}
+
+type FindSwapPoolRouteRequestQuery struct {
+	Amount    string `form:"amount" binding:"required,numeric"`
+	TradeType string `form:"type"   binding:"required,oneof=input output"`
+}
+
+type GetSwapPoolTransactionsRequest struct {
+	Token      string  `uri:"token"         binding:"omitempty,required_without_all=coin0 coin1"`
+	Coin0      string  `uri:"coin0"         binding:"omitempty,required_with=coin0"`
+	Coin1      string  `uri:"coin1"         binding:"omitempty,required_with=coin1"`
+	Page       string  `form:"page"         binding:"omitempty,numeric"`
+	StartBlock *string `form:"start_block"  binding:"omitempty,numeric"`
+	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
+}
+
+type GetCoinPossibleSwapsRequest struct {
+	Coin string `uri:"coin" binding:"required"`
+}
+
 func GetSwapPool(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -55,13 +100,6 @@ func GetSwapPool(c *gin.Context) {
 	})
 }
 
-type GetSwapPoolProviderRequest struct {
-	Token   string `uri:"token"   binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0   string `uri:"coin0"   binding:"omitempty,required_with=coin0"`
-	Coin1   string `uri:"coin1"   binding:"omitempty,required_with=coin1"`
-	Address string `uri:"address" binding:"minterAddress"`
-}
-
 func GetSwapPoolProvider(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -83,11 +121,6 @@ func GetSwapPoolProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": new(pool.ProviderResource).Transform(p, pool.Params{LiquidityInBip: bipValue}),
 	})
-}
-
-type GetSwapPoolsRequest struct {
-	Coin    *string `form:"coin"     binding:"omitempty"`
-	Address *string `form:"provider" binding:"omitempty,minterAddress"`
 }
 
 func GetSwapPools(c *gin.Context) {
@@ -137,12 +170,6 @@ func GetSwapPools(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.Resource{}, pagination, resourceCallback))
 }
 
-type GetSwapPoolProvidersRequest struct {
-	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
-	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
-}
-
 func GetSwapPoolProviders(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -169,10 +196,6 @@ func GetSwapPoolProviders(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(providers, pool.ProviderResource{}, pagination, resourceCallback))
 }
 
-type GetSwapPoolsByProviderRequest struct {
-	Address string `uri:"address" binding:"required,minterAddress"`
-}
-
 func GetSwapPoolsByProvider(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -194,16 +217,6 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.ProviderResource{}, pagination, resourceCallback))
-}
-
-type FindSwapPoolRouteRequest struct {
-	Coin0 string `uri:"coin0"  binding:"required"`
-	Coin1 string `uri:"coin1"  binding:"required"`
-}
-
-type FindSwapPoolRouteRequestQuery struct {
-	Amount    string `form:"amount" binding:"required,numeric"`
-	TradeType string `form:"type"   binding:"required,oneof=input output"`
 }
 
 func FindSwapPoolRoute(c *gin.Context) {
@@ -263,15 +276,6 @@ func FindSwapPoolRoute(c *gin.Context) {
 	})
 }
 
-type GetSwapPoolTransactionsRequest struct {
-	Token      string  `uri:"token"         binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0      string  `uri:"coin0"         binding:"omitempty,required_with=coin0"`
-	Coin1      string  `uri:"coin1"         binding:"omitempty,required_with=coin1"`
-	Page       string  `form:"page"         binding:"omitempty,numeric"`
-	StartBlock *string `form:"start_block"  binding:"omitempty,numeric"`
-	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
-}
-
 func GetSwapPoolTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -306,10 +310,6 @@ func GetCoinsList(c *gin.Context) {
 	}, CachePoolCoinsBlockCount).([]models.Coin)
 
 	c.JSON(http.StatusOK, resource.TransformCollection(poolCoins, coins.IdResource{}))
-}
-
-type GetCoinPossibleSwapsRequest struct {
-	Coin string `uri:"coin" binding:"required"`
 }
 
 func GetCoinPossibleSwaps(c *gin.Context) {
@@ -359,8 +359,7 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 			continue
 		}
 
-		_, err := explorer.PoolService.FindSwapRoutePathsByGraph(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID))
-		if err == nil {
+		if _, err := explorer.PoolService.FindSwapRoutePathsByGraph(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID)); err == nil {
 			swapCoins = append(swapCoins, pc)
 		}
 	}
