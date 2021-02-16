@@ -149,7 +149,7 @@ func GetSwapPools(c *gin.Context) {
 	}
 
 	if len(c.Request.URL.Query()) == 0 {
-		cached := explorer.Cache.Get("transactions", func() interface{} {
+		cached := explorer.Cache.Get("pools", func() interface{} {
 			return CachePoolsList{fetchPools(), pagination}
 		}, CachePoolsListBlockCount).(CachePoolsList)
 
