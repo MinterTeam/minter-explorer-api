@@ -16,8 +16,14 @@ import (
 	"strconv"
 )
 
+type CachePoolsList struct {
+	Pools      []models.LiquidityPool
+	Pagination tools.Pagination
+}
+
 const (
 	CachePoolCoinsBlockCount = 1
+	CachePoolsListBlockCount = 1
 )
 
 type GetSwapPoolRequest struct {
@@ -85,20 +91,40 @@ type GetSwapPoolsRequest struct {
 }
 
 func GetSwapPools(c *gin.Context) {
+	var err error
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// validate request
 	var req GetSwapPoolsRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
+	if err = c.ShouldBindQuery(&req); err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
+	// cache pools
+	var pools []models.LiquidityPool
+
+	// prepare fetching pools
 	pagination := tools.NewPagination(c.Request)
-	pools, err := explorer.PoolRepository.GetPools(pool.SelectPoolsFilter{
-		Coin:            req.Coin,
-		ProviderAddress: req.Address,
-	}, &pagination)
+	fetchPools := func() []models.LiquidityPool {
+		pools, _ = explorer.PoolRepository.GetPools(pool.SelectPoolsFilter{
+			Coin:            req.Coin,
+			ProviderAddress: req.Address,
+		}, &pagination)
+
+		return pools
+	}
+
+	if len(c.Request.URL.Query()) == 0 {
+		cached := explorer.Cache.Get("transactions", func() interface{} {
+			return CachePoolsList{fetchPools(), pagination}
+		}, CachePoolsListBlockCount).(CachePoolsList)
+
+		pools = cached.Pools
+		pagination = cached.Pagination
+	} else {
+		pools = fetchPools()
+	}
 
 	helpers.CheckErr(err)
 
