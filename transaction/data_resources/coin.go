@@ -20,3 +20,12 @@ func (Coin) Transform(data *api_pb.Coin) Coin {
 		Symbol: coin.GetSymbol(),
 	}
 }
+
+func (Coin) TransformCollection(data []*api_pb.Coin) []Coin {
+	coins := make([]Coin, len(data))
+	for i, coin := range data {
+		coins[i] = new(Coin).Transform(coin)
+	}
+
+	return coins
+}

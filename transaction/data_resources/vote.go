@@ -14,9 +14,12 @@ type VoteCommission struct {
 	BuyBancor               string `json:"buy_bancor"`
 	SellBancor              string `json:"sell_bancor"`
 	SellAllBancor           string `json:"sell_all_bancor"`
-	BuyPool                 string `json:"buy_pool"`
-	SellPool                string `json:"sell_pool"`
-	SellAllPool             string `json:"sell_all_pool"`
+	BuyPoolBase             string `json:"buy_pool_base"`
+	SellPoolBase            string `json:"sell_pool_base"`
+	SellAllPoolBase         string `json:"sell_all_pool_base"`
+	BuyPoolDelta            string `json:"buy_pool_delta"`
+	SellPoolDelta           string `json:"sell_pool_delta"`
+	SellAllPoolDelta        string `json:"sell_all_pool_delta"`
 	CreateTicker3           string `json:"create_ticker3"`
 	CreateTicker4           string `json:"create_ticker4"`
 	CreateTicker5           string `json:"create_ticker5"`
@@ -64,9 +67,12 @@ func (VoteCommission) Transform(txData resource.ItemInterface, params ...resourc
 		BuyBancor:               data.BuyBancor,
 		SellBancor:              data.SellBancor,
 		SellAllBancor:           data.SellAllBancor,
-		BuyPool:                 data.BuyPool,
-		SellPool:                data.SellPool,
-		SellAllPool:             data.SellAllPool,
+		BuyPoolBase:             data.BuyPoolBase,
+		BuyPoolDelta:            data.BuyPoolDelta,
+		SellPoolBase:            data.SellPoolBase,
+		SellPoolDelta:           data.SellPoolDelta,
+		SellAllPoolBase:         data.SellAllPoolBase,
+		SellAllPoolDelta:        data.SellAllPoolDelta,
 		CreateTicker3:           data.CreateTicker3,
 		CreateTicker4:           data.CreateTicker4,
 		CreateTicker5:           data.CreateTicker5,
