@@ -50,7 +50,12 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 }
 
 func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.findSwapRoutePaths(fromCoinId, toCoinId)
+	liquidityPools, err := s.repository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	paths, err := s.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +101,7 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 	return &trades[0], nil
 }
 
-func (s *Service) findSwapRoutePaths(fromCoinId, toCoinId uint64) ([][]goraph.ID, error) {
-	pools, err := s.repository.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
+func (s *Service) FindSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64) ([][]goraph.ID, error) {
 	graph := goraph.NewGraph()
 	for _, pool := range pools {
 		graph.AddVertex(pool.FirstCoinId, pool.FirstCoin)

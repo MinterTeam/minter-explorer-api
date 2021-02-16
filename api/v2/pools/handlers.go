@@ -267,11 +267,69 @@ func GetSwapPoolTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 
-func GetAutocompleteCoins(c *gin.Context) {
+func GetCoinsList(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	models, err := explorer.PoolRepository.GetPoolsCoins()
 	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, resource.TransformCollection(models, coins.IdResource{}))
+}
+
+type GetCoinPossibleSwapsRequest struct {
+	Coin string `uri:"coin" binding:"required"`
+}
+
+func GetCoinPossibleSwaps(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetCoinPossibleSwapsRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	poolsCoins, err := explorer.PoolRepository.GetPoolsCoins()
+	helpers.CheckErr(err)
+
+	// find coin from by id or symbol
+	var fromCoin *models.Coin
+	if id, err := strconv.ParseUint(req.Coin, 10, 64); err == nil {
+		for _, pc := range poolsCoins {
+			if uint64(pc.ID) == id {
+				fromCoin = &pc
+			}
+		}
+	} else {
+		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(req.Coin)
+		for _, pc := range poolsCoins {
+			if pc.Symbol == symbol && uint64(pc.Version) == version {
+				fromCoin = &pc
+			}
+		}
+	}
+
+	// send empty response if coin not exists in pools
+	if fromCoin == nil {
+		c.JSON(http.StatusOK, resource.TransformCollection([]models.Coin{}, coins.IdResource{}))
+		return
+	}
+
+	liquidityPools, err := explorer.PoolRepository.GetAll()
+	helpers.CheckErr(err)
+
+	var swapCoins []models.Coin
+	for _, pc := range poolsCoins {
+		if pc.ID == fromCoin.ID {
+			continue
+		}
+
+		_, err := explorer.PoolService.FindSwapRoutePathsByGraph(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID))
+		if err == nil {
+			swapCoins = append(swapCoins, pc)
+		}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollection(swapCoins, coins.IdResource{}))
 }
