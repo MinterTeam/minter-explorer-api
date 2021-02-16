@@ -16,6 +16,10 @@ import (
 	"strconv"
 )
 
+const (
+	CachePoolCoinsBlockCount = 1
+)
+
 type GetSwapPoolRequest struct {
 	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
 	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
@@ -270,10 +274,12 @@ func GetSwapPoolTransactions(c *gin.Context) {
 func GetCoinsList(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	models, err := explorer.PoolRepository.GetPoolsCoins()
-	helpers.CheckErr(err)
+	poolCoins := explorer.Cache.Get("pools_coins_list", func() interface{} {
+		poolCoins, _ := explorer.PoolRepository.GetPoolsCoins()
+		return poolCoins
+	}, CachePoolCoinsBlockCount).([]models.Coin)
 
-	c.JSON(http.StatusOK, resource.TransformCollection(models, coins.IdResource{}))
+	c.JSON(http.StatusOK, resource.TransformCollection(poolCoins, coins.IdResource{}))
 }
 
 type GetCoinPossibleSwapsRequest struct {
@@ -290,20 +296,22 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 		return
 	}
 
-	poolsCoins, err := explorer.PoolRepository.GetPoolsCoins()
-	helpers.CheckErr(err)
+	poolCoins := explorer.Cache.Get("pools_coins_list", func() interface{} {
+		poolCoins, _ := explorer.PoolRepository.GetPoolsCoins()
+		return poolCoins
+	}, CachePoolCoinsBlockCount).([]models.Coin)
 
 	// find coin from by id or symbol
 	var fromCoin *models.Coin
 	if id, err := strconv.ParseUint(req.Coin, 10, 64); err == nil {
-		for _, pc := range poolsCoins {
+		for _, pc := range poolCoins {
 			if uint64(pc.ID) == id {
 				fromCoin = &pc
 			}
 		}
 	} else {
 		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(req.Coin)
-		for _, pc := range poolsCoins {
+		for _, pc := range poolCoins {
 			if pc.Symbol == symbol && uint64(pc.Version) == version {
 				fromCoin = &pc
 			}
@@ -320,7 +328,7 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 	helpers.CheckErr(err)
 
 	var swapCoins []models.Coin
-	for _, pc := range poolsCoins {
+	for _, pc := range poolCoins {
 		if pc.ID == fromCoin.ID {
 			continue
 		}
