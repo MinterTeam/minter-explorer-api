@@ -20,7 +20,7 @@ const (
 	lastDataCacheTime      = time.Duration(60)
 	slowAvgBlocksCacheTime = time.Duration(300)
 	pageCacheTime          = 1
-	chainID                = "minter-mainnet-2"
+	chainID                = "minter-mainnet-3"
 )
 
 type Data struct {
