@@ -47,14 +47,25 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 
 type IdResource struct {
 	ID     uint32 `json:"id"`
+	Type   string `json:"type,omitempty"`
 	Symbol string `json:"symbol"`
+}
+
+type Params struct {
+	IsTypeRequired bool
 }
 
 func (IdResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	coin := model.(models.Coin)
 
-	return IdResource{
+	r := IdResource{
 		ID:     uint32(coin.ID),
 		Symbol: coin.GetSymbol(),
 	}
+
+	if len(params) > 0 {
+		r.Type = helpers.GetCoinType(coin.Type)
+	}
+
+	return r
 }

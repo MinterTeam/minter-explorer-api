@@ -19,7 +19,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 	balance := model.(models.Balance)
 
 	return Resource{
-		Coin:      new(coins.IdResource).Transform(*balance.Coin),
+		Coin:      new(coins.IdResource).Transform(*balance.Coin, coins.Params{IsTypeRequired: true}),
 		Amount:    helpers.PipStr2Bip(balance.Value),
 		BipAmount: helpers.PipStr2Bip(getCoinBalanceInBaseValue(balance).String()),
 	}
