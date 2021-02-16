@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 	"strconv"
 )
 
@@ -28,7 +28,7 @@ func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
 	err := repository.DB.Model(&coins).
-		Column("OwnerAddress").
+		Relation("OwnerAddress").
 		Where("deleted_at IS NULL").
 		Order("reserve DESC").
 		Select()
@@ -43,7 +43,7 @@ func (repository *Repository) GetLikeSymbolAndVersion(symbol string, version *ui
 	var coins []models.Coin
 
 	query := repository.DB.Model(&coins).
-		Column("OwnerAddress").
+		Relation("OwnerAddress").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Where("deleted_at IS NULL").
 		Order("reserve DESC")
@@ -63,7 +63,7 @@ func (repository *Repository) GetBySymbolAndVersion(symbol string, version *uint
 	var coins []models.Coin
 
 	query := repository.DB.Model(&coins).
-		Column("OwnerAddress").
+		Relation("OwnerAddress").
 		Where("symbol = ?", symbol).
 		Where("deleted_at IS NULL").
 		Order("reserve DESC")

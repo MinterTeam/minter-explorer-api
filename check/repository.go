@@ -3,7 +3,7 @@ package check
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Repository struct {

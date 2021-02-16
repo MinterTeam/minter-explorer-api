@@ -18,7 +18,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-api/v2/unbond"
 	"github.com/MinterTeam/minter-explorer-api/v2/validator"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Explorer struct {

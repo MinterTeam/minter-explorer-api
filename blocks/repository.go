@@ -5,7 +5,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 	"time"
 )
 
@@ -14,6 +15,8 @@ type Repository struct {
 }
 
 func NewRepository(db *pg.DB) *Repository {
+	orm.RegisterTable((*models.BlockValidator)(nil))
+
 	return &Repository{
 		DB: db,
 	}
@@ -24,7 +27,8 @@ func (repository Repository) GetById(id uint64) *models.Block {
 	var block models.Block
 
 	err := repository.DB.Model(&block).
-		Column("BlockValidators", "BlockValidators.Validator").
+		Relation("BlockValidators").
+		Relation("BlockValidators.Validator").
 		Where("block.id = ?", id).
 		Select()
 
@@ -41,7 +45,8 @@ func (repository Repository) GetPaginated(pagination *tools.Pagination) []models
 	var err error
 
 	pagination.Total, err = repository.DB.Model(&blocks).
-		Column("BlockValidators", "BlockValidators.Validator").
+		Relation("BlockValidators").
+		Relation("BlockValidators.Validator").
 		Apply(pagination.Filter).
 		Order("id DESC").
 		SelectAndCount()

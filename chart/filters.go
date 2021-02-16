@@ -1,6 +1,6 @@
 package chart
 
-import "github.com/go-pg/pg/v9/orm"
+import "github.com/go-pg/pg/v10/orm"
 
 type SelectFilter struct {
 	Scale     string
@@ -17,5 +17,5 @@ func (f SelectFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		q = q.Where("block.created_at <= ?", f.EndTime)
 	}
 
-	return q.Column("Block._").ColumnExpr("date_trunc(?, block.created_at) as time", f.Scale).Group("time").Order("time"), nil
+	return q.Relation("Block._").ColumnExpr("date_trunc(?, block.created_at) as time", f.Scale).Group("time").Order("time"), nil
 }

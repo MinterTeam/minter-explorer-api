@@ -9,7 +9,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
 	"gopkg.in/go-playground/validator.v9"

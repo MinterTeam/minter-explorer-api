@@ -5,7 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Repository struct {
@@ -23,7 +23,10 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	var err error
 
 	pagination.Total, err = repository.db.Model(&slashes).
-		Column("Coin", "Address.address", "Block.created_at", "Validator").
+		Relation("Coin").
+		Relation("Address.address").
+		Relation("Block.created_at").
+		Relation("Validator").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("block_id DESC").
@@ -39,7 +42,9 @@ func (repository Repository) GetPaginatedByValidator(validator *models.Validator
 	var err error
 
 	pagination.Total, err = repository.db.Model(&slashes).
-		Column("Coin", "Address.address", "Block.created_at").
+		Relation("Coin").
+		Relation("Address.address").
+		Relation("Block.created_at").
 		Where("validator_id = ?", validator.ID).
 		Apply(pagination.Filter).
 		Order("block_id DESC").

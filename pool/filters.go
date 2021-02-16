@@ -2,7 +2,7 @@ package pool
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
-	"github.com/go-pg/pg/v9/orm"
+	"github.com/go-pg/pg/v10/orm"
 	"strconv"
 )
 

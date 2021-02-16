@@ -1,7 +1,7 @@
 package blocks
 
 import (
-	"github.com/go-pg/pg/v9/orm"
+	"github.com/go-pg/pg/v10/orm"
 )
 
 // TODO: replace string to int

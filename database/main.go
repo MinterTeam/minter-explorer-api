@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 func Connect(env *core.Environment) *pg.DB {

@@ -4,7 +4,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 	"time"
 )
 
@@ -13,6 +14,8 @@ type Repository struct {
 }
 
 func NewRepository(db *pg.DB) *Repository {
+	orm.RegisterTable((*models.TransactionValidator)(nil))
+
 	return &Repository{
 		db: db,
 	}
@@ -29,7 +32,9 @@ func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filt
 		Join("INNER JOIN addresses AS a").
 		JoinOn("a.id = ind.address_id").
 		ColumnExpr("DISTINCT transaction.id").
-		Column("transaction.*", "FromAddress.address", "GasCoin").
+		Relation("FromAddress.address").
+		Relation("GasCoin").
+		Column("transaction.*").
 		Where("a.address IN (?)", pg.In(addresses)).
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
@@ -47,7 +52,9 @@ func (repository Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagina
 	var err error
 
 	pagination.Total, err = repository.db.Model(&transactions).
-		Column("transaction.*", "FromAddress.address", "GasCoin").
+		Relation("FromAddress.address").
+		Relation("GasCoin").
+		Column("transaction.*").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("transaction.id DESC").
@@ -63,7 +70,8 @@ func (repository Repository) GetTxByHash(hash string) *models.Transaction {
 	var transaction models.Transaction
 
 	err := repository.db.Model(&transaction).
-		Column("FromAddress", "GasCoin").
+		Relation("FromAddress").
+		Relation("GasCoin").
 		Where("hash = ?", hash).
 		Select()
 
@@ -100,7 +108,7 @@ func (repository Repository) GetTotalTransactionCount(startTime *string) int {
 
 	query := repository.db.Model(&tx)
 	if startTime != nil {
-		query = query.Column("Block._").Where("block.created_at >= ?", *startTime)
+		query = query.Relation("Block._").Where("block.created_at >= ?", *startTime)
 	}
 
 	count, err := query.Count()
@@ -121,7 +129,7 @@ func (repository Repository) Get24hTransactionsData() Tx24hData {
 	var data Tx24hData
 
 	err := repository.db.Model(&tx).
-		Column("Block._").
+		Relation("Block._").
 		ColumnExpr("COUNT(*) as count, SUM(gas * gas_price) as fee_sum, AVG(gas * gas_price) as fee_avg").
 		Where("block.created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
 		Select(&data)

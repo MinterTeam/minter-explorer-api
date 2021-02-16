@@ -11,6 +11,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.22
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.5.0
+	github.com/go-pg/pg/v10 v10.4.0
 	github.com/go-pg/pg/v9 v9.2.0
 	github.com/go-pg/urlstruct v0.2.8
 	github.com/joho/godotenv v1.3.0
