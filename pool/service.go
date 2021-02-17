@@ -32,11 +32,15 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 }
 
 func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	liquidityPools, err := s.repository.GetAll()
+	pools, err := s.repository.GetAll()
 	if err != nil {
 		return nil, err
 	}
 
+	return s.FindSwapRoutePathByPools(pools, fromCoinId, toCoinId, tradeType, amount)
+}
+
+func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
 	paths, err := s.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId)
 	if err != nil {
 		return nil, err
@@ -157,14 +161,13 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 			continue
 		}
 
-		trade, err := s.FindSwapRoutePath(p.FirstCoinId, uint64(0), swap.TradeTypeExactInput, firstCoinVolume)
+		trade, err := s.FindSwapRoutePathByPools(pools, p.FirstCoinId, uint64(0), swap.TradeTypeExactInput, firstCoinVolume)
 		if err != nil || trade == nil {
-			trade, err = s.FindSwapRoutePath(p.SecondCoinId, uint64(0), swap.TradeTypeExactInput, secondCoinVolume)
+			trade, err = s.FindSwapRoutePathByPools(pools, p.SecondCoinId, uint64(0), swap.TradeTypeExactInput, secondCoinVolume)
 			if err != nil || trade == nil {
 				s.poolsLiquidity[p.Id] = big.NewInt(0)
 				continue
 			}
-
 		}
 
 		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
