@@ -269,11 +269,7 @@ func FindSwapPoolRoute(c *gin.Context) {
 		path[i] = coin
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"amount_in":  helpers.Pip2Bip(trade.InputAmount.GetAmount()).Text('f', 18),
-		"amount_out": helpers.Pip2Bip(trade.OutputAmount.GetAmount()).Text('f', 18),
-		"coins":      resource.TransformCollection(path, coins.IdResource{}),
-	})
+	c.JSON(http.StatusOK, new(pool.RouteResource).Transform(path, trade))
 }
 
 func GetSwapPoolTransactions(c *gin.Context) {

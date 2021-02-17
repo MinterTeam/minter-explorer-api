@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"math/big"
 )
@@ -72,5 +73,19 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 		Liquidity:      helpers.PipStr2Bip(provider.Liquidity),
 		LiquidityInBip: helpers.PipStr2Bip(liquidityInBip.String()),
 		LiquidityShare: liquidityShare * 100,
+	}
+}
+
+type RouteResource struct {
+	AmountIn  string               `json:"amount_in"`
+	AmountOut string               `json:"amount_out"`
+	Coins     []resource.Interface `json:"coins"`
+}
+
+func (r RouteResource) Transform(route []models.Coin, trade *swap.Trade) RouteResource {
+	return RouteResource{
+		AmountIn:  helpers.Pip2Bip(trade.InputAmount.GetAmount()).Text('f', 18),
+		AmountOut: helpers.Pip2Bip(trade.OutputAmount.GetAmount()).Text('f', 18),
+		Coins:     resource.TransformCollection(route, coins.IdResource{}),
 	}
 }
