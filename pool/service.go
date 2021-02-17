@@ -2,51 +2,33 @@ package pool
 
 import (
 	"errors"
+	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/MinterTeam/minter-go-node/formula"
+	log "github.com/sirupsen/logrus"
 	"github.com/starwander/goraph"
 	"math/big"
 )
 
 type Service struct {
-	repository *Repository
+	repository     *Repository
+	poolsLiquidity map[uint64]*big.Int
 }
 
 func NewService(repository *Repository) *Service {
-	return &Service{repository}
+	return &Service{
+		repository:     repository,
+		poolsLiquidity: make(map[uint64]*big.Int),
+	}
 }
 
 func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
-	var (
-		firstCoinInBip  = helpers.StringToBigInt(pool.FirstCoinVolume)
-		secondCoinInBip = helpers.StringToBigInt(pool.SecondCoinVolume)
-	)
-
-	if pool.FirstCoin.Crr == 0 || pool.SecondCoin.Crr == 0 {
-		return big.NewInt(0)
+	if liquidity, ok := s.poolsLiquidity[pool.Id]; ok {
+		return liquidity
 	}
 
-	if pool.FirstCoinId != 0 {
-		firstCoinInBip = formula.CalculateSaleReturn(
-			helpers.StringToBigInt(pool.FirstCoin.Volume),
-			helpers.StringToBigInt(pool.FirstCoin.Reserve),
-			pool.FirstCoin.Crr,
-			helpers.StringToBigInt(pool.FirstCoinVolume),
-		)
-	}
-
-	if pool.SecondCoinId != 0 {
-		secondCoinInBip = formula.CalculateSaleReturn(
-			helpers.StringToBigInt(pool.SecondCoin.Volume),
-			helpers.StringToBigInt(pool.SecondCoin.Reserve),
-			pool.SecondCoin.Crr,
-			helpers.StringToBigInt(pool.SecondCoinVolume),
-		)
-	}
-
-	return new(big.Int).Add(firstCoinInBip, secondCoinInBip)
+	return big.NewInt(0)
 }
 
 func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
@@ -153,4 +135,38 @@ func (s *Service) getPathsRelatedPools(paths [][]goraph.ID) ([]models.LiquidityP
 	}
 
 	return pools, nil
+}
+
+// TODO: refactor and optimize
+func (s *Service) OnNewBlock(block blocks.Resource) {
+	if block.NumTxs == 0 {
+		return
+	}
+
+	pools, err := s.repository.GetAll()
+	if err != nil {
+		log.Error(err)
+	}
+
+	for _, p := range pools {
+		firstCoinVolume := helpers.StringToBigInt(p.FirstCoinVolume)
+		secondCoinVolume := helpers.StringToBigInt(p.SecondCoinVolume)
+
+		if p.FirstCoinId == 0 {
+			s.poolsLiquidity[p.Id] = new(big.Int).Mul(firstCoinVolume, big.NewInt(2))
+			continue
+		}
+
+		trade, err := s.FindSwapRoutePath(p.FirstCoinId, uint64(0), swap.TradeTypeExactInput, firstCoinVolume)
+		if err != nil || trade == nil {
+			trade, err = s.FindSwapRoutePath(p.SecondCoinId, uint64(0), swap.TradeTypeExactInput, secondCoinVolume)
+			if err != nil || trade == nil {
+				s.poolsLiquidity[p.Id] = big.NewInt(0)
+				continue
+			}
+
+		}
+
+		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
+	}
 }
