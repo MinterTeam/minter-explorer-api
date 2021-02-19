@@ -28,7 +28,7 @@ func (p Pair) GetOutputAmount(inputAmount TokenAmount) (TokenAmount, Pair, error
 		outputReserve = p.Token1
 	}
 
-	inputAmountWithFee := new(big.Int).Mul(inputAmount.Amount, big.NewInt(997))
+	inputAmountWithFee := new(big.Int).Mul(inputAmount.Amount, big.NewInt(999))
 	numerator := new(big.Int).Mul(inputAmountWithFee, outputReserve.Amount)
 	denominator := new(big.Int).Add(new(big.Int).Mul(inputReserve.Amount, big.NewInt(1000)), inputAmountWithFee)
 
@@ -52,7 +52,7 @@ func (p Pair) GetInputAmount(outputAmount TokenAmount) (TokenAmount, Pair, error
 	}
 
 	numerator := new(big.Int).Mul(new(big.Int).Mul(inputReserve.Amount, outputAmount.Amount), big.NewInt(1000))
-	denominator := new(big.Int).Mul(new(big.Int).Sub(outputReserve.Amount, outputAmount.Amount), big.NewInt(997))
+	denominator := new(big.Int).Mul(new(big.Int).Sub(outputReserve.Amount, outputAmount.Amount), big.NewInt(999))
 
 	inputAmount := TokenAmount{
 		Token:  inputReserve.Token,

@@ -240,14 +240,20 @@ func FindSwapPoolRoute(c *gin.Context) {
 		fromCoinId = id
 	} else {
 		fromCoinId, err = explorer.CoinRepository.FindIdBySymbol(req.Coin0)
-		helpers.CheckErr(err)
+		if err != nil {
+			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+			return
+		}
 	}
 
 	if id, err := strconv.ParseUint(req.Coin1, 10, 64); err == nil {
 		toCoinId = id
 	} else {
 		toCoinId, err = explorer.CoinRepository.FindIdBySymbol(req.Coin1)
-		helpers.CheckErr(err)
+		if err != nil {
+			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+			return
+		}
 	}
 
 	// define trade type
