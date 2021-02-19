@@ -96,3 +96,11 @@ func (repository Repository) GetSumValueByCoin(coinID uint) (string, error) {
 
 	return sum, err
 }
+
+func (repository Repository) GetDelegatorsCount() (count uint64, err error) {
+	err = repository.db.Model(new(models.Stake)).
+		ColumnExpr("count (DISTINCT owner_address_id)").
+		Select(&count)
+
+	return count, err
+}

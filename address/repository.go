@@ -40,3 +40,11 @@ func (repository Repository) GetByAddresses(minterAddresses []string) []*models.
 
 	return addresses
 }
+
+func (repository Repository) GetNonZeroAddressesCount() (count uint64, err error) {
+	err = repository.DB.Model(new(models.Balance)).
+		ColumnExpr("count (DISTINCT address_id)").
+		Select(&count)
+
+	return count, err
+}

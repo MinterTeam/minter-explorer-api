@@ -17,10 +17,12 @@ import (
 )
 
 const (
-	lastDataCacheTime      = time.Duration(60)
-	slowAvgBlocksCacheTime = time.Duration(300)
-	pageCacheTime          = 1
-	chainID                = "minter-mainnet-3"
+	lastDataCacheTime         = time.Duration(60)
+	slowAvgBlocksCacheTime    = time.Duration(300)
+	nonZeroAddressesCacheTime = time.Duration(600)
+	delegatorsCountCacheTime  = time.Duration(600)
+	pageCacheTime             = 1
+	chainID                   = "minter-mainnet-3"
 )
 
 type Data struct {
@@ -83,6 +85,8 @@ func GetStatusPage(c *gin.Context) {
 	tx24hDataCh := make(chan Data)
 	stakesSumCh := make(chan Data)
 	customCoinsDataCh := make(chan Data)
+	nonZeroAddressesCountCh := make(chan Data)
+	delegatorsCountCh := make(chan Data)
 
 	go getTransactionsDataBy24h(explorer, tx24hDataCh)
 	go getTotalTxCount(explorer, txTotalCountCh)
@@ -93,12 +97,15 @@ func GetStatusPage(c *gin.Context) {
 	go getSumSlowBlocksTime(explorer, slowBlocksTimeSumCh)
 	go getStakesSum(explorer, stakesSumCh)
 	go getCustomCoinsData(explorer, customCoinsDataCh)
+	go getNonZeroAddressesCount(explorer, nonZeroAddressesCountCh)
+	go getDelegatorsCount(explorer, delegatorsCountCh)
 
 	// get values from goroutines
 	tx24hData, txTotalCount := <-tx24hDataCh, <-txTotalCountCh
 	activeValidators, activeCandidates := <-activeValidatorsCh, <-activeCandidatesCh
 	avgBlockTime, lastBlockData, slowBlocksTimeSum := <-avgTimeCh, <-lastBlockCh, <-slowBlocksTimeSumCh
 	stakesSumData, customCoinsData := <-stakesSumCh, <-customCoinsDataCh
+	nonZeroAddressesCountData, delegatorsCountData := <-nonZeroAddressesCountCh, <-delegatorsCountCh
 
 	// handle errors from goroutines
 	helpers.CheckErr(tx24hData.Error)
@@ -110,6 +117,8 @@ func GetStatusPage(c *gin.Context) {
 	helpers.CheckErr(slowBlocksTimeSum.Error)
 	helpers.CheckErr(stakesSumData.Error)
 	helpers.CheckErr(customCoinsData.Error)
+	helpers.CheckErr(nonZeroAddressesCountData.Error)
+	helpers.CheckErr(delegatorsCountData.Error)
 
 	// prepare data
 	lastBlock := lastBlockData.Result.(models.Block)
@@ -140,6 +149,8 @@ func GetStatusPage(c *gin.Context) {
 			"free_float_bip":             getFreeBipSum(stakesSum, lastBlock.ID),
 			"transactions_per_second":    getTransactionSpeed(tx24h.Count),
 			"uptime":                     calculateUptime(slowBlocksTimeSum.Result.(float64)),
+			"non_zero_addresses_count":   nonZeroAddressesCountData.Result.(uint64),
+			"delegators_count":           delegatorsCountData.Result.(uint64),
 		},
 	})
 }
@@ -312,6 +323,30 @@ func getCustomCoinsData(explorer *core.Explorer, ch chan Data) {
 
 		return data
 	}, pageCacheTime)
+
+	ch <- Data{data, nil}
+}
+
+func getNonZeroAddressesCount(explorer *core.Explorer, ch chan Data) {
+	defer recoveryStatusData(ch)
+
+	data := explorer.Cache.Get("non_zero_addresses_count", func() interface{} {
+		count, err := explorer.AddressRepository.GetNonZeroAddressesCount()
+		helpers.CheckErr(err)
+		return count
+	}, nonZeroAddressesCacheTime)
+
+	ch <- Data{data, nil}
+}
+
+func getDelegatorsCount(explorer *core.Explorer, ch chan Data) {
+	defer recoveryStatusData(ch)
+
+	data := explorer.Cache.Get("delegators_count", func() interface{} {
+		count, err := explorer.StakeRepository.GetDelegatorsCount()
+		helpers.CheckErr(err)
+		return count
+	}, delegatorsCountCacheTime)
 
 	ch <- Data{data, nil}
 }
