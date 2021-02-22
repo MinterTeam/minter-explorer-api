@@ -1,6 +1,9 @@
 package pools
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
@@ -12,8 +15,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type CachePoolsList struct {
@@ -74,7 +75,11 @@ type GetSwapPoolTransactionsRequest struct {
 }
 
 type GetCoinPossibleSwapsRequest struct {
-	Coin string `uri:"coin" binding:"required"`
+	Coin string `uri:"coin"  binding:"required"`
+}
+
+type GetCoinPossibleSwapsRequestQuery struct {
+	Depth int `form:"depth"`
 }
 
 func GetSwapPool(c *gin.Context) {
@@ -324,6 +329,12 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 		return
 	}
 
+	var reqQuery GetCoinPossibleSwapsRequestQuery
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
 	poolCoins := explorer.Cache.Get("pools_coins_list", func() interface{} {
 		poolCoins, _ := explorer.PoolRepository.GetPoolsCoins()
 		return poolCoins
@@ -341,7 +352,10 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(req.Coin)
 		for _, pc := range poolCoins {
 			if pc.Symbol == symbol && uint64(pc.Version) == version {
-				fromCoin = &pc
+				fromCoin = &models.Coin{
+					ID:     pc.ID,
+					Symbol: pc.Symbol,
+				}
 			}
 		}
 	}
@@ -361,7 +375,7 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 			continue
 		}
 
-		if _, err := explorer.PoolService.FindSwapRoutePathsByGraph(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID)); err == nil {
+		if _, err := explorer.PoolService.FindSwapRoutePathsByGraph(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID), reqQuery.Depth); err == nil {
 			swapCoins = append(swapCoins, pc)
 		}
 	}

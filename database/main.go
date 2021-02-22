@@ -42,6 +42,7 @@ func (d dbLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Co
 }
 
 func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
-	//fmt.Println(q.FormattedQuery())
+	//sql, _ := q.FormattedQuery()
+	//fmt.Println(string(sql[:]))
 	return nil
 }

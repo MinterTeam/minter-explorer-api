@@ -41,7 +41,7 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 }
 
 func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId)
+	paths, err := s.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 1000)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool
 	return &trades[0], nil
 }
 
-func (s *Service) FindSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64) ([][]goraph.ID, error) {
+func (s *Service) FindSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
 	graph := goraph.NewGraph()
 	for _, pool := range pools {
 		graph.AddVertex(pool.FirstCoinId, pool.FirstCoin)
@@ -105,7 +105,24 @@ func (s *Service) FindSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 		return nil, errors.New("path not found")
 	}
 
-	return paths, nil
+	if depth == 0 {
+		return paths, nil
+	}
+
+	var result [][]goraph.ID
+	for _, path := range paths {
+		if len(path) > depth+1 || len(path) == 0 {
+			break
+		}
+
+		result = append(result, path)
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	return result, nil
 }
 
 func (s *Service) getPathsRelatedPools(paths [][]goraph.ID) ([]models.LiquidityPool, error) {
