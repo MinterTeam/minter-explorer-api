@@ -23,22 +23,27 @@ type Resource struct {
 	Nonce                uint64                 `json:"nonce"`
 	Block                uint64                 `json:"height"`
 	Timestamp            string                 `json:"timestamp"`
-	GasCoin              resource.Interface     `json:"gas_coin"`
-	Gas                  string                 `json:"gas"`
-	GasPrice             uint64                 `json:"gas_price"`
-	Fee                  string                 `json:"fee"`
 	Type                 uint8                  `json:"type"`
 	Payload              string                 `json:"payload"`
 	From                 string                 `json:"from"`
 	Data                 resource.ItemInterface `json:"data"`
-	RawTx                string                 `json:"raw_tx"`
+	Gas                  string                 `json:"gas"`
+	GasPrice             uint64                 `json:"gas_price"`
+	GasCoin              resource.Interface     `json:"gas_coin"`
+	Fee                  string                 `json:"fee"`
+	CommissionAmount     string                 `json:"commission_amount"`
 	CommissionInBaseCoin string                 `json:"commission_in_base_coin"`
-	CommissionPriceCoin  resource.Interface     `json:"commission_price_coin"`
 	CommissionPrice      string                 `json:"commission_price"`
+	CommissionPriceCoin  resource.Interface     `json:"commission_price_coin"`
+	RawTx                string                 `json:"raw_tx"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.Transaction)
+
+	// TODO: move to tx service, prepare models method
+	priceCoinId, _ := strconv.ParseUint(tx.Tags["tx.commission_price_coin"], 10, 64)
+	priceCoin, _ := coins.GlobalRepository.FindByID(uint(priceCoinId))
 
 	return Resource{
 		Txn:                  tx.ID,
@@ -55,8 +60,10 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		From:                 tx.FromAddress.GetAddress(),
 		Data:                 TransformTxData(tx),
 		RawTx:                hex.EncodeToString(tx.RawTx),
+		CommissionAmount:     helpers.PipStr2Bip(tx.Commission),
 		CommissionInBaseCoin: helpers.PipStr2Bip(tx.Tags["tx.commission_in_base_coin"]),
 		CommissionPrice:      helpers.PipStr2Bip(tx.Tags["tx.commission_price"]),
+		CommissionPriceCoin:  new(coins.IdResource).Transform(priceCoin),
 	}
 }
 
