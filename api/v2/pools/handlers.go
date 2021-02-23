@@ -101,7 +101,7 @@ func GetSwapPool(c *gin.Context) {
 	bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.Resource).Transform(p, pool.Params{LiquidityInBip: bipValue}),
+		"data": new(pool.Resource).Transform(p, pool.Params{LiquidityInBip: bipValue, FirstCoin: req.Coin0, SecondCoin: req.Coin1}),
 	})
 }
 
@@ -124,7 +124,7 @@ func GetSwapPoolProvider(c *gin.Context) {
 	bipValue := explorer.PoolService.GetPoolLiquidityInBip(*p.LiquidityPool)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.ProviderResource).Transform(p, pool.Params{LiquidityInBip: bipValue}),
+		"data": new(pool.ProviderResource).Transform(p, pool.Params{LiquidityInBip: bipValue, FirstCoin: req.Coin0, SecondCoin: req.Coin1}),
 	})
 }
 
@@ -195,7 +195,7 @@ func GetSwapPoolProviders(c *gin.Context) {
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
-		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
+		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue, FirstCoin: req.Coin0, SecondCoin: req.Coin1}}
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(providers, pool.ProviderResource{}, pagination, resourceCallback))

@@ -7,6 +7,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"math/big"
+	"strconv"
 )
 
 type Resource struct {
@@ -21,19 +22,43 @@ type Resource struct {
 
 type Params struct {
 	LiquidityInBip *big.Int
+	FirstCoin      string
+	SecondCoin     string
 }
 
 func (r Resource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {
 	pool := model.(models.LiquidityPool)
+	params := resourceParams[0].(Params)
+
+	inverseOrder := false
+	if len(params.FirstCoin) != 0 && len(params.SecondCoin) != 0 {
+		if id, err := strconv.Atoi(params.FirstCoin); err == nil {
+			inverseOrder = uint(id) != pool.FirstCoin.ID
+		} else if params.FirstCoin != pool.FirstCoin.Symbol {
+			inverseOrder = true
+		}
+	}
+
+	if !inverseOrder {
+		return Resource{
+			Coin0:          new(coins.IdResource).Transform(*pool.FirstCoin),
+			Coin1:          new(coins.IdResource).Transform(*pool.SecondCoin),
+			Token:          new(coins.IdResource).Transform(*pool.Token),
+			Amount0:        helpers.PipStr2Bip(pool.FirstCoinVolume),
+			Amount1:        helpers.PipStr2Bip(pool.SecondCoinVolume),
+			Liquidity:      helpers.PipStr2Bip(pool.Liquidity),
+			LiquidityInBip: helpers.PipStr2Bip(params.LiquidityInBip.String()),
+		}
+	}
 
 	return Resource{
-		Coin0:          new(coins.IdResource).Transform(*pool.FirstCoin),
-		Coin1:          new(coins.IdResource).Transform(*pool.SecondCoin),
+		Coin0:          new(coins.IdResource).Transform(*pool.SecondCoin),
+		Coin1:          new(coins.IdResource).Transform(*pool.FirstCoin),
 		Token:          new(coins.IdResource).Transform(*pool.Token),
-		Amount0:        helpers.PipStr2Bip(pool.FirstCoinVolume),
-		Amount1:        helpers.PipStr2Bip(pool.SecondCoinVolume),
+		Amount0:        helpers.PipStr2Bip(pool.SecondCoinVolume),
+		Amount1:        helpers.PipStr2Bip(pool.FirstCoinVolume),
 		Liquidity:      helpers.PipStr2Bip(pool.Liquidity),
-		LiquidityInBip: helpers.PipStr2Bip(resourceParams[0].(Params).LiquidityInBip.String()),
+		LiquidityInBip: helpers.PipStr2Bip(params.LiquidityInBip.String()),
 	}
 }
 
@@ -51,6 +76,7 @@ type ProviderResource struct {
 
 func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {
 	provider := model.(models.AddressLiquidityPool)
+	params := resourceParams[0].(Params)
 
 	part := new(big.Float).Quo(
 		new(big.Float).SetInt(helpers.StringToBigInt(provider.Liquidity)),
@@ -63,13 +89,36 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	liquidityShare, _ := part.Float64()
 	liquidityInBip, _ := new(big.Float).Mul(part, new(big.Float).SetInt(resourceParams[0].(Params).LiquidityInBip)).Int(nil)
 
+	inverseOrder := false
+	if len(params.FirstCoin) != 0 && len(params.SecondCoin) != 0 {
+		if id, err := strconv.Atoi(params.FirstCoin); err == nil {
+			inverseOrder = uint(id) != provider.LiquidityPool.FirstCoin.ID
+		} else if params.FirstCoin != provider.LiquidityPool.FirstCoin.Symbol {
+			inverseOrder = true
+		}
+	}
+
+	if !inverseOrder {
+		return ProviderResource{
+			Address:        provider.Address.GetAddress(),
+			Coin0:          new(coins.IdResource).Transform(*provider.LiquidityPool.FirstCoin),
+			Coin1:          new(coins.IdResource).Transform(*provider.LiquidityPool.SecondCoin),
+			Token:          new(coins.IdResource).Transform(*provider.LiquidityPool.Token),
+			Amount0:        helpers.PipStr2Bip(amount0.String()),
+			Amount1:        helpers.PipStr2Bip(amount1.String()),
+			Liquidity:      helpers.PipStr2Bip(provider.Liquidity),
+			LiquidityInBip: helpers.PipStr2Bip(liquidityInBip.String()),
+			LiquidityShare: liquidityShare * 100,
+		}
+	}
+
 	return ProviderResource{
 		Address:        provider.Address.GetAddress(),
-		Coin0:          new(coins.IdResource).Transform(*provider.LiquidityPool.FirstCoin),
-		Coin1:          new(coins.IdResource).Transform(*provider.LiquidityPool.SecondCoin),
+		Coin0:          new(coins.IdResource).Transform(*provider.LiquidityPool.SecondCoin),
+		Coin1:          new(coins.IdResource).Transform(*provider.LiquidityPool.FirstCoin),
 		Token:          new(coins.IdResource).Transform(*provider.LiquidityPool.Token),
-		Amount0:        helpers.PipStr2Bip(amount0.String()),
-		Amount1:        helpers.PipStr2Bip(amount1.String()),
+		Amount0:        helpers.PipStr2Bip(amount1.String()),
+		Amount1:        helpers.PipStr2Bip(amount0.String()),
 		Liquidity:      helpers.PipStr2Bip(provider.Liquidity),
 		LiquidityInBip: helpers.PipStr2Bip(liquidityInBip.String()),
 		LiquidityShare: liquidityShare * 100,
