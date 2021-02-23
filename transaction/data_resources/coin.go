@@ -49,8 +49,7 @@ func (PoolCoin) TransformCollection(data []*api_pb.Coin, model models.Transactio
 		re := regexp.MustCompile(`-([0-9]*)`)
 		amounts := re.FindAllString(pools[i/2], 2)
 
-		var amount string
-		amount = amounts[1][1:]
+		amount := amounts[1][1:]
 		if i == 0 {
 			amount = amounts[0][1:]
 		}
