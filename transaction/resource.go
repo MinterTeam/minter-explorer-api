@@ -31,7 +31,7 @@ type Resource struct {
 	GasPrice            uint64                 `json:"gas_price"`
 	GasCoin             resource.Interface     `json:"gas_coin"`
 	Fee                 string                 `json:"fee"`
-	CommissionAmount    string                 `json:"commission_amount"`
+	CommissionInGasCoin string                 `json:"commission_in_gas_coin"`
 	CommissionPrice     string                 `json:"commission_price"`
 	CommissionPriceCoin resource.Interface     `json:"commission_price_coin"`
 	RawTx               string                 `json:"raw_tx"`
@@ -55,7 +55,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		From:                tx.FromAddress.GetAddress(),
 		Data:                TransformTxData(tx),
 		RawTx:               hex.EncodeToString(tx.RawTx),
-		CommissionAmount:    helpers.PipStr2Bip(tx.Tags["tx.commission_amount"]),
+		CommissionInGasCoin: helpers.PipStr2Bip(tx.Tags["tx.commission_amount"]),
 		CommissionPrice:     helpers.PipStr2Bip(tx.Tags["tx.commission_price"]),
 		CommissionPriceCoin: new(coins.IdResource).Transform(tx.CommissionPriceCoin),
 	}
