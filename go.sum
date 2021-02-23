@@ -55,6 +55,7 @@ github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec/go.mod h1
 github.com/MinterTeam/explorer-genesis-uploader v1.2.5/go.mod h1:3eSjpI5uzUomm8vzrL/xX35q1E5w5jjUR8y4YgD12wc=
 github.com/MinterTeam/explorer-genesis-uploader v1.2.6/go.mod h1:3eSjpI5uzUomm8vzrL/xX35q1E5w5jjUR8y4YgD12wc=
 github.com/MinterTeam/explorer-genesis-uploader v1.2.7/go.mod h1:ATKtzVOF4WqPVt+owSmUUEpapbJkLk9+nQHrJtCREV4=
+github.com/MinterTeam/explorer-genesis-uploader v1.2.9/go.mod h1:Lm8R6+/psWoYEmcEX2gzannG6TAcAH1DRGKQ7axzrm0=
 github.com/MinterTeam/go-amino v0.14.1 h1:RJZh+Rn2MpSnCroAL/HA8CdnibeYPSsiLvQWacFCVKc=
 github.com/MinterTeam/go-amino v0.14.1/go.mod h1:2sqs1fcf3DcQpvIJarkzVCjALWc11WDwc5oFHCrG5R4=
 github.com/MinterTeam/minter-explorer-api v1.4.1-0.20200824121237-4e1fff866521/go.mod h1:/fVEAahQJ3KZo7NDdJhuwP5a2AkGwse7KkjIGGFdJRg=
@@ -64,6 +65,7 @@ github.com/MinterTeam/minter-explorer-api v1.4.1-0.20200918104534-e02c006e0c51/g
 github.com/MinterTeam/minter-explorer-api/v2 v2.0.1/go.mod h1:vnxGDrzFV/IIFh1ofAiUNGTDkY3+s0LKu+mnvUDr/yY=
 github.com/MinterTeam/minter-explorer-api/v2 v2.0.3-0.20210204104435-0368c2523d03/go.mod h1:AgmLEDvQHr3hh74Nl+El6xZpuESaJVZjtm+3bDtyPBo=
 github.com/MinterTeam/minter-explorer-api/v2 v2.0.3-0.20210208101641-0ba6e333e2cc/go.mod h1:b3U64svFavFz6H70YHhbhP0xHh9F8mPXSueCh2wihXU=
+github.com/MinterTeam/minter-explorer-api/v2 v2.0.3-0.20210216113407-b58a031c92b8/go.mod h1:qhclOTKkViRR/oLTzA+kXFB2gv0CXXcoUGx5MaK25vk=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200824120016-277608980ac6 h1:+2FfuaJtpVtu42LvAStit0KynABx9pfiu4SrSBWc37A=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200824120016-277608980ac6/go.mod h1:7jy+TEO9dEdfEwgGdXesETCxcWl3DYGlZCbMvD3KxHM=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.1.1-0.20200902081316-6bc5dd6d2a52 h1:baGqG2hBlllW93HUI58N5Th9RNg92CELOD6BGH/S5GA=
@@ -84,6 +86,8 @@ github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210210185948-43bec0
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210210185948-43bec0255113/go.mod h1:G2lncdXo5NXRZfr6zSJi1PUAck8YdSTzCcdvEmvPrYM=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210211125631-c42c9a3e413c h1:pF7dyCXw8JyxYdIk8Gb9IpiW5qXN9dE155GZoZk7CTI=
 github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210211125631-c42c9a3e413c/go.mod h1:G2lncdXo5NXRZfr6zSJi1PUAck8YdSTzCcdvEmvPrYM=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210223061206-0e8b75485a6b h1:9lyo3ptJgZCOFeWmLnt8759ay3kGN5IzL/ov59ZsMRg=
+github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210223061206-0e8b75485a6b/go.mod h1:9jwxY3V2UWVZY/o+coxyRkPDLzkMBA6ayX1jXE4t0T0=
 github.com/MinterTeam/minter-explorer-tools v1.5.2 h1:p+MIw4jaddH4NRM9DXdQjUsGVGoesIKreLwv64iZp+c=
 github.com/MinterTeam/minter-explorer-tools v1.5.2/go.mod h1:owuL/5tZGB+sGlQh88XFyCB5RobQGc5yWs5jm2BqQl4=
 github.com/MinterTeam/minter-explorer-tools/v4 v4.1.0/go.mod h1:OMgo5DGLbhUlUnU21DF6iJDoMiIOn/BbDG9FOw03Sik=
@@ -116,6 +120,7 @@ github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210203185945-46081e511af9 
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210203185945-46081e511af9/go.mod h1:5GRJPskdY1VZyDJPHsnoSVk60kHYP9CL+BSrzneahvo=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210209133819-011976d40e49 h1:Y2uwdEbqXK95hmZxD+cl1uZHa5Dx4xfGqOtWFCBCe3U=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210209133819-011976d40e49/go.mod h1:ysGyxp670uBb8cSJ3ePpDj6ol4m6Bo3i3X/3q6wntnw=
+github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210215221909-2d91a13e0264/go.mod h1:jGgLRmXHQdOt6x5tAR32Ye9SItWVj8aNhGpn4I5H/Ys=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210216102737-3ed0b53a6292 h1:fGL/lxOJJBu5UMHlLYVRuTFMScv4WzkIgQgVZzVSTnM=
 github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210216102737-3ed0b53a6292/go.mod h1:jGgLRmXHQdOt6x5tAR32Ye9SItWVj8aNhGpn4I5H/Ys=
 github.com/MinterTeam/minter-node-go-api v1.3.5 h1:5LM9sGnBweKymTMQyjeTDMPsioZ1sFBUw3xCR739iX4=

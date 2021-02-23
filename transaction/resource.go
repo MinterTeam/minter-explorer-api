@@ -40,10 +40,6 @@ type Resource struct {
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.Transaction)
 
-	// TODO: move to tx service, prepare models method
-	priceCoinId, _ := strconv.ParseUint(tx.Tags["tx.commission_price_coin"], 10, 64)
-	priceCoin, _ := coins.GlobalRepository.FindByID(uint(priceCoinId))
-
 	return Resource{
 		Txn:                  tx.ID,
 		Hash:                 tx.GetHash(),
@@ -61,7 +57,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		RawTx:                hex.EncodeToString(tx.RawTx),
 		CommissionInBaseCoin: helpers.PipStr2Bip(tx.Tags["tx.commission_in_base_coin"]),
 		CommissionPrice:      helpers.PipStr2Bip(tx.Tags["tx.commission_price"]),
-		CommissionPriceCoin:  new(coins.IdResource).Transform(priceCoin),
+		CommissionPriceCoin:  new(coins.IdResource).Transform(tx.CommissionPriceCoin),
 	}
 }
 

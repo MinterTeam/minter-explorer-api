@@ -3,7 +3,7 @@ module github.com/MinterTeam/minter-explorer-api/v2
 go 1.13
 
 require (
-	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210211125631-c42c9a3e413c
+	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210223061206-0e8b75485a6b
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210216102737-3ed0b53a6292
 	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210215163213-bc5e74e80d46
@@ -13,15 +13,12 @@ require (
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-pg/pg/v10 v10.4.0
 	github.com/go-pg/urlstruct v0.2.8
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.2.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.4.1
 	github.com/sirupsen/logrus v1.4.2
-	github.com/starwander/GoFibonacciHeap v0.0.0-20190508061137-ba2e4f01000a // indirect
 	github.com/starwander/goraph v0.0.0-20200325033650-cb8f0beb44cc
 	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
-	google.golang.org/genproto v0.0.0-20210212180131-e7f2df4ecc2d // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/go-playground/validator.v9 v9.31.0
 )
