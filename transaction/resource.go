@@ -18,46 +18,48 @@ import (
 )
 
 type Resource struct {
-	Txn                 uint64                 `json:"txn"`
-	Hash                string                 `json:"hash"`
-	Nonce               uint64                 `json:"nonce"`
-	Block               uint64                 `json:"height"`
-	Timestamp           string                 `json:"timestamp"`
-	Type                uint8                  `json:"type"`
-	Payload             string                 `json:"payload"`
-	From                string                 `json:"from"`
-	Data                resource.ItemInterface `json:"data"`
-	Gas                 string                 `json:"gas"`
-	GasPrice            uint64                 `json:"gas_price"`
-	GasCoin             resource.Interface     `json:"gas_coin"`
-	Fee                 string                 `json:"fee"`
-	CommissionInGasCoin string                 `json:"commission_in_gas_coin"`
-	CommissionPrice     string                 `json:"commission_price"`
-	CommissionPriceCoin resource.Interface     `json:"commission_price_coin"`
-	RawTx               string                 `json:"raw_tx"`
+	Txn                  uint64                 `json:"txn"`
+	Hash                 string                 `json:"hash"`
+	Nonce                uint64                 `json:"nonce"`
+	Block                uint64                 `json:"height"`
+	Timestamp            string                 `json:"timestamp"`
+	Type                 uint8                  `json:"type"`
+	Payload              string                 `json:"payload"`
+	From                 string                 `json:"from"`
+	Data                 resource.ItemInterface `json:"data"`
+	Gas                  string                 `json:"gas"`
+	GasPrice             uint64                 `json:"gas_price"`
+	GasCoin              resource.Interface     `json:"gas_coin"`
+	Fee                  string                 `json:"fee"`
+	CommissionInBaseCoin string                 `json:"commission_in_base_coin"`
+	CommissionInGasCoin  string                 `json:"commission_in_gas_coin"`
+	CommissionPrice      string                 `json:"commission_price"`
+	CommissionPriceCoin  resource.Interface     `json:"commission_price_coin"`
+	RawTx                string                 `json:"raw_tx"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.Transaction)
 
 	return Resource{
-		Txn:                 tx.ID,
-		Hash:                tx.GetHash(),
-		Nonce:               tx.Nonce,
-		Block:               tx.BlockID,
-		Timestamp:           tx.CreatedAt.Format(time.RFC3339),
-		Gas:                 strconv.FormatUint(tx.Gas, 10),
-		GasPrice:            tx.GasPrice,
-		Fee:                 helpers.PipStr2Bip(tx.Commission),
-		GasCoin:             new(coins.IdResource).Transform(*tx.GasCoin),
-		Type:                tx.Type,
-		Payload:             base64.StdEncoding.EncodeToString(tx.Payload[:]),
-		From:                tx.FromAddress.GetAddress(),
-		Data:                TransformTxData(tx),
-		RawTx:               hex.EncodeToString(tx.RawTx),
-		CommissionInGasCoin: helpers.PipStr2Bip(tx.Tags["tx.commission_amount"]),
-		CommissionPrice:     helpers.PipStr2Bip(tx.Tags["tx.commission_price"]),
-		CommissionPriceCoin: new(coins.IdResource).Transform(tx.CommissionPriceCoin),
+		Txn:                  tx.ID,
+		Hash:                 tx.GetHash(),
+		Nonce:                tx.Nonce,
+		Block:                tx.BlockID,
+		Timestamp:            tx.CreatedAt.Format(time.RFC3339),
+		Gas:                  strconv.FormatUint(tx.Gas, 10),
+		GasPrice:             tx.GasPrice,
+		Fee:                  helpers.PipStr2Bip(tx.Commission),
+		GasCoin:              new(coins.IdResource).Transform(*tx.GasCoin),
+		Type:                 tx.Type,
+		Payload:              base64.StdEncoding.EncodeToString(tx.Payload[:]),
+		From:                 tx.FromAddress.GetAddress(),
+		Data:                 TransformTxData(tx),
+		RawTx:                hex.EncodeToString(tx.RawTx),
+		CommissionInBaseCoin: helpers.PipStr2Bip(tx.Commission),
+		CommissionInGasCoin:  helpers.PipStr2Bip(tx.Tags["tx.commission_amount"]),
+		CommissionPrice:      helpers.PipStr2Bip(tx.Tags["tx.commission_price"]),
+		CommissionPriceCoin:  new(coins.IdResource).Transform(tx.CommissionPriceCoin),
 	}
 }
 
