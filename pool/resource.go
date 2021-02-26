@@ -33,7 +33,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	inverseOrder := false
 	if len(params.FirstCoin) != 0 && len(params.SecondCoin) != 0 {
 		if id, err := strconv.Atoi(params.FirstCoin); err == nil {
-			inverseOrder = uint(id) != pool.FirstCoin.ID
+			inverseOrder = uint(id) != pool.FirstCoin.ID && params.FirstCoin != pool.FirstCoin.Symbol
 		} else if params.FirstCoin != pool.FirstCoin.Symbol {
 			inverseOrder = true
 		}

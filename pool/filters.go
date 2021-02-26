@@ -55,29 +55,51 @@ func (f SelectByCoinsFilter) Filter(tokenAlias, firstCoinAlias, secondCoinAlias 
 		}
 
 		// filter by coins
-		if id, err := strconv.Atoi(f.Coin0); err == nil {
-			q = q.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
-				return query.Where("first_coin_id = ?", id).WhereOr("second_coin_id = ?", id), nil
-			})
-		} else {
-			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin0)
-			q = q.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
-				return query.Where(`"`+firstCoinAlias+`"."symbol" = ?`, symbol).Where(`"`+firstCoinAlias+`"."version" = ?`, version).
-					WhereOr(`"`+secondCoinAlias+`"."symbol" = ?`, symbol).Where(`"`+secondCoinAlias+`"."version" = ?`, version), nil
-			})
+		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin0)
+		symbol1, version1 := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin1)
+
+		isSymbols := false
+		_, err0 := strconv.Atoi(f.Coin0)
+		_, err1 := strconv.Atoi(f.Coin1)
+		if err0 != nil || err1 != nil {
+			isSymbols = true
 		}
 
-		if id, err := strconv.Atoi(f.Coin1); err == nil {
-			q = q.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
-				return q.Where("second_coin_id = ?", id).WhereOr("first_coin_id = ?", id), nil
+		q = q.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+			query = query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+				return query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.Where(`"`+firstCoinAlias+`"."symbol" = ?`, symbol).
+						Where(`"`+firstCoinAlias+`"."version" = ?`, version).
+						Where(`"`+secondCoinAlias+`"."symbol" = ?`, symbol1).
+						Where(`"`+secondCoinAlias+`"."version" = ?`, version1), nil
+				}), nil
 			})
-		} else {
-			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin1)
-			q = q.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
-				return query.Where(`"`+secondCoinAlias+`"."symbol" = ?`, symbol).Where(`"`+secondCoinAlias+`"."version" = ?`, version).
-					WhereOr(`"`+firstCoinAlias+`"."symbol" = ?`, symbol).Where(`"`+secondCoinAlias+`"."version" = ?`, version), nil
+
+			if !isSymbols {
+				query = query.WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.Where("first_coin_id = ?", f.Coin0).Where("second_coin_id = ?", f.Coin1), nil
+				})
+			}
+
+			return query, nil
+		}).WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+			query = query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+				return query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.Where(`"`+firstCoinAlias+`"."symbol" = ?`, symbol1).
+						Where(`"`+firstCoinAlias+`"."version" = ?`, version1).
+						Where(`"`+secondCoinAlias+`"."symbol" = ?`, symbol).
+						Where(`"`+secondCoinAlias+`"."version" = ?`, version), nil
+				}), nil
 			})
-		}
+
+			if !isSymbols {
+				query = query.WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.Where("first_coin_id = ?", f.Coin1).Where("second_coin_id = ?", f.Coin0), nil
+				})
+			}
+
+			return query, nil
+		})
 
 		return q, nil
 	}
