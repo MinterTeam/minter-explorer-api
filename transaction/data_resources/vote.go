@@ -52,7 +52,7 @@ type VoteCommission struct {
 	MintToken               string `json:"mint_token"`
 	BurnToken               string `json:"burn_token"`
 	VoteCommission          string `json:"vote_commission"`
-	VoteUpdate              string `json:"vote_updated"`
+	VoteUpdate              string `json:"vote_update"`
 }
 
 func (VoteCommission) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
