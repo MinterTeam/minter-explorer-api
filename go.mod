@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210223061206-0e8b75485a6b
 	github.com/MinterTeam/minter-go-node v1.0.5
-	github.com/MinterTeam/minter-go-sdk/v2 v2.1.0-rc2.0.20210216102737-3ed0b53a6292
-	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210215163213-bc5e74e80d46
+	github.com/MinterTeam/minter-go-sdk/v2 v2.2.0-alpha1.0.20210303135204-27811167e36c
+	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210303134153-03f03059d078
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/ethereum/go-ethereum v1.9.22
 	github.com/gin-contrib/cors v1.3.0

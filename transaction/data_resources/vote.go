@@ -42,13 +42,11 @@ type VoteCommission struct {
 	SetHaltBlock            string `json:"set_halt_block"`
 	EditTickerOwner         string `json:"edit_ticker_owner"`
 	EditMultisig            string `json:"edit_multisig"`
-	PriceVote               string `json:"price_vote"`
 	EditCandidatePublicKey  string `json:"edit_candidate_public_key"`
 	CreateSwapPool          string `json:"create_swap_pool"`
 	AddLiquidity            string `json:"add_liquidity"`
 	RemoveLiquidity         string `json:"remove_liquidity"`
 	EditCandidateCommission string `json:"edit_candidate_commission"`
-	MoveStake               string `json:"move_stake"`
 	MintToken               string `json:"mint_token"`
 	BurnToken               string `json:"burn_token"`
 	VoteCommission          string `json:"vote_commission"`
@@ -95,13 +93,11 @@ func (VoteCommission) Transform(txData resource.ItemInterface, params ...resourc
 		SetHaltBlock:            data.SetHaltBlock,
 		EditTickerOwner:         data.EditTickerOwner,
 		EditMultisig:            data.EditMultisig,
-		PriceVote:               data.PriceVote,
 		EditCandidatePublicKey:  data.EditCandidatePublicKey,
 		CreateSwapPool:          data.CreateSwapPool,
 		AddLiquidity:            data.AddLiquidity,
 		RemoveLiquidity:         data.RemoveLiquidity,
 		EditCandidateCommission: data.EditCandidateCommission,
-		MoveStake:               data.MoveStake,
 		MintToken:               data.MintToken,
 		BurnToken:               data.BurnToken,
 		VoteCommission:          data.VoteCommission,
