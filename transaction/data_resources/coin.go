@@ -1,12 +1,12 @@
 package data_resources
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
-	"regexp"
-	"strings"
 )
 
 type Coin struct {
@@ -42,16 +42,16 @@ func (PoolCoin) Transform(data *api_pb.Coin, pipAmount string) PoolCoin {
 }
 
 func (PoolCoin) TransformCollection(data []*api_pb.Coin, model models.Transaction) []PoolCoin {
-	pools := strings.Split(model.Tags["tx.pools"], ",")
-
+	pools := pool.GetPoolChainFromStr(model.Tags["tx.pools"])
 	coins := make([]PoolCoin, len(data))
-	for i, coin := range data {
-		re := regexp.MustCompile(`-([0-9]*)`)
-		amounts := re.FindAllString(pools[i/2], 2)
 
-		amount := amounts[1][1:]
+	for i, coin := range data {
+		pool := pools[i/2]
+		fmt.Println(pool)
+
+		amount := pool.ValueIn
 		if i == 0 {
-			amount = amounts[0][1:]
+			amount = pool.ValueOut
 		}
 
 		coins[i] = new(PoolCoin).Transform(coin, amount)
