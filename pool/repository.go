@@ -68,6 +68,7 @@ func (r *Repository) GetPoolsByProvider(provider string, pagination *tools.Pagin
 		Relation("LiquidityPool.FirstCoin").
 		Relation("LiquidityPool.SecondCoin").
 		Where("address.address = ?", provider).
+		Order(`address_liquidity_pool.liquidity DESC`).
 		Apply(pagination.Filter).
 		SelectAndCount()
 
@@ -81,6 +82,7 @@ func (r *Repository) GetProviders(filter SelectByCoinsFilter, pagination *tools.
 		Relation("LiquidityPool.Token").
 		Relation("LiquidityPool.FirstCoin").
 		Relation("LiquidityPool.SecondCoin").
+		Order(`address_liquidity_pool.liquidity DESC`).
 		Apply(filter.Filter("liquidity_pool__token", "liquidity_pool__first_coin", "liquidity_pool__second_coin")).
 		Apply(pagination.Filter).
 		SelectAndCount()
