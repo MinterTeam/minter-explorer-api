@@ -66,14 +66,14 @@ func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool
 			pairs,
 			swap.NewToken(toCoinId),
 			swap.NewTokenAmount(swap.NewToken(fromCoinId), amount),
-			swap.TradeOptions{MaxNumResults: 1, MaxHops: 3},
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 5},
 		)
 	} else {
 		trades, err = swap.GetBestTradeExactOut(
 			pairs,
 			swap.NewToken(fromCoinId),
 			swap.NewTokenAmount(swap.NewToken(toCoinId), amount),
-			swap.TradeOptions{MaxNumResults: 1, MaxHops: 3},
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 5},
 		)
 	}
 
