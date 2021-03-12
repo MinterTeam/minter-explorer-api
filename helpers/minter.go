@@ -37,7 +37,7 @@ func GetSymbolAndVersionFromStr(symbol string) (string, *uint64) {
 	items := strings.Split(symbol, "-")
 	baseSymbol := items[0]
 
-	if baseSymbol == "P" {
+	if baseSymbol == "LP" {
 		return symbol, nil
 	}
 
