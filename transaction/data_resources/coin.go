@@ -1,7 +1,6 @@
 package data_resources
 
 import (
-	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
@@ -47,7 +46,6 @@ func (PoolCoin) TransformCollection(data []*api_pb.Coin, model models.Transactio
 
 	for i, coin := range data {
 		pool := pools[i/2]
-		fmt.Println(pool)
 
 		amount := pool.ValueIn
 		if i == 0 {
