@@ -1,6 +1,6 @@
 module github.com/MinterTeam/minter-explorer-api/v2
 
-go 1.13
+go 1.15
 
 require (
 	github.com/MinterTeam/minter-explorer-extender/v2 v2.8.1-0.20210316061735-43ccd2c787ea
