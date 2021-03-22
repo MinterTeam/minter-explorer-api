@@ -2,7 +2,7 @@ name: TetsNet
 
 on:
   push:
-    branches: [ master ]
+    branches: [ testnet ]
 
 jobs:
   docker:
