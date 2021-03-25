@@ -17,7 +17,7 @@ func NewService(baseCoin string, marketService *market.Service) *Service {
 	return &Service{baseCoin, marketService}
 }
 
-func (s *Service) GetTotalBalance(address *models.Address) *big.Float {
+func (s *Service) GetTotalBalance(address *models.Address) *big.Int {
 	sum := big.NewInt(0)
 	for _, balance := range address.Balances {
 		if balance.Coin.Crr == 0 {
@@ -39,10 +39,10 @@ func (s *Service) GetTotalBalance(address *models.Address) *big.Float {
 		))
 	}
 
-	return new(big.Float).SetInt(sum)
+	return sum
 }
 
-func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
+func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Int {
 	sum := big.NewInt(0)
 
 	for _, stake := range stakes {
@@ -65,9 +65,9 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
 		))
 	}
 
-	return new(big.Float).SetInt(sum)
+	return sum
 }
 
-func (s *Service) GetTotalBalanceInUSD(sumInBasecoin *big.Float) *big.Float {
-	return new(big.Float).Mul(sumInBasecoin, big.NewFloat(s.marketService.PriceChange.Price))
+func (s *Service) GetTotalBalanceInUSD(sumInBasecoin *big.Int) *big.Float {
+	return new(big.Float).Mul(new(big.Float).SetInt(sumInBasecoin), big.NewFloat(s.marketService.PriceChange.Price))
 }
