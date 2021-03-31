@@ -22,23 +22,7 @@ func NewService(baseCoin string, marketService *market.Service, swapService *ser
 func (s *Service) GetTotalBalance(address *models.Address) *big.Int {
 	sum := big.NewInt(0)
 	for _, balance := range address.Balances {
-		if balance.Coin.Crr == 0 {
-			continue
-		}
-
-		// just add base coin to sum
-		if balance.Coin.Symbol == s.baseCoin {
-			sum = sum.Add(sum, helpers.StringToBigInt(balance.Value))
-			continue
-		}
-
-		// calculate the sale return value for custom coin
-		sum = sum.Add(sum, formula.CalculateSaleReturn(
-			helpers.StringToBigInt(balance.Coin.Volume),
-			helpers.StringToBigInt(balance.Coin.Reserve),
-			uint(balance.Coin.Crr),
-			helpers.StringToBigInt(balance.Value),
-		))
+		sum = sum.Add(sum, s.swapService.EstimateInBip(balance.Coin, helpers.StringToBigInt(balance.Value)))
 	}
 
 	return sum

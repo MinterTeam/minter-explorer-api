@@ -14,14 +14,14 @@ import (
 type Service struct {
 	repository     *Repository
 	poolsLiquidity map[uint64]*big.Int
-	coinPrices     map[uint64]*big.Int
+	coinPrices     map[uint64]*big.Float
 }
 
 func NewService(repository *Repository) *Service {
 	return &Service{
 		repository:     repository,
 		poolsLiquidity: make(map[uint64]*big.Int),
-		coinPrices:     make(map[uint64]*big.Int),
+		coinPrices:     make(map[uint64]*big.Float),
 	}
 }
 
@@ -33,12 +33,12 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 	return big.NewInt(0)
 }
 
-func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Int {
+func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 	if amount, ok := s.coinPrices[coinId]; ok {
 		return amount
 	}
 
-	return big.NewInt(0)
+	return big.NewFloat(0)
 }
 
 func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
@@ -195,9 +195,22 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 				s.poolsLiquidity[p.Id] = big.NewInt(0)
 				continue
 			}
+
+			price := swap.NewPrice(trade.InputAmount.Token, trade.OutputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
+			s.coinPrices[p.SecondCoinId] = helpers.Pip2Bip(price)
+			s.coinPrices[p.FirstCoinId] = new(big.Float).Mul(new(big.Float).Quo(
+				new(big.Float).SetInt(secondCoinVolume),
+				new(big.Float).SetInt(firstCoinVolume),
+			), helpers.Pip2Bip(price))
+		} else {
+			price := swap.NewPrice(trade.InputAmount.Token, trade.OutputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
+			s.coinPrices[p.FirstCoinId] = helpers.Pip2Bip(price)
+			s.coinPrices[p.SecondCoinId] = new(big.Float).Mul(new(big.Float).Quo(
+				new(big.Float).SetInt(firstCoinVolume),
+				new(big.Float).SetInt(secondCoinVolume),
+			), helpers.Pip2Bip(price))
 		}
 
-		s.coinPrices[trade.InputAmount.Token.CoinID] = swap.NewPrice(trade.OutputAmount.Token, trade.InputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
 		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
 	}
 }

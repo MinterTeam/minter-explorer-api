@@ -14,11 +14,14 @@ type SwapService struct {
 	poolService *pool.Service
 }
 
+// TODO: refactor
+var Swap *SwapService
+
 func NewSwapService(poolService *pool.Service) *SwapService {
 	return &SwapService{poolService}
 }
 
-func (s *SwapService) EstimateInBip(coin *models.Coin, swapAmount string) *big.Int {
+func (s *SwapService) EstimateInBip(coin *models.Coin, swapAmount *big.Int) *big.Int {
 	bancorAmount := s.EstimateInBipByBancor(coin, swapAmount)
 	poolAmount := s.estimateInBipByPools(coin, swapAmount)
 
@@ -29,21 +32,27 @@ func (s *SwapService) EstimateInBip(coin *models.Coin, swapAmount string) *big.I
 	return poolAmount
 }
 
-func (s *SwapService) EstimateInBipByBancor(coin *models.Coin, swapAmount string) *big.Int {
+func (s *SwapService) EstimateInBipByBancor(coin *models.Coin, swapAmount *big.Int) *big.Int {
 	if coin.Crr == 0 {
 		return big.NewInt(0)
 	}
 
 	if coin.ID == 0 {
-		return helpers.StringToBigInt(swapAmount)
+		return swapAmount
 	}
 
 	return formula.CalculateSaleReturn(
 		helpers.StringToBigInt(coin.Volume),
 		helpers.StringToBigInt(coin.Reserve),
 		coin.Crr,
-		helpers.StringToBigInt(swapAmount),
+		swapAmount,
 	)
+}
+
+func (s *SwapService) estimateInBipByPools(coin *models.Coin, swapAmount *big.Int) *big.Int {
+	price := s.poolService.GetCoinPriceInBip(uint64(coin.ID))
+	bip := new(big.Float).Mul(helpers.Pip2Bip(swapAmount), price)
+	return helpers.Bip2Pip(bip)
 }
 
 func (s *SwapService) EstimateByBancor(coinFrom models.Coin, coinTo models.Coin, swapAmount *big.Int, tradeType swap.TradeType) (*big.Int, error) {
@@ -104,9 +113,4 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 	}
 
 	return swapAmount, nil
-}
-
-func (s *SwapService) estimateInBipByPools(coin *models.Coin, swapAmount string) *big.Int {
-	price := s.poolService.GetCoinPriceInBip(uint64(coin.ID))
-	return new(big.Int).Mul(helpers.StringToBigInt(swapAmount), price)
 }
