@@ -42,6 +42,7 @@ type Explorer struct {
 	CheckRepository              *check.Repository
 	PoolRepository               *pool.Repository
 	PoolService                  *pool.Service
+	SwapService                  *services.SwapService
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -50,10 +51,11 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	validatorRepository := validator.NewRepository(db)
 	stakeRepository := stake.NewRepository(db)
 	coinRepository := coins.NewRepository(db)
-	poolRepository := pool.NewRepository(db, coinRepository)
+	poolRepository := pool.NewRepository(db)
 	poolService := pool.NewService(poolRepository)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
 	transactionService := transaction.NewService(coinRepository, cacheService)
+	swapService := services.NewSwapService(poolService)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
@@ -69,12 +71,13 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		Cache:                        cacheService,
 		MarketService:                marketService,
 		TransactionService:           transactionService,
-		BalanceService:               balance.NewService(env.Basecoin, marketService),
+		BalanceService:               balance.NewService(env.Basecoin, marketService, swapService),
 		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 		UnbondRepository:             unbond.NewRepository(db),
 		StakeService:                 stake.NewService(stakeRepository),
 		CheckRepository:              check.NewRepository(db),
 		PoolRepository:               poolRepository,
 		PoolService:                  poolService,
+		SwapService:                  swapService,
 	}
 }

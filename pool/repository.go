@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
@@ -9,12 +8,11 @@ import (
 )
 
 type Repository struct {
-	db             *pg.DB
-	coinRepository *coins.Repository
+	db *pg.DB
 }
 
-func NewRepository(db *pg.DB, coinRepository *coins.Repository) *Repository {
-	return &Repository{db, coinRepository}
+func NewRepository(db *pg.DB) *Repository {
+	return &Repository{db}
 }
 
 func (r *Repository) FindByCoins(filter SelectByCoinsFilter) (models.LiquidityPool, error) {

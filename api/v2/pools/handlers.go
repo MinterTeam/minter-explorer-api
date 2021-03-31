@@ -27,61 +27,6 @@ const (
 	CachePoolsListBlockCount = 1
 )
 
-type GetSwapPoolRequest struct {
-	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
-	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
-}
-
-type GetSwapPoolProviderRequest struct {
-	Token   string `uri:"token"   binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0   string `uri:"coin0"   binding:"omitempty,required_with=coin0"`
-	Coin1   string `uri:"coin1"   binding:"omitempty,required_with=coin1"`
-	Address string `uri:"address" binding:"minterAddress"`
-}
-
-type GetSwapPoolsRequest struct {
-	Coin    *string `form:"coin"     binding:"omitempty"`
-	Address *string `form:"provider" binding:"omitempty,minterAddress"`
-}
-
-type GetSwapPoolProvidersRequest struct {
-	Token string `uri:"token" binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0 string `uri:"coin0" binding:"omitempty,required_with=coin0"`
-	Coin1 string `uri:"coin1" binding:"omitempty,required_with=coin1"`
-}
-
-type GetSwapPoolsByProviderRequest struct {
-	Address string `uri:"address" binding:"required,minterAddress"`
-}
-
-type FindSwapPoolRouteRequest struct {
-	Coin0 string `uri:"coin0"  binding:"required"`
-	Coin1 string `uri:"coin1"  binding:"required"`
-}
-
-type FindSwapPoolRouteRequestQuery struct {
-	Amount    string `form:"amount" binding:"required,numeric"`
-	TradeType string `form:"type"   binding:"required,oneof=input output"`
-}
-
-type GetSwapPoolTransactionsRequest struct {
-	Token      string  `uri:"token"         binding:"omitempty,required_without_all=coin0 coin1"`
-	Coin0      string  `uri:"coin0"         binding:"omitempty,required_with=coin0"`
-	Coin1      string  `uri:"coin1"         binding:"omitempty,required_with=coin1"`
-	Page       string  `form:"page"         binding:"omitempty,numeric"`
-	StartBlock *string `form:"start_block"  binding:"omitempty,numeric"`
-	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
-}
-
-type GetCoinPossibleSwapsRequest struct {
-	Coin string `uri:"coin"  binding:"required"`
-}
-
-type GetCoinPossibleSwapsRequestQuery struct {
-	Depth int `form:"depth"`
-}
-
 func GetSwapPool(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -381,4 +326,65 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resource.TransformCollection(swapCoins, coins.IdResource{}))
+}
+
+func EstimateSwap(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req FindSwapPoolRouteRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	var reqQuery FindSwapPoolRouteRequestQuery
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	coinFrom, coinTo, err := req.GetCoins(explorer)
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+		return
+	}
+
+	// define trade type
+	tradeType := swap.TradeTypeExactInput
+	if reqQuery.TradeType == "output" {
+		tradeType = swap.TradeTypeExactOutput
+	}
+
+	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
+	trade, poolErr := explorer.PoolService.FindSwapRoutePath(uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
+
+	if poolErr != nil && bancorErr != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+		return
+	}
+
+	if bancorErr == nil && poolErr != nil {
+		c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
+		return
+	}
+
+	if bancorErr == nil && poolErr == nil {
+		if tradeType == swap.TradeTypeExactInput && bancorAmount.Cmp(trade.OutputAmount.GetAmount()) >= 1 {
+			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
+			return
+		}
+
+		if tradeType == swap.TradeTypeExactOutput && bancorAmount.Cmp(trade.InputAmount.GetAmount()) <= 0 {
+			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
+			return
+		}
+	}
+
+	path := make([]models.Coin, len(trade.Route.Path))
+	for i, t := range trade.Route.Path {
+		path[i], _ = explorer.CoinRepository.FindByID(uint(t.CoinID))
+	}
+
+	c.JSON(http.StatusOK, new(pool.RouteResource).Transform(path, trade))
 }

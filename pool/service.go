@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
@@ -15,18 +14,28 @@ import (
 type Service struct {
 	repository     *Repository
 	poolsLiquidity map[uint64]*big.Int
+	coinPrices     map[uint64]*big.Int
 }
 
 func NewService(repository *Repository) *Service {
 	return &Service{
 		repository:     repository,
 		poolsLiquidity: make(map[uint64]*big.Int),
+		coinPrices:     make(map[uint64]*big.Int),
 	}
 }
 
 func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
 	if liquidity, ok := s.poolsLiquidity[pool.Id]; ok {
 		return liquidity
+	}
+
+	return big.NewInt(0)
+}
+
+func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Int {
+	if amount, ok := s.coinPrices[coinId]; ok {
+		return amount
 	}
 
 	return big.NewInt(0)
@@ -188,19 +197,7 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 			}
 		}
 
+		s.coinPrices[trade.InputAmount.Token.CoinID] = swap.NewPrice(trade.OutputAmount.Token, trade.InputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
 		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
 	}
-}
-
-type PoolChain struct {
-	PoolId   uint64 `json:"pool_id"`
-	CoinIn   uint64 `json:"coin_in"`
-	ValueIn  string `json:"value_in"`
-	CoinOut  uint64 `json:"coin_out"`
-	ValueOut string `json:"value_out"`
-}
-
-func GetPoolChainFromStr(chainStr string) (chain []PoolChain) {
-	json.Unmarshal([]byte(chainStr), &chain)
-	return chain
 }

@@ -2,6 +2,7 @@ package balance
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/services"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/market"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
@@ -11,10 +12,11 @@ import (
 type Service struct {
 	baseCoin      string
 	marketService *market.Service
+	swapService   *services.SwapService
 }
 
-func NewService(baseCoin string, marketService *market.Service) *Service {
-	return &Service{baseCoin, marketService}
+func NewService(baseCoin string, marketService *market.Service, swapService *services.SwapService) *Service {
+	return &Service{baseCoin, marketService, swapService}
 }
 
 func (s *Service) GetTotalBalance(address *models.Address) *big.Int {
