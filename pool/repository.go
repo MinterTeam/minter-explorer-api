@@ -122,3 +122,17 @@ func (r *Repository) GetPoolsCoins() (coins []models.Coin, err error) {
 
 	return coins, err
 }
+
+func (r *Repository) GetPoolTradesVolume(pool models.LiquidityPool, scale string) (trades []tradeVolume, err error) {
+	err = r.db.Model(&models.LiquidityPoolTrade{}).
+		Relation("Block._").
+		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
+		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
+		ColumnExpr("date_trunc(?, block.created_at) as date", scale).
+		Where("liquidity_pool_id = ?", pool.Id).
+		Group("date").
+		Order("date").
+		Select(&trades)
+
+	return trades, err
+}

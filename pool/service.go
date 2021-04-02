@@ -11,6 +11,10 @@ import (
 	"math/big"
 )
 
+const (
+	defaultTradeVolumeScale = "day"
+)
+
 type Service struct {
 	repository     *Repository
 	poolsLiquidity map[uint64]*big.Int
@@ -213,4 +217,33 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 
 		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
 	}
+}
+
+func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string) ([]TradeVolume, error) {
+	dateScale := defaultTradeVolumeScale
+	if scale != nil {
+		dateScale = *scale
+	}
+
+	tradesVolume, err := s.repository.GetPoolTradesVolume(pool, dateScale)
+	if err != nil {
+		return nil, err
+	}
+
+	bipPrice := s.GetCoinPriceInBip(pool.FirstCoinId)
+	trades := make([]TradeVolume, len(tradesVolume))
+
+	for i, tv := range tradesVolume {
+		firstCoinBaseVolume := helpers.Pip2Bip(helpers.StringToBigInt(tv.FirstCoinVolume))
+		bipVolume := new(big.Float).Mul(firstCoinBaseVolume, bipPrice)
+
+		trades[i] = TradeVolume{
+			Date:             tv.Date,
+			FirstCoinVolume:  tv.FirstCoinVolume,
+			SecondCoinVolume: tv.SecondCoinVolume,
+			BipVolume:        bipVolume,
+		}
+	}
+
+	return trades, nil
 }

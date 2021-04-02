@@ -388,3 +388,34 @@ func EstimateSwap(c *gin.Context) {
 
 	c.JSON(http.StatusOK, new(pool.RouteResource).Transform(path, trade))
 }
+
+func GetSwapPoolTradesVolume(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetSwapPoolRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request query
+	var query GetSwapPoolTradesVolumeRequestQuery
+	if err := c.ShouldBindQuery(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		return
+	}
+
+	tradesVolume, err := explorer.PoolService.GetTradesVolume(p, query.Scale)
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(tradesVolume, pool.TradesVolumeResource{}),
+	})
+}

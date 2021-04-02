@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"math/big"
 	"strconv"
+	"time"
 )
 
 type Resource struct {
@@ -160,5 +161,23 @@ func (r BancorResource) Transform(value *big.Int, bancor *big.Int, tradeType swa
 		SwapType:  "bancor",
 		AmountIn:  helpers.Pip2BipStr(bancor),
 		AmountOut: helpers.Pip2BipStr(value),
+	}
+}
+
+type TradesVolumeResource struct {
+	Date             string `json:"date"`
+	FirstCoinVolume  string `json:"first_coin_volume"`
+	SecondCoinVolume string `json:"second_coin_volume"`
+	BipVolume        string `json:"bip_volume"`
+}
+
+func (r TradesVolumeResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	tv := model.(TradeVolume)
+
+	return TradesVolumeResource{
+		Date:             tv.Date.Format(time.RFC3339),
+		FirstCoinVolume:  helpers.PipStr2Bip(tv.FirstCoinVolume),
+		SecondCoinVolume: helpers.PipStr2Bip(tv.SecondCoinVolume),
+		BipVolume:        helpers.Bip2Str(tv.BipVolume),
 	}
 }

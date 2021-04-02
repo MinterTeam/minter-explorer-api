@@ -99,3 +99,7 @@ type GetCoinPossibleSwapsRequest struct {
 type GetCoinPossibleSwapsRequestQuery struct {
 	Depth int `form:"depth"`
 }
+
+type GetSwapPoolTradesVolumeRequestQuery struct {
+	Scale *string `form:"scale" binding:"omitempty,eq=minute|eq=hour|eq=day"`
+}
