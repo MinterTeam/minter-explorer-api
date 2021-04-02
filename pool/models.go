@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"encoding/json"
 	"math/big"
 	"time"
 )
@@ -12,11 +11,6 @@ type SwapChain struct {
 	ValueIn  string `json:"value_in"`
 	CoinOut  uint64 `json:"coin_out"`
 	ValueOut string `json:"value_out"`
-}
-
-func GetPoolChainFromStr(chainStr string) (chain []SwapChain) {
-	json.Unmarshal([]byte(chainStr), &chain)
-	return chain
 }
 
 type tradeVolume struct {
