@@ -30,6 +30,7 @@ func (repository *Repository) GetCoins() []models.Coin {
 	err := repository.DB.Model(&coins).
 		Relation("OwnerAddress").
 		Where("deleted_at IS NULL").
+		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC").
 		Select()
 
@@ -46,6 +47,7 @@ func (repository *Repository) GetLikeSymbolAndVersion(symbol string, version *ui
 		Relation("OwnerAddress").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Where("deleted_at IS NULL").
+		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC")
 
 	if version != nil {
@@ -66,6 +68,7 @@ func (repository *Repository) GetBySymbolAndVersion(symbol string, version *uint
 		Relation("OwnerAddress").
 		Where("symbol = ?", symbol).
 		Where("deleted_at IS NULL").
+		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC")
 
 	if version != nil {
