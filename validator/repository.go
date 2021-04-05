@@ -2,6 +2,7 @@ package validator
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
 )
@@ -88,4 +89,14 @@ func (repository Repository) GetValidators() []models.Validator {
 	helpers.CheckErr(err)
 
 	return validators
+}
+
+// Get validator bans
+func (repository Repository) GetBans(validator *models.Validator, pagination *tools.Pagination) (bans []models.ValidatorBan, err error) {
+	pagination.Total, err = repository.db.Model(&bans).
+		Where("validator_id = ?", validator.ID).
+		Apply(pagination.Filter).
+		SelectAndCount()
+
+	return bans, err
 }
