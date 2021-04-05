@@ -234,7 +234,10 @@ func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string) ([]T
 	trades := make([]TradeVolume, len(tradesVolume))
 
 	for i, tv := range tradesVolume {
-		bipVolume := getVolumeInBip(bipPrice, tv.FirstCoinVolume)
+		bipVolume := helpers.Pip2Bip(helpers.StringToBigInt(tv.FirstCoinVolume))
+		if pool.FirstCoinId != 0 {
+			bipVolume = getVolumeInBip(bipPrice, tv.FirstCoinVolume)
+		}
 
 		trades[i] = TradeVolume{
 			Date:             tv.Date,
