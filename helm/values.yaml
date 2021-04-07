@@ -57,3 +57,4 @@ env:
   DB_PASSWORD: ""
   EXPLORER_PORT: ""
   MARKET_HOST: "https://api.coingecko.com"
+  POSTGRES_SSL_ENABLED: "false"
