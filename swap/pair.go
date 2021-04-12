@@ -54,9 +54,14 @@ func (p Pair) GetInputAmount(outputAmount TokenAmount) (TokenAmount, Pair, error
 	numerator := new(big.Int).Mul(new(big.Int).Mul(inputReserve.Amount, outputAmount.Amount), big.NewInt(1000))
 	denominator := new(big.Int).Mul(new(big.Int).Sub(outputReserve.Amount, outputAmount.Amount), big.NewInt(998))
 
+	amount := big.NewInt(0)
+	if denominator.Cmp(amount) != 0 {
+		amount = new(big.Int).Add(new(big.Int).Div(numerator, denominator), big.NewInt(1))
+	}
+
 	inputAmount := TokenAmount{
 		Token:  inputReserve.Token,
-		Amount: new(big.Int).Add(new(big.Int).Div(numerator, denominator), big.NewInt(1)),
+		Amount: amount,
 	}
 
 	return inputAmount, NewPair(inputReserve.add(inputAmount), outputReserve.sub(outputAmount)), nil
