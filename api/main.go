@@ -47,11 +47,6 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Resource not found.", c)
 	})
 
-	// create ip map
-	ipMap := &sync.Map{}
-	// rate limit
-	router.Use(throttle(ipMap))
-
 	// Create base api prefix
 	api := router.Group("/api")
 	{
