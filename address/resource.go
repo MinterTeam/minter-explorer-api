@@ -18,9 +18,9 @@ type Resource struct {
 }
 
 type Params struct {
-	TotalBalanceSum    *big.Float
+	TotalBalanceSum    *big.Int
 	TotalBalanceSumUSD *big.Float
-	StakeBalanceSum    *big.Float
+	StakeBalanceSum    *big.Int
 	StakeBalanceSumUSD *big.Float
 }
 

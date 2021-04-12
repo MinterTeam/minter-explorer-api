@@ -9,8 +9,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-pg/pg/v9"
-	"github.com/sirupsen/logrus"
+	"github.com/go-pg/pg/v10"
 	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
 	"gopkg.in/go-playground/validator.v9"
@@ -41,7 +40,6 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 
 	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
-	router.Use(apiRecovery)                 // returns 500 on any code panics
 	router.Use(apiMiddleware(db, explorer)) // init global context
 
 	// Default handler 404
@@ -94,16 +92,16 @@ func registerApiValidators() {
 }
 
 // Send 500 status and JSON response
-func apiRecovery(c *gin.Context) {
-	defer func(c *gin.Context) {
-		if rec := recover(); rec != nil {
-			logrus.WithField("err", rec).Error("API error")
-			errors.SetErrorResponse(http.StatusInternalServerError, -1, "Internal server error", c)
-		}
-	}(c)
-
-	c.Next()
-}
+//func apiRecovery(c *gin.Context) {
+//	defer func(c *gin.Context) {
+//		if rec := recover(); rec != nil {
+//			logrus.WithField("err", rec).Error("API error")
+//			errors.SetErrorResponse(http.StatusInternalServerError, -1, "Internal server error", c)
+//		}
+//	}(c)
+//
+//	c.Next()
+//}
 
 func throttle(ipMap *sync.Map) gin.HandlerFunc {
 	return func(c *gin.Context) {

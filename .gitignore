@@ -22,3 +22,4 @@ config.json
 values-prod.yaml
 values.*.yaml
 .env
+go.sum

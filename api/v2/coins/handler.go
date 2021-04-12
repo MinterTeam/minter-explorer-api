@@ -81,8 +81,8 @@ func GetCoinBySymbol(c *gin.Context) {
 		return
 	}
 
-	symbol, version := helpers.GetSymbolAndVersionFromStr(request.Symbol)
-	models := explorer.CoinRepository.GetBySymbolAndVersion(symbol, version)
+	symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(request.Symbol)
+	models := explorer.CoinRepository.GetBySymbolAndVersion(symbol, &version)
 	if len(models) == 0 {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coin not found.", c)
 		return

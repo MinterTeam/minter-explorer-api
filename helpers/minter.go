@@ -1,6 +1,11 @@
 package helpers
 
-import "math"
+import (
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"math"
+	"strconv"
+	"strings"
+)
 
 func RemoveMinterPrefix(raw string) string {
 	return raw[2:]
@@ -26,4 +31,47 @@ func CalculateEmission(blockId uint64) uint64 {
 	sum += (blockId % uint64(blocksPerReward)) * uint64(reward)
 
 	return sum
+}
+
+func GetSymbolAndVersionFromStr(symbol string) (string, *uint64) {
+	items := strings.Split(symbol, "-")
+	baseSymbol := items[0]
+
+	if baseSymbol == "LP" {
+		return symbol, nil
+	}
+
+	if len(items) == 2 {
+		version, _ := strconv.ParseUint(items[1], 10, 64)
+		return baseSymbol, &version
+	}
+
+	return baseSymbol, nil
+}
+
+func GetSymbolAndDefaultVersionFromStr(symbol string) (string, uint64) {
+	symbol, version := GetSymbolAndVersionFromStr(symbol)
+	if version == nil {
+		return symbol, 0
+	}
+
+	return symbol, *version
+}
+
+func GetCoinType(coinType models.CoinType) string {
+	switch coinType {
+	case models.CoinTypeBase:
+		return "coin"
+	case models.CoinTypeToken:
+		return "token"
+	case models.CoinTypePoolToken:
+		return "pool_token"
+	}
+
+	return ""
+}
+
+func GetPoolIdFromToken(token string) uint {
+	id, _ := strconv.ParseUint(token[2:], 10, 64)
+	return uint(id)
 }

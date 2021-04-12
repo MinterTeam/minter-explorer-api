@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
+	"strconv"
 )
 
 type Repository struct {
@@ -27,8 +28,9 @@ func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
 	err := repository.DB.Model(&coins).
-		Column("OwnerAddress").
+		Relation("OwnerAddress").
 		Where("deleted_at IS NULL").
+		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC").
 		Select()
 
@@ -42,9 +44,10 @@ func (repository *Repository) GetLikeSymbolAndVersion(symbol string, version *ui
 	var coins []models.Coin
 
 	query := repository.DB.Model(&coins).
-		Column("OwnerAddress").
+		Relation("OwnerAddress").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Where("deleted_at IS NULL").
+		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC")
 
 	if version != nil {
@@ -62,9 +65,10 @@ func (repository *Repository) GetBySymbolAndVersion(symbol string, version *uint
 	var coins []models.Coin
 
 	query := repository.DB.Model(&coins).
-		Column("OwnerAddress").
+		Relation("OwnerAddress").
 		Where("symbol = ?", symbol).
 		Where("deleted_at IS NULL").
+		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC")
 
 	if version != nil {
@@ -112,4 +116,18 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 	}
 
 	return coin, err
+}
+
+func (repository *Repository) FindIdBySymbol(symbol string) (uint64, error) {
+	if id, err := strconv.ParseUint(symbol, 10, 64); err != nil {
+		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(symbol)
+		coins := repository.GetBySymbolAndVersion(symbol, &version)
+		if len(coins) == 0 {
+			return 0, pg.ErrNoRows
+		}
+
+		return uint64(coins[0].ID), nil
+	} else {
+		return id, nil
+	}
 }

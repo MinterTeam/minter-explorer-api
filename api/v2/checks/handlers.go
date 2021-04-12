@@ -17,7 +17,7 @@ type GetCheckRequest struct {
 }
 
 type GetChecksRequest struct {
-	FromAddress string `form:"address_to" binding:"omitempty,minterAddress"`
+	FromAddress string `form:"address_to"     binding:"omitempty,minterAddress"`
 	ToAddress   string `form:"address_from"   binding:"omitempty,minterAddress"`
 }
 

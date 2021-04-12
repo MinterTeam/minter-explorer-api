@@ -2,8 +2,9 @@ package validator
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Repository struct {
@@ -20,7 +21,7 @@ func (repository Repository) GetByPublicKey(publicKey string) *models.Validator 
 	var validator models.Validator
 
 	err := repository.db.Model(&validator).
-		Column("Stakes").
+		Relation("Stakes").
 		Join("JOIN validator_public_keys ON validator_public_keys.validator_id = validator.id").
 		Where("validator_public_keys.key = ?", publicKey).
 		Select()
@@ -84,8 +85,18 @@ func (repository Repository) GetActiveCandidatesCount() int {
 func (repository Repository) GetValidators() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Column("Stakes").Select()
+	err := repository.db.Model(&validators).Relation("Stakes").Select()
 	helpers.CheckErr(err)
 
 	return validators
+}
+
+// Get validator bans
+func (repository Repository) GetBans(validator *models.Validator, pagination *tools.Pagination) (bans []models.ValidatorBan, err error) {
+	pagination.Total, err = repository.db.Model(&bans).
+		Where("validator_id = ?", validator.ID).
+		Apply(pagination.Filter).
+		SelectAndCount()
+
+	return bans, err
 }

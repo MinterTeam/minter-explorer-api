@@ -3,7 +3,7 @@ package stake
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Repository struct {
@@ -21,7 +21,9 @@ func (repository Repository) GetAllByAddress(address string) ([]models.Stake, er
 	var stakes []models.Stake
 
 	err := repository.db.Model(&stakes).
-		Column("Coin", "Validator", "OwnerAddress._").
+		Relation("Coin").
+		Relation("Validator").
+		Relation("OwnerAddress._").
 		Where("owner_address.address = ?", address).
 		Order("bip_value DESC").
 		Select()
@@ -45,7 +47,7 @@ func (repository Repository) GetSumInBipValue() (string, error) {
 func (repository Repository) GetSumInBipValueByAddress(address string) (string, error) {
 	var sum string
 	err := repository.db.Model(&models.Stake{}).
-		Column("OwnerAddress._").
+		Relation("OwnerAddress._").
 		ColumnExpr("SUM(bip_value)").
 		Where("is_kicked = false").
 		Where("owner_address.address = ?", address).
@@ -63,7 +65,8 @@ func (repository Repository) GetPaginatedByValidator(
 	var err error
 
 	pagination.Total, err = repository.db.Model(&stakes).
-		Column("Coin", "OwnerAddress.address").
+		Relation("Coin").
+		Relation("OwnerAddress.address").
 		Where("validator_id = ?", validator.ID).
 		Order("bip_value DESC").
 		Apply(pagination.Filter).

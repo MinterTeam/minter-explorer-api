@@ -4,9 +4,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-api/v2/services"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/MinterTeam/minter-go-node/formula"
-	"math/big"
 )
 
 type Resource struct {
@@ -17,23 +16,11 @@ type Resource struct {
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	balance := model.(models.Balance)
+	bipAmount := services.Swap.EstimateInBip(balance.Coin, helpers.StringToBigInt(balance.Value))
 
 	return Resource{
-		Coin:      new(coins.IdResource).Transform(*balance.Coin),
+		Coin:      new(coins.IdResource).Transform(*balance.Coin, coins.Params{IsTypeRequired: true}),
 		Amount:    helpers.PipStr2Bip(balance.Value),
-		BipAmount: helpers.PipStr2Bip(getCoinBalanceInBaseValue(balance).String()),
+		BipAmount: helpers.Pip2BipStr(bipAmount),
 	}
-}
-
-func getCoinBalanceInBaseValue(balance models.Balance) *big.Int {
-	if balance.Coin.ID == 0 {
-		return helpers.StringToBigInt(balance.Value)
-	}
-
-	return formula.CalculateSaleReturn(
-		helpers.StringToBigInt(balance.Coin.Volume),
-		helpers.StringToBigInt(balance.Coin.Reserve),
-		balance.Coin.Crr,
-		helpers.StringToBigInt(balance.Value),
-	)
 }

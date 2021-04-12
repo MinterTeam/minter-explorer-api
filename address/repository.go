@@ -3,7 +3,7 @@ package address
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Repository struct {
@@ -20,8 +20,12 @@ func NewRepository(db *pg.DB) *Repository {
 func (repository Repository) GetByAddress(minterAddress string) *models.Address {
 	var address models.Address
 
-	err := repository.DB.Model(&address).Column("Balances", "Balances.Coin").
-		Where("address = ?", minterAddress).Select()
+	err := repository.DB.Model(&address).
+		Relation("Balances").
+		Relation("Balances.Coin").
+		Where("address = ?", minterAddress).
+		Select()
+
 	if err != nil {
 		return nil
 	}
@@ -33,8 +37,11 @@ func (repository Repository) GetByAddress(minterAddress string) *models.Address 
 func (repository Repository) GetByAddresses(minterAddresses []string) []*models.Address {
 	var addresses []*models.Address
 
-	err := repository.DB.Model(&addresses).Column("Balances", "Balances.Coin").
-		WhereIn("address IN (?)", minterAddresses).Select()
+	err := repository.DB.Model(&addresses).
+		Relation("Balances").
+		Relation("Balances.Coin").
+		WhereIn("address IN (?)", minterAddresses).
+		Select()
 
 	helpers.CheckErr(err)
 

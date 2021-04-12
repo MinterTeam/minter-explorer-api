@@ -1,20 +1,24 @@
 package transaction
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools/cache"
 	dataModels "github.com/MinterTeam/minter-explorer-api/v2/transaction/data_models"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 	"google.golang.org/protobuf/encoding/protojson"
+	"strconv"
 )
 
 type Service struct {
+	cache          *cache.ExplorerCache
 	coinRepository *coins.Repository
 }
 
-func NewService(coinRepository *coins.Repository) *Service {
-	return &Service{coinRepository}
+func NewService(coinRepository *coins.Repository, cache *cache.ExplorerCache) *Service {
+	return &Service{cache, coinRepository}
 }
 
 func (s *Service) PrepareTransactionsModel(txs []models.Transaction) ([]models.Transaction, error) {
@@ -31,6 +35,12 @@ func (s *Service) PrepareTransactionsModel(txs []models.Transaction) ([]models.T
 }
 
 func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Transaction, error) {
+	tx.CommissionPriceCoin = s.cache.Get(fmt.Sprintf("commission_price_coin_%s", tx.Tags["tx.commission_price_coin"]), func() interface{} {
+		priceCoinId, _ := strconv.ParseUint(tx.Tags["tx.commission_price_coin"], 10, 64)
+		priceCoin, _ := coins.GlobalRepository.FindByID(uint(priceCoinId))
+		return priceCoin
+	}, 17280).(models.Coin)
+
 	if tx.Type == uint8(transaction.TypeRedeemCheck) {
 		data := new(api_pb.RedeemCheckData)
 
