@@ -189,6 +189,10 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 
 		if p.FirstCoinId == 0 {
 			s.poolsLiquidity[p.Id] = new(big.Int).Mul(firstCoinVolume, big.NewInt(2))
+			s.coinPrices[p.SecondCoinId] = new(big.Float).Quo(
+				new(big.Float).SetInt(firstCoinVolume),
+				new(big.Float).SetInt(secondCoinVolume),
+			)
 			continue
 		}
 
