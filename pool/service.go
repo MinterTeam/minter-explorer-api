@@ -183,13 +183,14 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 		log.Error(err)
 	}
 
+	coinPrice := make(map[uint64]*big.Float)
 	for _, p := range pools {
 		firstCoinVolume := helpers.StringToBigInt(p.FirstCoinVolume)
 		secondCoinVolume := helpers.StringToBigInt(p.SecondCoinVolume)
 
 		if p.FirstCoinId == 0 {
 			s.poolsLiquidity[p.Id] = new(big.Int).Mul(firstCoinVolume, big.NewInt(2))
-			s.coinPrices[p.SecondCoinId] = new(big.Float).Quo(
+			coinPrice[p.SecondCoinId] = new(big.Float).Quo(
 				new(big.Float).SetInt(firstCoinVolume),
 				new(big.Float).SetInt(secondCoinVolume),
 			)
@@ -205,21 +206,35 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 			}
 
 			price := swap.NewPrice(trade.InputAmount.Token, trade.OutputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
-			s.coinPrices[p.SecondCoinId] = helpers.Pip2Bip(price)
-			s.coinPrices[p.FirstCoinId] = new(big.Float).Mul(new(big.Float).Quo(
-				new(big.Float).SetInt(secondCoinVolume),
-				new(big.Float).SetInt(firstCoinVolume),
-			), helpers.Pip2Bip(price))
+			if _, ok := coinPrice[p.SecondCoinId]; !ok {
+				coinPrice[p.SecondCoinId] = helpers.Pip2Bip(price)
+			}
+
+			if _, ok := coinPrice[p.FirstCoinId]; !ok {
+				coinPrice[p.FirstCoinId] = new(big.Float).Mul(new(big.Float).Quo(
+					new(big.Float).SetInt(secondCoinVolume),
+					new(big.Float).SetInt(firstCoinVolume),
+				), helpers.Pip2Bip(price))
+			}
 		} else {
 			price := swap.NewPrice(trade.InputAmount.Token, trade.OutputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
-			s.coinPrices[p.FirstCoinId] = helpers.Pip2Bip(price)
-			s.coinPrices[p.SecondCoinId] = new(big.Float).Mul(new(big.Float).Quo(
-				new(big.Float).SetInt(firstCoinVolume),
-				new(big.Float).SetInt(secondCoinVolume),
-			), helpers.Pip2Bip(price))
+			if _, ok := coinPrice[p.FirstCoinId]; !ok {
+				coinPrice[p.FirstCoinId] = helpers.Pip2Bip(price)
+			}
+
+			if _, ok := coinPrice[p.SecondCoinId]; !ok {
+				coinPrice[p.SecondCoinId] = new(big.Float).Mul(new(big.Float).Quo(
+					new(big.Float).SetInt(firstCoinVolume),
+					new(big.Float).SetInt(secondCoinVolume),
+				), helpers.Pip2Bip(price))
+			}
 		}
 
 		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
+	}
+
+	for k,v := range coinPrice {
+		s.coinPrices[k] = v
 	}
 }
 
