@@ -7,14 +7,23 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
-    - host: "{{ .Values.ingress.hosts }}"
+    - host: "{{ .Values.ingress.host }}"
       http:
         paths:
           - backend:
               serviceName: "{{ include "chart.fullname" . }}"
               servicePort: {{.Values.service.port}}
             path: /
+    - host: "{{ .Values.ingress.host2 }}"
+      http:
+        paths:
+          - backend:
+              serviceName: "{{ include "chart.fullname" . }}"
+              servicePort: {{.Values.service.port}}
+            path: /
+
   tls:
     - hosts:
-        - "{{ .Values.ingress.hosts }}"
-      secretName: "{{ .Values.ingress.tls.secret }}"
+        - "{{ .Values.ingress.host }}"
+        - "{{ .Values.ingress.host2 }}"
+      secretName: "{{ .Values.ingress.host }}"
