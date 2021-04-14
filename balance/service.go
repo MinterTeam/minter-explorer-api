@@ -2,6 +2,7 @@ package balance
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/services"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/market"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
@@ -11,38 +12,27 @@ import (
 type Service struct {
 	baseCoin      string
 	marketService *market.Service
+	swapService   *services.SwapService
 }
 
-func NewService(baseCoin string, marketService *market.Service) *Service {
-	return &Service{baseCoin, marketService}
+func NewService(baseCoin string, marketService *market.Service, swapService *services.SwapService) *Service {
+	return &Service{baseCoin, marketService, swapService}
 }
 
-func (s *Service) GetTotalBalance(address *models.Address) *big.Float {
+func (s *Service) GetTotalBalance(address *models.Address) *big.Int {
 	sum := big.NewInt(0)
 	for _, balance := range address.Balances {
-		// just add base coin to sum
-		if balance.Coin.Symbol == s.baseCoin {
-			sum = sum.Add(sum, helpers.StringToBigInt(balance.Value))
-			continue
-		}
-
-		// calculate the sale return value for custom coin
-		sum = sum.Add(sum, formula.CalculateSaleReturn(
-			helpers.StringToBigInt(balance.Coin.Volume),
-			helpers.StringToBigInt(balance.Coin.Reserve),
-			uint(balance.Coin.Crr),
-			helpers.StringToBigInt(balance.Value),
-		))
+		sum = sum.Add(sum, s.swapService.EstimateInBip(balance.Coin, helpers.StringToBigInt(balance.Value)))
 	}
 
-	return new(big.Float).SetInt(sum)
+	return sum
 }
 
-func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
+func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Int {
 	sum := big.NewInt(0)
 
 	for _, stake := range stakes {
-		if stake.IsKicked {
+		if stake.IsKicked || stake.Coin.Crr == 0 {
 			continue
 		}
 
@@ -61,9 +51,9 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Float {
 		))
 	}
 
-	return new(big.Float).SetInt(sum)
+	return sum
 }
 
-func (s *Service) GetTotalBalanceInUSD(sumInBasecoin *big.Float) *big.Float {
-	return new(big.Float).Mul(sumInBasecoin, big.NewFloat(s.marketService.PriceChange.Price))
+func (s *Service) GetTotalBalanceInUSD(sumInBasecoin *big.Int) *big.Float {
+	return new(big.Float).Mul(new(big.Float).SetInt(sumInBasecoin), big.NewFloat(s.marketService.PriceChange.Price))
 }

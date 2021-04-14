@@ -37,6 +37,7 @@ func main() {
 	blocksChannelHandler := ws.NewBlocksChannelHandler()
 	blocksChannelHandler.AddSubscriber(explorer.Cache)
 	blocksChannelHandler.AddSubscriber(metrics.NewLastBlockMetric())
+	blocksChannelHandler.AddSubscriber(explorer.PoolService)
 
 	// subscribe to channel and add cache handler
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)

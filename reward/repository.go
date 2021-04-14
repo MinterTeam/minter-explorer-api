@@ -5,7 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 	"time"
 )
 
@@ -29,7 +29,7 @@ func (repository Repository) GetAggregatedChartData(filter aggregated_reward.Sel
 	var chartData []ChartData
 
 	err := repository.db.Model(&rewards).
-		Column("Address._").
+		Relation("Address._").
 		ColumnExpr("date_trunc('day', time_id) as time").
 		ColumnExpr("SUM(amount) as amount").
 		Group("time").
@@ -48,7 +48,8 @@ func (repository Repository) GetPaginatedAggregatedByAddress(filter aggregated_r
 
 	// get rewards
 	pagination.Total, err = repository.db.Model(&rewards).
-		Column("Address.address", "Validator").
+		Relation("Address.address").
+		Relation("Validator").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
 		Order("time_id DESC").

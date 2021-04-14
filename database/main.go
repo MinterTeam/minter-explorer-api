@@ -2,9 +2,11 @@ package database
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
+	"os"
 )
 
 func Connect(env *core.Environment) *pg.DB {
@@ -14,6 +16,12 @@ func Connect(env *core.Environment) *pg.DB {
 		Database: env.DbName,
 		PoolSize: env.DbPoolSize,
 		Addr:     fmt.Sprintf("%s:%s", env.DbHost, env.DbPort),
+	}
+
+	if os.Getenv("POSTGRES_SSL_ENABLED") == "true" {
+		options.TLSConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
 	}
 
 	db := pg.Connect(options)
@@ -42,6 +50,7 @@ func (d dbLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Co
 }
 
 func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
-	fmt.Println(q.FormattedQuery())
+	//sql, _ := q.FormattedQuery()
+	//fmt.Println(string(sql[:]))
 	return nil
 }

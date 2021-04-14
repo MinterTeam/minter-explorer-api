@@ -15,6 +15,9 @@ type Resource struct {
 	Name         string  `json:"name"`
 	Symbol       string  `json:"symbol"`
 	OwnerAddress *string `json:"owner_address"`
+	Burnable     bool    `json:"burnable"`
+	Mintable     bool    `json:"mintable"`
+	Type         string  `json:"type"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -36,19 +39,33 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Name:         coin.Name,
 		Symbol:       coin.GetSymbol(),
 		OwnerAddress: ownerAddress,
+		Burnable:     coin.Burnable,
+		Mintable:     coin.Mintable,
+		Type:         helpers.GetCoinType(coin.Type),
 	}
 }
 
 type IdResource struct {
 	ID     uint32 `json:"id"`
+	Type   string `json:"type,omitempty"`
 	Symbol string `json:"symbol"`
+}
+
+type Params struct {
+	IsTypeRequired bool
 }
 
 func (IdResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	coin := model.(models.Coin)
 
-	return IdResource{
+	r := IdResource{
 		ID:     uint32(coin.ID),
 		Symbol: coin.GetSymbol(),
 	}
+
+	if len(params) > 0 {
+		r.Type = helpers.GetCoinType(coin.Type)
+	}
+
+	return r
 }

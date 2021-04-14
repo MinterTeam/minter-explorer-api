@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/coingecko"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/invalid_transaction"
+	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/reward"
 	"github.com/MinterTeam/minter-explorer-api/v2/services"
 	"github.com/MinterTeam/minter-explorer-api/v2/slash"
@@ -17,7 +18,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-api/v2/unbond"
 	"github.com/MinterTeam/minter-explorer-api/v2/validator"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Explorer struct {
@@ -39,6 +40,9 @@ type Explorer struct {
 	UnbondRepository             *unbond.Repository
 	StakeService                 *stake.Service
 	CheckRepository              *check.Repository
+	PoolRepository               *pool.Repository
+	PoolService                  *pool.Service
+	SwapService                  *services.SwapService
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -46,9 +50,12 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	blockRepository := *blocks.NewRepository(db)
 	validatorRepository := validator.NewRepository(db)
 	stakeRepository := stake.NewRepository(db)
-	cacheService := cache.NewCache(blockRepository.GetLastBlock())
 	coinRepository := coins.NewRepository(db)
-	transactionService := transaction.NewService(coinRepository)
+	poolRepository := pool.NewRepository(db)
+	poolService := pool.NewService(poolRepository)
+	cacheService := cache.NewCache(blockRepository.GetLastBlock())
+	transactionService := transaction.NewService(coinRepository, cacheService)
+	services.Swap = services.NewSwapService(poolService)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
@@ -64,10 +71,13 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		Cache:                        cacheService,
 		MarketService:                marketService,
 		TransactionService:           transactionService,
-		BalanceService:               balance.NewService(env.Basecoin, marketService),
+		BalanceService:               balance.NewService(env.Basecoin, marketService, services.Swap),
 		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 		UnbondRepository:             unbond.NewRepository(db),
 		StakeService:                 stake.NewService(stakeRepository),
 		CheckRepository:              check.NewRepository(db),
+		PoolRepository:               poolRepository,
+		PoolService:                  poolService,
+		SwapService:                  services.Swap,
 	}
 }

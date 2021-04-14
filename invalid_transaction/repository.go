@@ -2,7 +2,7 @@ package invalid_transaction
 
 import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 )
 
 type Repository struct {
@@ -19,7 +19,7 @@ func NewRepository(db *pg.DB) *Repository {
 func (repository Repository) GetTxByHash(hash string) *models.InvalidTransaction {
 	var transaction models.InvalidTransaction
 
-	err := repository.db.Model(&transaction).Column("FromAddress").Where("hash = ?", hash).Select()
+	err := repository.db.Model(&transaction).Relation("FromAddress").Where("hash = ?", hash).Select()
 	if err != nil {
 		return nil
 	}

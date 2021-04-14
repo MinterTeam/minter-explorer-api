@@ -3,6 +3,7 @@ package validators
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
+	"github.com/MinterTeam/minter-explorer-api/v2/events"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/slash"
@@ -204,20 +205,30 @@ func GetValidatorSlashes(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, pagination))
 }
 
-// Get IDs of active validators
-func getActiveValidatorIDs(explorer *core.Explorer) []uint {
-	return explorer.Cache.Get("active_validators", func() interface{} {
-		return explorer.ValidatorRepository.GetActiveValidatorIds()
-	}, CacheBlocksCount).([]uint)
-}
+// Get validator bans list
+func GetValidatorBans(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
 
-// Get total stake of active validators
-func getTotalStakeByActiveValidators(explorer *core.Explorer, validators []uint) string {
-	return explorer.Cache.Get("validators_total_stake", func() interface{} {
-		if len(validators) == 0 {
-			return "0"
-		}
+	// validate request
+	request := new(GetValidatorRequest)
+	err := c.ShouldBindUri(request)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
 
-		return explorer.ValidatorRepository.GetTotalStakeByActiveValidators(validators)
-	}, CacheBlocksCount).(string)
+	// fetch validator by public key
+	publicKey := helpers.RemoveMinterPrefix(request.PublicKey)
+	v := explorer.ValidatorRepository.GetByPublicKey(publicKey)
+	if v == nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		return
+	}
+
+	// fetch validator stakes
+	pagination := tools.NewPagination(c.Request)
+	bans, err := explorer.ValidatorRepository.GetBans(v, &pagination)
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(bans, events.BanResource{}, pagination))
 }

@@ -361,6 +361,7 @@ func makeEmptyAddressModel(minterAddress string, baseCoin string) *models.Addres
 		Balances: []*models.Balance{{
 			Coin: &models.Coin{
 				Symbol: baseCoin,
+				Type:   models.CoinTypeBase,
 			},
 			Value: "0",
 		}},
@@ -394,7 +395,7 @@ func extendModelWithBaseSymbolBalance(model *models.Address, minterAddress, base
 	if !isBaseSymbolExists {
 		model.Balances = append(model.Balances, &models.Balance{
 			Value: "0",
-			Coin:  &models.Coin{Symbol: baseCoin},
+			Coin:  &models.Coin{Symbol: baseCoin, Type: models.CoinTypeBase},
 		})
 	}
 
