@@ -179,6 +179,11 @@ func FindSwapPoolRoute(c *gin.Context) {
 		return
 	}
 
+	if req.Coin0 == req.Coin1 {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+		return
+	}
+
 	var reqQuery FindSwapPoolRouteRequestQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		errors.SetValidationErrorResponse(err, c)
