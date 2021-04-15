@@ -101,5 +101,5 @@ type GetCoinPossibleSwapsRequestQuery struct {
 }
 
 type GetSwapPoolTradesVolumeRequestQuery struct {
-	Scale *string `form:"scale" binding:"omitempty,eq=minute|eq=hour|eq=day"`
+	Scale *string `form:"scale" binding:"omitempty,eq=minute|eq=hour|eq=day|eq=month"`
 }

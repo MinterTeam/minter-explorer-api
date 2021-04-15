@@ -406,7 +406,7 @@ func GetSwapPoolTradesVolume(c *gin.Context) {
 
 	// validate request query
 	var query GetSwapPoolTradesVolumeRequestQuery
-	if err := c.ShouldBindQuery(&req); err != nil {
+	if err := c.ShouldBindQuery(&query); err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
