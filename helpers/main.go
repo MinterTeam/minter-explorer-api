@@ -40,3 +40,7 @@ func StrToUint64(str string) uint64 {
 	val, _ := strconv.ParseUint(str, 10, 64)
 	return val
 }
+
+func StrPointer(str string) *string {
+	return &str
+}

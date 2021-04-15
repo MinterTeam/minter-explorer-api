@@ -1,9 +1,6 @@
 package pools
 
 import (
-	"net/http"
-	"strconv"
-
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
@@ -15,6 +12,10 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+	"math/big"
+	"net/http"
+	"strconv"
 )
 
 type CachePoolsList struct {
@@ -44,9 +45,18 @@ func GetSwapPool(c *gin.Context) {
 	}
 
 	bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
+	tradeVolume, err := explorer.PoolService.GetLastMonthTradesVolume(p)
+	if err != nil {
+		log.WithError(err).Panic("failed to load last month trade for pool ", p.GetTokenSymbol())
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.Resource).Transform(p, pool.Params{LiquidityInBip: bipValue, FirstCoin: req.Coin0, SecondCoin: req.Coin1}),
+		"data": new(pool.Resource).Transform(p, pool.Params{
+			LiquidityInBip: bipValue,
+			FirstCoin:      req.Coin0,
+			SecondCoin:     req.Coin1,
+			TradeVolume30d: tradeVolume.BipVolume,
+		}),
 	})
 }
 
@@ -113,8 +123,23 @@ func GetSwapPools(c *gin.Context) {
 
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		bipValue := explorer.PoolService.GetPoolLiquidityInBip(model.(models.LiquidityPool))
-		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
+		p := model.(models.LiquidityPool)
+
+		trade, err := explorer.PoolService.GetLastMonthTradesVolume(p)
+		if err != nil {
+			log.Error("failed to load trade volume for pool ", p.GetTokenSymbol())
+		}
+
+		tradeVolume30d := big.NewFloat(0)
+		if trade != nil {
+			tradeVolume30d = trade.BipVolume
+		}
+
+		bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
+		return resource.ParamsInterface{pool.Params{
+			LiquidityInBip: bipValue,
+			TradeVolume30d: tradeVolume30d,
+		}}
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.Resource{}, pagination, resourceCallback))
@@ -417,7 +442,7 @@ func GetSwapPoolTradesVolume(c *gin.Context) {
 		return
 	}
 
-	tradesVolume, err := explorer.PoolService.GetTradesVolume(p, query.Scale)
+	tradesVolume, err := explorer.PoolService.GetTradesVolume(p, query.Scale, nil)
 	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, gin.H{

@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/starwander/goraph"
 	"math/big"
+	"time"
 )
 
 const (
@@ -233,18 +234,18 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
 	}
 
-	for k,v := range coinPrice {
+	for k, v := range coinPrice {
 		s.coinPrices[k] = v
 	}
 }
 
-func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string) ([]TradeVolume, error) {
+func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string, startTime *time.Time) ([]TradeVolume, error) {
 	dateScale := defaultTradeVolumeScale
 	if scale != nil {
 		dateScale = *scale
 	}
 
-	tradesVolume, err := s.repository.GetPoolTradesVolume(pool, dateScale)
+	tradesVolume, err := s.repository.GetPoolTradesVolume(pool, dateScale, startTime)
 	if err != nil {
 		return nil, err
 	}
@@ -267,4 +268,18 @@ func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string) ([]T
 	}
 
 	return trades, nil
+}
+
+func (s *Service) GetLastMonthTradesVolume(pool models.LiquidityPool) (*TradeVolume, error) {
+	startTime := time.Now().AddDate(0, -1, 0)
+	trades, err := s.GetTradesVolume(pool, helpers.StrPointer("month"), &startTime)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(trades) == 0 {
+		return &TradeVolume{BipVolume: big.NewFloat(0)}, nil
+	}
+
+	return &trades[0], nil
 }

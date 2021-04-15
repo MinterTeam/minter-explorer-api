@@ -12,17 +12,19 @@ import (
 )
 
 type Resource struct {
-	Coin0          resource.Interface `json:"coin0"`
-	Coin1          resource.Interface `json:"coin1"`
-	Token          resource.Interface `json:"token"`
-	Amount0        string             `json:"amount0"`
-	Amount1        string             `json:"amount1"`
-	Liquidity      string             `json:"liquidity"`
-	LiquidityInBip string             `json:"liquidity_bip"`
+	Coin0             resource.Interface `json:"coin0"`
+	Coin1             resource.Interface `json:"coin1"`
+	Token             resource.Interface `json:"token"`
+	Amount0           string             `json:"amount0"`
+	Amount1           string             `json:"amount1"`
+	Liquidity         string             `json:"liquidity"`
+	LiquidityInBip    string             `json:"liquidity_bip"`
+	TradeVolumeBip30d string             `json:"trade_volume_bip_30d"`
 }
 
 type Params struct {
 	LiquidityInBip *big.Int
+	TradeVolume30d *big.Float
 	FirstCoin      string
 	SecondCoin     string
 }
@@ -42,24 +44,26 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 
 	if !inverseOrder {
 		return Resource{
-			Coin0:          new(coins.IdResource).Transform(*pool.FirstCoin),
-			Coin1:          new(coins.IdResource).Transform(*pool.SecondCoin),
-			Token:          new(coins.IdResource).Transform(*pool.Token),
-			Amount0:        helpers.PipStr2Bip(pool.FirstCoinVolume),
-			Amount1:        helpers.PipStr2Bip(pool.SecondCoinVolume),
-			Liquidity:      helpers.PipStr2Bip(pool.Liquidity),
-			LiquidityInBip: helpers.PipStr2Bip(params.LiquidityInBip.String()),
+			Coin0:             new(coins.IdResource).Transform(*pool.FirstCoin),
+			Coin1:             new(coins.IdResource).Transform(*pool.SecondCoin),
+			Token:             new(coins.IdResource).Transform(*pool.Token),
+			Amount0:           helpers.PipStr2Bip(pool.FirstCoinVolume),
+			Amount1:           helpers.PipStr2Bip(pool.SecondCoinVolume),
+			Liquidity:         helpers.PipStr2Bip(pool.Liquidity),
+			LiquidityInBip:    helpers.PipStr2Bip(params.LiquidityInBip.String()),
+			TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
 		}
 	}
 
 	return Resource{
-		Coin0:          new(coins.IdResource).Transform(*pool.SecondCoin),
-		Coin1:          new(coins.IdResource).Transform(*pool.FirstCoin),
-		Token:          new(coins.IdResource).Transform(*pool.Token),
-		Amount0:        helpers.PipStr2Bip(pool.SecondCoinVolume),
-		Amount1:        helpers.PipStr2Bip(pool.FirstCoinVolume),
-		Liquidity:      helpers.PipStr2Bip(pool.Liquidity),
-		LiquidityInBip: helpers.PipStr2Bip(params.LiquidityInBip.String()),
+		Coin0:             new(coins.IdResource).Transform(*pool.SecondCoin),
+		Coin1:             new(coins.IdResource).Transform(*pool.FirstCoin),
+		Token:             new(coins.IdResource).Transform(*pool.Token),
+		Amount0:           helpers.PipStr2Bip(pool.SecondCoinVolume),
+		Amount1:           helpers.PipStr2Bip(pool.FirstCoinVolume),
+		Liquidity:         helpers.PipStr2Bip(pool.Liquidity),
+		LiquidityInBip:    helpers.PipStr2Bip(params.LiquidityInBip.String()),
+		TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
 	}
 }
 
