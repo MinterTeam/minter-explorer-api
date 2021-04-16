@@ -94,6 +94,7 @@ func (repository Repository) GetValidators() []models.Validator {
 // Get validator bans
 func (repository Repository) GetBans(validator *models.Validator, pagination *tools.Pagination) (bans []models.ValidatorBan, err error) {
 	pagination.Total, err = repository.db.Model(&bans).
+		Relation("Block").
 		Where("validator_id = ?", validator.ID).
 		Apply(pagination.Filter).
 		SelectAndCount()

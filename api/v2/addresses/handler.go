@@ -16,6 +16,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/unbond"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 )
@@ -321,6 +322,27 @@ func GetUnbonds(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(wl, unbond.Resource{}),
 	})
+}
+
+func GetBans(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	minterAddress, err := GetAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// fetch validator by public key
+	pagination := tools.NewPagination(c.Request)
+	bans, err := explorer.AddressRepository.GetBans(*minterAddress, &pagination)
+	if err != nil {
+		logrus.WithError(err).Error("failed to load bans for address ", *minterAddress)
+		return
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(bans, events.AddressBanResource{}, pagination))
 }
 
 func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Pagination, error) {
