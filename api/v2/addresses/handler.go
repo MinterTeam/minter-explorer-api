@@ -334,9 +334,19 @@ func GetBans(c *gin.Context) {
 		return
 	}
 
-	// fetch validator by public key
+	ids, err := explorer.StakeRepository.GetAddressValidatorIds(*minterAddress)
+	if err != nil {
+		logrus.WithError(err).Error("failed to load address validators ", *minterAddress)
+		return
+	}
+
 	pagination := tools.NewPagination(c.Request)
-	bans, err := explorer.AddressRepository.GetBans(*minterAddress, &pagination)
+	if len(ids) == 0 {
+		c.JSON(http.StatusOK, resource.TransformPaginatedCollection([]models.ValidatorBan{}, events.AddressBanResource{}, pagination))
+		return
+	}
+
+	bans, err := explorer.ValidatorRepository.GetBansByValidatorIds(ids, &pagination)
 	if err != nil {
 		logrus.WithError(err).Error("failed to load bans for address ", *minterAddress)
 		return

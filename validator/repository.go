@@ -97,7 +97,22 @@ func (repository Repository) GetBans(validator *models.Validator, pagination *to
 		Relation("Block").
 		Where("validator_id = ?", validator.ID).
 		Apply(pagination.Filter).
+		Order("block_id DESC").
 		SelectAndCount()
+
+	return bans, err
+}
+
+// Get bans of validator list
+func (repository Repository) GetBansByValidatorIds(validatorIds []uint64, pagination *tools.Pagination) ([]models.ValidatorBan, error) {
+	var bans []models.ValidatorBan
+
+	err := repository.db.Model(&bans).
+		Relation("Block").
+		Relation("Validator").
+		Where(`validator_id in (?)`, pg.In(validatorIds)).
+		Order("block_id DESC").
+		Select()
 
 	return bans, err
 }

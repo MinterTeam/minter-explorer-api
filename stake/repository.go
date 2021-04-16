@@ -107,3 +107,13 @@ func (repository Repository) GetDelegatorsCount() (count uint64, err error) {
 
 	return count, err
 }
+
+func (repository Repository) GetAddressValidatorIds(address string) (ids []uint64, err error) {
+	err = repository.db.Model(new(models.Stake)).
+		Relation("OwnerAddress._").
+		ColumnExpr("DISTINCT validator_id").
+		Where("owner_address.address = ?", address).
+		Select(&ids)
+
+	return ids, err
+}

@@ -2,7 +2,6 @@ package address
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
-	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
 )
@@ -55,17 +54,4 @@ func (repository Repository) GetNonZeroAddressesCount() (count uint64, err error
 		Select(&count)
 
 	return count, err
-}
-
-func (repository Repository) GetBans(minterAddress string, pagination *tools.Pagination) ([]models.ValidatorBan, error) {
-	var bans []models.ValidatorBan
-
-	err := repository.DB.Model(&bans).
-		Relation("Block").
-		Relation("Validator").
-		Where("address = ?", minterAddress).
-		Where(`validator_id in (select distinct validator_id from stakes where address_id = ?)`, minterAddress).
-		Select()
-
-	return bans, err
 }
