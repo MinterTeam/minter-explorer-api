@@ -31,11 +31,15 @@ func NewService(repository *Repository) *Service {
 }
 
 func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
-	if liquidity, ok := s.poolsLiquidity[pool.Id]; ok {
-		return liquidity
+	if pool.FirstCoinId == 0 {
+		return new(big.Int).Mul(helpers.StringToBigInt(pool.FirstCoinVolume), big.NewInt(2))
 	}
 
-	return big.NewInt(0)
+	price := s.GetCoinPriceInBip(pool.FirstCoinId)
+	firstCoinVolume := helpers.Pip2Bip(helpers.StringToBigInt(pool.FirstCoinVolume))
+
+	bip := new(big.Float).Mul(new(big.Float).Mul(firstCoinVolume, price), big.NewFloat(2))
+	return helpers.Bip2Pip(bip)
 }
 
 func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
