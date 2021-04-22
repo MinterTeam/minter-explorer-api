@@ -2,9 +2,9 @@ package pool
 
 import (
 	"errors"
+	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
-	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	log "github.com/sirupsen/logrus"
 	"github.com/starwander/goraph"
@@ -18,24 +18,26 @@ const (
 
 type Service struct {
 	repository     *Repository
-	poolsLiquidity map[uint64]*big.Int
+	swap           *swap.Service
+	poolsLiquidity map[uint64]*big.Float
 	coinPrices     map[uint64]*big.Float
 }
 
 func NewService(repository *Repository) *Service {
 	return &Service{
+		swap:           swap.NewService(repository.db),
 		repository:     repository,
-		poolsLiquidity: make(map[uint64]*big.Int),
+		poolsLiquidity: make(map[uint64]*big.Float),
 		coinPrices:     make(map[uint64]*big.Float),
 	}
 }
 
-func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Int {
+func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Float {
 	if liquidity, ok := s.poolsLiquidity[pool.Id]; ok {
 		return liquidity
 	}
 
-	return big.NewInt(0)
+	return big.NewFloat(0)
 }
 
 func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
@@ -44,6 +46,11 @@ func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 	}
 
 	return big.NewFloat(0)
+}
+
+func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) bool {
+	_, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
+	return err == nil
 }
 
 func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
@@ -56,12 +63,12 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 }
 
 func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 1000)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 1000)
 	if err != nil {
 		return nil, err
 	}
 
-	pools, err := s.getPathsRelatedPools(paths)
+	pools, err := s.getPathsRelatedPools(liquidityPools, paths)
 	if err != nil {
 		return nil, err
 	}
@@ -102,78 +109,46 @@ func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool
 	return &trades[0], nil
 }
 
-func (s *Service) FindSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
-	graph := goraph.NewGraph()
-	for _, pool := range pools {
-		graph.AddVertex(pool.FirstCoinId, pool.FirstCoin)
-		graph.AddVertex(pool.SecondCoinId, pool.SecondCoin)
-		graph.AddEdge(pool.FirstCoinId, pool.SecondCoinId, 1, nil)
-		graph.AddEdge(pool.SecondCoinId, pool.FirstCoinId, 1, nil)
-	}
-
-	_, paths, err := graph.Yen(fromCoinId, toCoinId, 1000)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(paths[0]) == 0 {
-		return nil, errors.New("path not found")
-	}
-
-	if depth == 0 {
-		return paths, nil
-	}
-
-	var result [][]goraph.ID
-	for _, path := range paths {
-		if len(path) > depth+1 || len(path) == 0 {
-			break
-		}
-
-		result = append(result, path)
-	}
-
-	if len(result) == 0 {
-		return nil, errors.New("path not found")
-	}
-
-	return result, nil
-}
-
-func (s *Service) getPathsRelatedPools(paths [][]goraph.ID) ([]models.LiquidityPool, error) {
-	pools := make([]models.LiquidityPool, 0)
+func (s *Service) getPathsRelatedPools(pools []models.LiquidityPool, paths [][]goraph.ID) ([]models.LiquidityPool, error) {
+	related := make([]models.LiquidityPool, 0)
 	for _, path := range paths {
 		if len(path) == 0 {
 			break
 		}
 
-		for i, coinID := range path {
+		for i := range path {
 			if i == 0 {
 				continue
 			}
 
-			p, err := s.repository.Find(path[i-1].(uint64), coinID.(uint64))
-			if err != nil {
-				return nil, err
+			firstCoinId, secondCoinId := path[i-1].(uint64), path[i].(uint64)
+			pchan := make(chan models.LiquidityPool)
+			for _, lp := range pools {
+				go func(lp models.LiquidityPool) {
+					if (lp.FirstCoinId == firstCoinId && lp.SecondCoinId == secondCoinId) || (lp.FirstCoinId == secondCoinId && lp.SecondCoinId == firstCoinId) {
+						pchan <- lp
+					}
+				}(lp)
 			}
 
+			p := <-pchan
+
 			isExists := false
-			for _, p2 := range pools {
+			for _, p2 := range related {
 				if p.Id == p2.Id {
 					isExists = true
 				}
 			}
 
 			if !isExists {
-				pools = append(pools, p)
+				related = append(related, p)
 			}
 		}
 	}
 
-	return pools, nil
+	return related, nil
 }
 
-// TODO: refactor and optimize
 func (s *Service) OnNewBlock(block blocks.Resource) {
 	if block.NumTxs == 0 {
 		return
@@ -184,54 +159,26 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 		log.Error(err)
 	}
 
-	coinPrice := make(map[uint64]*big.Float)
+	s.RunLiquidityCalculation(pools)
+	s.RunCoinPriceCalculation(pools)
+}
+
+func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
 	for _, p := range pools {
-		firstCoinVolume := helpers.StringToBigInt(p.FirstCoinVolume)
-		secondCoinVolume := helpers.StringToBigInt(p.SecondCoinVolume)
+		s.poolsLiquidity[p.Id] = s.swap.GetPoolLiquidity(pools, p)
+	}
+}
+
+func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
+	coinPrice := make(map[uint64]*big.Float)
+
+	for _, p := range pools {
+		firstCoinVolume := helpers.StrToBigFloat(p.FirstCoinVolume)
+		secondCoinVolume := helpers.StrToBigFloat(p.SecondCoinVolume)
 
 		if p.FirstCoinId == 0 {
-			s.poolsLiquidity[p.Id] = new(big.Int).Mul(firstCoinVolume, big.NewInt(2))
-			coinPrice[p.SecondCoinId] = new(big.Float).Quo(
-				new(big.Float).SetInt(firstCoinVolume),
-				new(big.Float).SetInt(secondCoinVolume),
-			)
-			continue
+			coinPrice[p.SecondCoinId] = new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
 		}
-
-		trade, err := s.FindSwapRoutePathByPools(pools, p.FirstCoinId, uint64(0), swap.TradeTypeExactInput, firstCoinVolume)
-		if err != nil || trade == nil {
-			trade, err = s.FindSwapRoutePathByPools(pools, p.SecondCoinId, uint64(0), swap.TradeTypeExactInput, secondCoinVolume)
-			if err != nil || trade == nil {
-				s.poolsLiquidity[p.Id] = big.NewInt(0)
-				continue
-			}
-
-			price := swap.NewPrice(trade.InputAmount.Token, trade.OutputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
-			if _, ok := coinPrice[p.SecondCoinId]; !ok {
-				coinPrice[p.SecondCoinId] = helpers.Pip2Bip(price)
-			}
-
-			if _, ok := coinPrice[p.FirstCoinId]; !ok {
-				coinPrice[p.FirstCoinId] = new(big.Float).Mul(new(big.Float).Quo(
-					new(big.Float).SetInt(secondCoinVolume),
-					new(big.Float).SetInt(firstCoinVolume),
-				), helpers.Pip2Bip(price))
-			}
-		} else {
-			price := swap.NewPrice(trade.InputAmount.Token, trade.OutputAmount.Token, trade.InputAmount.GetAmount(), trade.OutputAmount.GetAmount()).Value
-			if _, ok := coinPrice[p.FirstCoinId]; !ok {
-				coinPrice[p.FirstCoinId] = helpers.Pip2Bip(price)
-			}
-
-			if _, ok := coinPrice[p.SecondCoinId]; !ok {
-				coinPrice[p.SecondCoinId] = new(big.Float).Mul(new(big.Float).Quo(
-					new(big.Float).SetInt(firstCoinVolume),
-					new(big.Float).SetInt(secondCoinVolume),
-				), helpers.Pip2Bip(price))
-			}
-		}
-
-		s.poolsLiquidity[p.Id] = new(big.Int).Mul(trade.OutputAmount.GetAmount(), big.NewInt(2))
 	}
 
 	for k, v := range coinPrice {
@@ -278,7 +225,9 @@ func (s *Service) GetLastMonthTradesVolume(pool models.LiquidityPool) (*TradeVol
 	}
 
 	if len(trades) == 0 {
-		return &TradeVolume{BipVolume: big.NewFloat(0)}, nil
+		return &TradeVolume{
+			BipVolume: big.NewFloat(0),
+		}, nil
 	}
 
 	return &trades[0], nil

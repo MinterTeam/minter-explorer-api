@@ -33,7 +33,7 @@ type GetAddressesRequest struct {
 	Addresses []string `form:"addresses[]" binding:"required,minterAddress,max=50"`
 }
 
-// TODO: replace string to int
+// FilterQueryRequest TODO: replace string to int
 type FilterQueryRequest struct {
 	StartBlock *string `form:"start_block" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"end_block"   binding:"omitempty,numeric"`
@@ -57,7 +57,7 @@ type AggregatedRewardsQueryRequest struct {
 	EndTime   *string `form:"end_time"   binding:"omitempty,timestamp"`
 }
 
-// Get list of addresses
+// GetAddresses Get list of addresses
 func GetAddresses(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -98,7 +98,7 @@ func GetAddresses(c *gin.Context) {
 	})
 }
 
-// Get address detail
+// GetAddress Get address detail
 func GetAddress(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -152,7 +152,7 @@ func GetAddress(c *gin.Context) {
 	})
 }
 
-// Get list of transactions by Minter address
+// GetTransactions Get list of transactions by Minter address
 func GetTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -186,7 +186,7 @@ func GetTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
 
-// Get aggregated by day list of address rewards
+// GetAggregatedRewards Get aggregated by day list of address rewards
 func GetAggregatedRewards(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -213,6 +213,7 @@ func GetAggregatedRewards(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(rewards, aggregated_reward.Resource{}, pagination))
 }
 
+// GetSlashes
 // Get list of slashes by Minter address
 func GetSlashes(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -229,6 +230,7 @@ func GetSlashes(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(slashes, slash.Resource{}, *pagination))
 }
 
+// GetDelegations
 // Get list of delegations by Minter address
 func GetDelegations(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -277,7 +279,7 @@ func GetDelegations(c *gin.Context) {
 	})
 }
 
-// Get rewards statistics by minter address
+// GetRewardsStatistics Get rewards statistics by minter address
 func GetRewardsStatistics(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -375,7 +377,7 @@ func prepareEventsRequest(c *gin.Context) (*events.SelectFilter, *tools.Paginati
 	}, &pagination, nil
 }
 
-// Get minter address from current request uri
+// GetAddressFromRequestUri Get minter address from current request uri
 func GetAddressFromRequestUri(c *gin.Context) (*string, error) {
 	var request GetAddressRequest
 	if err := c.ShouldBindUri(&request); err != nil {

@@ -80,3 +80,10 @@ func StringToBigInt(string string) *big.Int {
 
 	return bInt
 }
+
+func StrToBigFloat(string string) *big.Float {
+	bFloat, err := new(big.Float).SetString(string)
+	CheckErrBool(err)
+
+	return bFloat
+}

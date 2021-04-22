@@ -2,9 +2,9 @@ package services
 
 import (
 	"errors"
+	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
-	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
 	"math/big"
