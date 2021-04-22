@@ -1,13 +1,13 @@
 package pools
 
 import (
+	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
-	"github.com/MinterTeam/minter-explorer-api/v2/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
@@ -350,7 +350,7 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 			continue
 		}
 
-		if _, err := explorer.PoolService.FindSwapRoutePathsByGraph(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID), reqQuery.Depth); err == nil {
+		if explorer.PoolService.IsSwapExists(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID), reqQuery.Depth) {
 			swapCoins = append(swapCoins, pc)
 		}
 	}

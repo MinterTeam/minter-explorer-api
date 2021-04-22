@@ -3,12 +3,12 @@ module github.com/MinterTeam/minter-explorer-api/v2
 go 1.15
 
 require (
+	github.com/MinterTeam/explorer-sdk v0.1.0
 	github.com/MinterTeam/minter-explorer-extender/v2 v2.12.11
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk/v2 v2.2.0-alpha1.0.20210327021641-068a106a883b
 	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210327013510-012fe2754dfc
 	github.com/centrifugal/centrifuge-go v0.3.0
-	github.com/ethereum/go-ethereum v1.9.22
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-pg/pg/v10 v10.8.0
