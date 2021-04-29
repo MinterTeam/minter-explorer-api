@@ -88,21 +88,67 @@ func (f PoolsFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		q = q.Join("LEFT JOIN liquidity_pools").
 			JoinOn("liquidity_pools.id = transaction_liquidity_pool.liquidity_pool_id")
 
-		if id, err := strconv.Atoi(f.Coin0); err == nil {
-			q = q.Where("liquidity_pools.first_coin_id = ?", id)
-		} else {
-			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin0)
-			q = q.Join("LEFT JOIN coins as first_coin").JoinOn("first_coin.id = liquidity_pools.first_coin_id").
-				Where(`first_coin.symbol = ?`, symbol).Where(`first_coin.version = ?`, version)
+		// filter by coins
+		symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin0)
+		symbol1, version1 := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin1)
+
+		isSymbols := false
+		_, err0 := strconv.Atoi(f.Coin0)
+		_, err1 := strconv.Atoi(f.Coin1)
+		if err0 != nil || err1 != nil {
+			isSymbols = true
 		}
 
-		if id, err := strconv.Atoi(f.Coin1); err == nil {
-			q = q.Where("liquidity_pools.second_coin_id = ?", id)
-		} else {
-			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(f.Coin1)
+		if isSymbols {
+			q = q.Join("LEFT JOIN coins as first_coin").JoinOn("first_coin.id = liquidity_pools.first_coin_id").
+				Where(`first_coin.symbol = ?`, symbol).Where(`first_coin.version = ?`, version)
+
 			q = q.Join("LEFT JOIN coins as second_coin").JoinOn("second_coin.id = liquidity_pools.second_coin_id").
-				Where(`second_coin.symbol = ?`, symbol).Where(`second_coin.version = ?`, version)
+				Where(`second_coin.symbol = ?`, symbol1).Where(`second_coin.version = ?`, version)
 		}
+
+		firstCoinAlias := "first_coin"
+		secondCoinAlias := "second_coin"
+
+		q = q.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+			if isSymbols {
+				query = query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+						return query.Where(`"`+firstCoinAlias+`"."symbol" = ?`, symbol).
+							Where(`"`+firstCoinAlias+`"."version" = ?`, version).
+							Where(`"`+secondCoinAlias+`"."symbol" = ?`, symbol1).
+							Where(`"`+secondCoinAlias+`"."version" = ?`, version1), nil
+					}), nil
+				})
+			}
+
+			if !isSymbols {
+				query = query.WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.Where("liquidity_pools.first_coin_id = ?", f.Coin0).Where("liquidity_pools.second_coin_id = ?", f.Coin1), nil
+				})
+			}
+
+			return query, nil
+		}).WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+			if isSymbols {
+				query = query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.WhereGroup(func(query *orm.Query) (*orm.Query, error) {
+						return query.Where(`"`+firstCoinAlias+`"."symbol" = ?`, symbol1).
+							Where(`"`+firstCoinAlias+`"."version" = ?`, version1).
+							Where(`"`+secondCoinAlias+`"."symbol" = ?`, symbol).
+							Where(`"`+secondCoinAlias+`"."version" = ?`, version), nil
+					}), nil
+				})
+			}
+
+			if !isSymbols {
+				query = query.WhereOrGroup(func(query *orm.Query) (*orm.Query, error) {
+					return query.Where("liquidity_pools.first_coin_id = ?", f.Coin1).Where("liquidity_pools.second_coin_id = ?", f.Coin0), nil
+				})
+			}
+
+			return query, nil
+		})
 	}
 
 	blocksRange := blocks.RangeSelectFilter{StartBlock: f.StartBlock, EndBlock: f.EndBlock}
