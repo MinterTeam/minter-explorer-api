@@ -24,7 +24,7 @@ func (r *Repository) FindByCoins(filter SelectByCoinsFilter) (models.LiquidityPo
 		Relation("FirstCoin").
 		Relation("SecondCoin").
 		Apply(filter.Filter("token", "first_coin", "second_coin")).
-		Order("id").
+		Order("liquidity_bip DESC").
 		First()
 
 	return pool, err
@@ -53,7 +53,7 @@ func (r *Repository) GetPools(filter SelectPoolsFilter, pagination *tools.Pagina
 		Relation("SecondCoin").
 		Apply(filter.Filter).
 		Apply(pagination.Filter).
-		Order("id").
+		Order("liquidity_bip DESC").
 		SelectAndCount()
 
 	return pool, err
@@ -93,7 +93,7 @@ func (r *Repository) GetAll() (pools []models.LiquidityPool, err error) {
 	err = r.db.Model(&pools).
 		Relation("FirstCoin").
 		Relation("SecondCoin").
-		Order("id").
+		Order("liquidity_bip DESC").
 		Select()
 
 	return pools, err
