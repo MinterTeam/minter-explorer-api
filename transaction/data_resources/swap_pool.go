@@ -21,8 +21,8 @@ func (BuySwapPool) Transform(txData resource.ItemInterface, params ...resource.P
 
 	return BuySwapPool{
 		Coins:              new(PoolCoin).TransformCollection(data.Coins, model),
-		CoinToBuy:          new(Coin).Transform(data.Coins[0]),
-		CoinToSell:         new(Coin).Transform(data.Coins[len(data.Coins)-1]),
+		CoinToBuy:          new(Coin).Transform(data.Coins[len(data.Coins)-1]),
+		CoinToSell:         new(Coin).Transform(data.Coins[0]),
 		ValueToBuy:         helpers.PipStr2Bip(data.ValueToBuy),
 		ValueToSell:        helpers.PipStr2Bip(model.Tags["tx.return"]),
 		MaximumValueToSell: helpers.PipStr2Bip(data.MaximumValueToSell),
