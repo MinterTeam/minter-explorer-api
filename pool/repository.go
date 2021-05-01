@@ -142,3 +142,16 @@ func (r *Repository) GetPoolTradesVolume(pool models.LiquidityPool, scale string
 
 	return trades, err
 }
+
+func (r *Repository) GetPoolTradeVolumeByTimeRange(pool models.LiquidityPool, startTime time.Time) (*tradeVolume, error) {
+	var tv tradeVolume
+	err := r.db.Model(&models.LiquidityPoolTrade{}).
+		Relation("Block._").
+		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
+		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
+		Where("liquidity_pool_id = ?", pool.Id).
+		Where("block.created_at > ?", startTime.Format(time.RFC3339)).
+		Select(&tv)
+
+	return &tv, err
+}

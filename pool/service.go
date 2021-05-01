@@ -221,16 +221,26 @@ func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string, star
 
 func (s *Service) GetLastMonthTradesVolume(pool models.LiquidityPool) (*TradeVolume, error) {
 	startTime := time.Now().AddDate(0, -1, 0)
-	trades, err := s.GetTradesVolume(pool, helpers.StrPointer("month"), &startTime)
+	tv, err := s.repository.GetPoolTradeVolumeByTimeRange(pool, startTime)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(trades) == 0 {
+	if tv == nil {
 		return &TradeVolume{
 			BipVolume: big.NewFloat(0),
 		}, nil
 	}
 
-	return &trades[0], nil
+	bipPrice := s.GetCoinPriceInBip(pool.FirstCoinId)
+	bipVolume := helpers.Pip2Bip(helpers.StringToBigInt(tv.FirstCoinVolume))
+	if pool.FirstCoinId != 0 {
+		bipVolume = getVolumeInBip(bipPrice, tv.FirstCoinVolume)
+	}
+
+	return &TradeVolume{
+		FirstCoinVolume:  tv.FirstCoinVolume,
+		SecondCoinVolume: tv.SecondCoinVolume,
+		BipVolume:        bipVolume,
+	}, nil
 }
