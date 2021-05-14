@@ -19,8 +19,7 @@ import (
 )
 
 type CachePoolsList struct {
-	Pools      []models.LiquidityPool
-	Pagination tools.Pagination
+	Pools resource.PaginationResource
 }
 
 const (
@@ -94,55 +93,50 @@ func GetSwapPools(c *gin.Context) {
 		return
 	}
 
-	// cache pools
-	var pools []models.LiquidityPool
-
 	// prepare fetching pools
 	pagination := tools.NewPagination(c.Request)
-	fetchPools := func() []models.LiquidityPool {
-		pools, _ = explorer.PoolRepository.GetPools(pool.SelectPoolsFilter{
+	fetchPools := func() resource.PaginationResource {
+		pools, _ := explorer.PoolRepository.GetPools(pool.SelectPoolsFilter{
 			Coin:            req.Coin,
 			ProviderAddress: req.Address,
 		}, &pagination)
 
-		return pools
+		// add params to each model resource
+		resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+			p := model.(models.LiquidityPool)
+
+			trade, err := explorer.PoolService.GetLastMonthTradesVolume(p)
+			if err != nil {
+				log.Error("failed to load trade volume for pool ", p.GetTokenSymbol())
+			}
+
+			tradeVolume30d := big.NewFloat(0)
+			if trade != nil {
+				tradeVolume30d = trade.BipVolume
+			}
+
+			bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
+			return resource.ParamsInterface{pool.Params{
+				LiquidityInBip: bipValue,
+				TradeVolume30d: tradeVolume30d,
+			}}
+		}
+
+		return resource.TransformPaginatedCollectionWithCallback(pools, pool.Resource{}, pagination, resourceCallback)
 	}
 
+	var pools resource.PaginationResource
 	if len(c.Request.URL.Query()) == 0 {
 		cached := explorer.Cache.Get("pools", func() interface{} {
-			return CachePoolsList{fetchPools(), pagination}
+			return CachePoolsList{fetchPools()}
 		}, CachePoolsListBlockCount).(CachePoolsList)
 
 		pools = cached.Pools
-		pagination = cached.Pagination
 	} else {
 		pools = fetchPools()
 	}
 
-	helpers.CheckErr(err)
-
-	// add params to each model resource
-	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		p := model.(models.LiquidityPool)
-
-		trade, err := explorer.PoolService.GetLastMonthTradesVolume(p)
-		if err != nil {
-			log.Error("failed to load trade volume for pool ", p.GetTokenSymbol())
-		}
-
-		tradeVolume30d := big.NewFloat(0)
-		if trade != nil {
-			tradeVolume30d = trade.BipVolume
-		}
-
-		bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
-		return resource.ParamsInterface{pool.Params{
-			LiquidityInBip: bipValue,
-			TradeVolume30d: tradeVolume30d,
-		}}
-	}
-
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.Resource{}, pagination, resourceCallback))
+	c.JSON(http.StatusOK, pools)
 }
 
 func GetSwapPoolProviders(c *gin.Context) {
