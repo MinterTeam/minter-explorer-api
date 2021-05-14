@@ -63,7 +63,7 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 }
 
 func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.swap.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 1000)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 50)
 	if err != nil {
 		return nil, err
 	}
