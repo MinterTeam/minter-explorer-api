@@ -63,7 +63,7 @@ func GetTransactions(c *gin.Context) {
 		models, err = explorer.TransactionService.PrepareTransactionsModel(models)
 		helpers.CheckErr(err)
 
-		txs = resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination)
+		txs = resource.TransformPaginatedCollection(models, transaction.Resource{}, pagination)
 	} else {
 		// prepare retrieving models
 		getTxsFunc := func() resource.PaginationResource {
