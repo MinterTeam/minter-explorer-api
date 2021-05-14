@@ -61,13 +61,21 @@ func GetTransactions(c *gin.Context) {
 			StartBlock: request.StartBlock,
 			EndBlock:   request.EndBlock,
 		}, &pagination)
+
+		txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+		helpers.CheckErr(err)
 	} else {
 		// prepare retrieving models
 		getTxsFunc := func() []models.Transaction {
-			return explorer.TransactionRepository.GetPaginatedTxsByFilter(blocks.RangeSelectFilter{
+			txs :=  explorer.TransactionRepository.GetPaginatedTxsByFilter(blocks.RangeSelectFilter{
 				StartBlock: request.StartBlock,
 				EndBlock:   request.EndBlock,
 			}, &pagination)
+
+			txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+			helpers.CheckErr(err)
+
+			return txs
 		}
 
 		// cache last transactions
@@ -82,9 +90,6 @@ func GetTransactions(c *gin.Context) {
 			txs = getTxsFunc()
 		}
 	}
-
-	txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
-	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
 }
