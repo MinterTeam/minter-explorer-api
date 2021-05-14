@@ -24,7 +24,7 @@ type CachePoolsList struct {
 
 const (
 	CachePoolCoinsBlockCount = 1
-	CachePoolsListBlockCount = 1
+	CachePoolsListBlockCount = 5
 )
 
 func GetSwapPool(c *gin.Context) {
