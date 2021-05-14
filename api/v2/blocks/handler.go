@@ -9,7 +9,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
-	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -29,35 +28,33 @@ type GetBlocksRequest struct {
 const CacheBlocksCount = 1
 
 type CacheBlocksData struct {
-	Blocks     []models.Block
-	Pagination tools.Pagination
+	Blocks resource.PaginationResource
 }
 
 // Get list of blocks
 func GetBlocks(c *gin.Context) {
-	var blockModels []models.Block
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	// fetch blocks
 	pagination := tools.NewPagination(c.Request)
-
-	getBlocks := func() []models.Block {
-		return explorer.BlockRepository.GetPaginated(&pagination)
+	getBlocks := func() resource.PaginationResource {
+		blockModels := explorer.BlockRepository.GetPaginated(&pagination)
+		return resource.TransformPaginatedCollection(blockModels, blocks.Resource{}, pagination)
 	}
 
 	// cache last blocks
+	var bresource resource.PaginationResource
 	if pagination.GetCurrentPage() == 1 && pagination.GetPerPage() == config.DefaultPaginationLimit {
 		cached := explorer.Cache.Get("blocks", func() interface{} {
-			return CacheBlocksData{getBlocks(), pagination}
+			return CacheBlocksData{getBlocks()}
 		}, CacheBlocksCount).(CacheBlocksData)
 
-		blockModels = cached.Blocks
-		pagination = cached.Pagination
+		bresource = cached.Blocks
 	} else {
-		blockModels = getBlocks()
+		bresource = getBlocks()
 	}
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(blockModels, blocks.Resource{}, pagination))
+	c.JSON(http.StatusOK, bresource)
 }
 
 // Get block detail
