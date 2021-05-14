@@ -15,6 +15,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type CachePoolsList struct {
@@ -326,15 +327,22 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 	helpers.CheckErr(err)
 
 	var swapCoins []models.Coin
+
+	wg := new(sync.WaitGroup)
 	for _, pc := range poolCoins {
 		if pc.ID == fromCoin.ID {
 			continue
 		}
 
-		if explorer.PoolService.IsSwapExists(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID), reqQuery.Depth) {
-			swapCoins = append(swapCoins, pc)
-		}
+		wg.Add(1)
+		go func(pc models.Coin, wg *sync.WaitGroup) {
+			defer wg.Done()
+			if explorer.PoolService.IsSwapExists(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID), reqQuery.Depth) {
+				swapCoins = append(swapCoins, pc)
+			}
+		}(pc, wg)
 	}
+	wg.Wait()
 
 	c.JSON(http.StatusOK, resource.TransformCollection(swapCoins, coins.IdResource{}))
 }
