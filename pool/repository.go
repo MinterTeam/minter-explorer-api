@@ -127,6 +127,7 @@ func (r *Repository) GetPoolsCoins() (coins []models.Coin, err error) {
 func (r *Repository) GetPoolTradesVolume(pool models.LiquidityPool, scale string, startTime *time.Time) (trades []tradeVolume, err error) {
 	q := r.db.Model(&models.LiquidityPoolTrade{}).
 		Relation("Block._").
+		ColumnExpr("liquidity_pool_id as pool_id").
 		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
 		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
 		ColumnExpr("date_trunc(?, block.created_at) as date", scale).
@@ -147,6 +148,7 @@ func (r *Repository) GetPoolTradeVolumeByTimeRange(pool models.LiquidityPool, st
 	tv := new(tradeVolume)
 	count, err := r.db.Model(&models.LiquidityPoolTrade{}).
 		Relation("Block._").
+		ColumnExpr("liquidity_pool_id as pool_id").
 		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
 		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
 		Where("liquidity_pool_id = ?", pool.Id).
@@ -158,4 +160,27 @@ func (r *Repository) GetPoolTradeVolumeByTimeRange(pool models.LiquidityPool, st
 	}
 
 	return tv, err
+}
+
+func (r *Repository) GetPoolsTradeVolumeByTimeRange(pools []models.LiquidityPool, startTime time.Time) (tvs []tradeVolume, err error) {
+	ids := make([]uint64, len(pools))
+	for i, p := range pools {
+		ids[i] = p.Id
+	}
+
+	count, err := r.db.Model(&models.LiquidityPoolTrade{}).
+		Relation("Block._").
+		ColumnExpr("liquidity_pool_id as pool_id").
+		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
+		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
+		Group("liquidity_pool_id").
+		Where("liquidity_pool_id in (?)", pg.In(ids)).
+		Where("block.created_at > ?", startTime.Format(time.RFC3339)).
+		SelectAndCount(&tvs)
+
+	if count == 0 {
+		return nil, nil
+	}
+
+	return tvs, err
 }

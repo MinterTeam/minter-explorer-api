@@ -154,6 +154,10 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 		return
 	}
 
+	s.RunPoolUpdater()
+}
+
+func (s *Service) RunPoolUpdater() {
 	pools, err := s.repository.GetAll()
 	if err != nil {
 		log.Error(err)
@@ -243,4 +247,42 @@ func (s *Service) GetLastMonthTradesVolume(pool models.LiquidityPool) (*TradeVol
 		SecondCoinVolume: tv.SecondCoinVolume,
 		BipVolume:        bipVolume,
 	}, nil
+}
+
+func (s *Service) GetPoolsLastMonthTradesVolume(pools []models.LiquidityPool) (map[uint64]TradeVolume, error) {
+	poolsMap := make(map[uint64]models.LiquidityPool, len(pools))
+	for _, p := range pools {
+		poolsMap[p.Id] = p
+	}
+
+	startTime := time.Now().AddDate(0, -1, 0)
+	volumes, err := s.repository.GetPoolsTradeVolumeByTimeRange(pools, startTime)
+	if err != nil {
+		return nil, err
+	}
+
+	tvs := make(map[uint64]TradeVolume, len(pools))
+	for _, v := range volumes {
+		bipPrice := s.GetCoinPriceInBip(poolsMap[v.PoolId].FirstCoinId)
+		bipVolume := helpers.Pip2Bip(helpers.StringToBigInt(v.FirstCoinVolume))
+		if poolsMap[v.PoolId].FirstCoinId != 0 {
+			bipVolume = getVolumeInBip(bipPrice, v.FirstCoinVolume)
+		}
+
+		tvs[v.PoolId] = TradeVolume{
+			FirstCoinVolume:  v.FirstCoinVolume,
+			SecondCoinVolume: v.SecondCoinVolume,
+			BipVolume:        bipVolume,
+		}
+	}
+
+	for _, p := range pools {
+		if _, ok := tvs[p.Id]; !ok {
+			tvs[p.Id] = TradeVolume{
+				BipVolume: big.NewFloat(0),
+			}
+		}
+	}
+
+	return tvs, nil
 }

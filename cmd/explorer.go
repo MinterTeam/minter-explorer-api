@@ -28,6 +28,7 @@ func main() {
 
 	// run market price update
 	go explorer.MarketService.Run()
+	go explorer.PoolService.RunPoolUpdater()
 
 	// create ws extender
 	extender := ws.NewExtenderWsClient(explorer)

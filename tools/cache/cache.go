@@ -49,6 +49,23 @@ func (c *ExplorerCache) Get(key interface{}, callback func() interface{}, ttl in
 	return c.Store(key, callback(), ttl)
 }
 
+// get or store value from cache
+func (c *ExplorerCache) ExecuteOrGet(key interface{}, callback func() interface{}, ttl interface{}, executeRequired bool) interface{} {
+	if executeRequired {
+		return callback()
+	}
+
+	v, ok := c.items.Load(key)
+	if ok {
+		item := v.(*CacheItem)
+		if !item.IsExpired(c.lastBlock.ID) {
+			return item.value
+		}
+	}
+
+	return c.Store(key, callback(), ttl)
+}
+
 // save value to cache
 func (c *ExplorerCache) Store(key interface{}, value interface{}, ttl interface{}) interface{} {
 	c.items.Store(key, c.newCacheItem(value, ttl))

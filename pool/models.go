@@ -14,6 +14,7 @@ type SwapChain struct {
 }
 
 type tradeVolume struct {
+	PoolId           uint64
 	Date             time.Time
 	FirstCoinVolume  string
 	SecondCoinVolume string
