@@ -151,6 +151,7 @@ func (r *Repository) GetPoolTradeVolumeByTimeRange(pool models.LiquidityPool, st
 		ColumnExpr("liquidity_pool_id as pool_id").
 		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
 		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
+		Group("liquidity_pool_id").
 		Where("liquidity_pool_id = ?", pool.Id).
 		Where("block.created_at > ?", startTime.Format(time.RFC3339)).
 		SelectAndCount(tv)
