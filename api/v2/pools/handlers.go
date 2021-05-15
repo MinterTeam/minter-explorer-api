@@ -323,6 +323,10 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 		return
 	}
 
+	// TODO: hot-fix, remove
+	c.JSON(http.StatusOK, resource.TransformCollection(poolCoins, coins.IdResource{}))
+	return
+
 	liquidityPools, err := explorer.PoolRepository.GetAll()
 	helpers.CheckErr(err)
 
