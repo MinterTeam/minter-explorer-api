@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg/v10"
+	"github.com/go-playground/validator/v10"
 	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
-	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"sync"
 )
@@ -69,6 +69,7 @@ func apiMiddleware(db *pg.DB, explorer *core.Explorer) gin.HandlerFunc {
 
 // Register request validators
 func registerApiValidators() {
+
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("minterAddress", validators.MinterAddress)
 		helpers.CheckErr(err)

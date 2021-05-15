@@ -10,9 +10,10 @@ require (
 	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210327013510-012fe2754dfc
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
-	github.com/gin-gonic/gin v1.5.0
+	github.com/gin-gonic/gin v1.7.1
 	github.com/go-pg/pg/v10 v10.8.0
 	github.com/go-pg/urlstruct v0.2.8
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.4.1
 	github.com/sirupsen/logrus v1.7.0
