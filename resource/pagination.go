@@ -2,6 +2,7 @@ package resource
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
+	"sync"
 )
 
 type PaginationResource struct {
@@ -34,9 +35,15 @@ func TransformPaginatedCollectionWithCallback(collection interface{}, resource I
 	models := makeItemsFromModelsCollection(collection)
 	result := make([]Interface, len(models))
 
+	wg := new(sync.WaitGroup)
 	for i := range models {
-		result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
+		wg.Add(1)
+		go func(i int, wg *sync.WaitGroup) {
+			defer wg.Done()
+			result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
+		}(i, wg)
 	}
+	wg.Wait()
 
 	return PaginationResource{
 		Data: result,
