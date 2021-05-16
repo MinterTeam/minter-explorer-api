@@ -2,7 +2,6 @@ package resource
 
 import (
 	"reflect"
-	"sync"
 )
 
 type ItemInterface interface{}
@@ -16,15 +15,9 @@ func TransformCollection(collection interface{}, resource Interface) []Interface
 	models := makeItemsFromModelsCollection(collection)
 	result := make([]Interface, len(models))
 
-	wg := new(sync.WaitGroup)
 	for i := range models {
-		wg.Add(1)
-		go func(i int, wg *sync.WaitGroup) {
-			defer wg.Done()
-			result[i] = resource.Transform(models[i])
-		}(i, wg)
+		result[i] = resource.Transform(models[i])
 	}
-	wg.Wait()
 
 	return result
 }
@@ -33,15 +26,9 @@ func TransformCollectionWithCallback(collection interface{}, resource Interface,
 	models := makeItemsFromModelsCollection(collection)
 	result := make([]Interface, len(models))
 
-	wg := new(sync.WaitGroup)
 	for i := range models {
-		wg.Add(1)
-		go func(i int, wg *sync.WaitGroup) {
-			defer wg.Done()
-			result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
-		}(i, wg)
+		result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
 	}
-	wg.Wait()
 
 	return result
 }
