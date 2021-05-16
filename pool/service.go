@@ -23,8 +23,8 @@ type Service struct {
 	poolsLiquidity map[uint64]*big.Float
 	coinPrices     map[uint64]*big.Float
 
-	plmx sync.Mutex
-	cpmx sync.Mutex
+	plmx sync.RWMutex
+	cpmx sync.RWMutex
 }
 
 func NewService(repository *Repository) *Service {
@@ -37,8 +37,8 @@ func NewService(repository *Repository) *Service {
 }
 
 func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Float {
-	s.plmx.Lock()
-	defer s.plmx.Unlock()
+	s.plmx.RLock()
+	defer s.plmx.RUnlock()
 
 	if liquidity, ok := s.poolsLiquidity[pool.Id]; ok {
 		return liquidity
@@ -48,8 +48,8 @@ func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Float {
 }
 
 func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
-	s.cpmx.Lock()
-	defer s.cpmx.Unlock()
+	s.cpmx.RLock()
+	defer s.cpmx.RUnlock()
 
 	if amount, ok := s.coinPrices[coinId]; ok {
 		return amount
