@@ -22,5 +22,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		pools.GET("/providers/:address", GetSwapPoolsByProvider)
 		pools.GET("/list/coins", GetCoinsList)
 		pools.GET("/list/coins/:coin", GetCoinPossibleSwaps)
+		pools.GET("/list/cmc", GetSwapPoolsList)
 	}
 }
