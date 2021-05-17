@@ -2,6 +2,7 @@ package pool
 
 import (
 	"errors"
+	"fmt"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
@@ -179,9 +180,7 @@ func (s *Service) RunPoolUpdater() {
 
 func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
 	for _, p := range pools {
-		s.plmx.Lock()
 		s.poolsLiquidity[p.Id] = s.swap.GetPoolLiquidity(pools, p)
-		s.plmx.Unlock()
 	}
 }
 
@@ -200,9 +199,7 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 	}
 
 	for k, v := range coinPrice {
-		s.cpmx.Lock()
 		s.coinPrices[k] = v
-		s.cpmx.Unlock()
 	}
 }
 
