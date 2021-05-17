@@ -173,9 +173,7 @@ func (s *Service) RunPoolUpdater() {
 		log.Error(err)
 	}
 
-	log.Debug("update coin prices")
 	s.RunCoinPriceCalculation(pools)
-	log.Debug("update liquidity")
 	s.RunLiquidityCalculation(pools)
 }
 
