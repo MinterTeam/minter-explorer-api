@@ -7,10 +7,16 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/database"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
 	"github.com/joho/godotenv"
-	"log"
+	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 func main() {
+	// Init Logger
+	log.SetOutput(os.Stdout)
+	log.SetReportCaller(true)
+	log.SetLevel(log.DebugLevel)
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(".env file not found")

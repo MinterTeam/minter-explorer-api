@@ -173,15 +173,18 @@ func (s *Service) RunPoolUpdater() {
 		log.Error(err)
 	}
 
-	s.RunLiquidityCalculation(pools)
+	log.Debug("update coin prices")
 	s.RunCoinPriceCalculation(pools)
+	log.Debug("update liquidity")
+	s.RunLiquidityCalculation(pools)
 }
 
 func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
 	for _, p := range pools {
-		//s.plmx.Lock()
-		s.poolsLiquidity[p.Id] = s.swap.GetPoolLiquidity(pools, p)
-		//s.plmx.Unlock()
+		liquidity := s.swap.GetPoolLiquidity(pools, p)
+		s.plmx.Lock()
+		s.poolsLiquidity[p.Id] = liquidity
+		s.plmx.Unlock()
 	}
 }
 
@@ -200,9 +203,9 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 	}
 
 	for k, v := range coinPrice {
-		//s.cpmx.Lock()
+		s.cpmx.Lock()
 		s.coinPrices[k] = v
-		//s.cpmx.Unlock()
+		s.cpmx.Unlock()
 	}
 }
 
