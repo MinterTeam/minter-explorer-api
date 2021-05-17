@@ -184,3 +184,7 @@ func (r *Repository) GetPoolsTradeVolumeByTimeRange(pools []models.LiquidityPool
 
 	return tvs, err
 }
+
+func (r *Repository) GetPoolsCount() (count int, err error) {
+	return r.db.Model(&models.LiquidityPool{}).Count()
+}

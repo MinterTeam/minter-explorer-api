@@ -87,6 +87,7 @@ func GetStatusPage(c *gin.Context) {
 	customCoinsDataCh := make(chan Data)
 	nonZeroAddressesCountCh := make(chan Data)
 	delegatorsCountCh := make(chan Data)
+	poolsCountCh := make(chan Data)
 
 	go getTransactionsDataBy24h(explorer, tx24hDataCh)
 	go getTotalTxCount(explorer, txTotalCountCh)
@@ -99,6 +100,7 @@ func GetStatusPage(c *gin.Context) {
 	go getCustomCoinsData(explorer, customCoinsDataCh)
 	go getNonZeroAddressesCount(explorer, nonZeroAddressesCountCh)
 	go getDelegatorsCount(explorer, delegatorsCountCh)
+	go getPoolsCount(explorer, poolsCountCh)
 
 	// get values from goroutines
 	tx24hData, txTotalCount := <-tx24hDataCh, <-txTotalCountCh
@@ -106,6 +108,7 @@ func GetStatusPage(c *gin.Context) {
 	avgBlockTime, lastBlockData, slowBlocksTimeSum := <-avgTimeCh, <-lastBlockCh, <-slowBlocksTimeSumCh
 	stakesSumData, customCoinsData := <-stakesSumCh, <-customCoinsDataCh
 	nonZeroAddressesCountData, delegatorsCountData := <-nonZeroAddressesCountCh, <-delegatorsCountCh
+	poolsCountData := <-poolsCountCh
 
 	// handle errors from goroutines
 	helpers.CheckErr(tx24hData.Error)
@@ -119,6 +122,7 @@ func GetStatusPage(c *gin.Context) {
 	helpers.CheckErr(customCoinsData.Error)
 	helpers.CheckErr(nonZeroAddressesCountData.Error)
 	helpers.CheckErr(delegatorsCountData.Error)
+	helpers.CheckErr(poolsCountData.Error)
 
 	// prepare data
 	lastBlock := lastBlockData.Result.(models.Block)
@@ -151,6 +155,7 @@ func GetStatusPage(c *gin.Context) {
 			"uptime":                     calculateUptime(slowBlocksTimeSum.Result.(float64)),
 			"non_zero_addresses_count":   nonZeroAddressesCountData.Result.(uint64),
 			"delegators_count":           delegatorsCountData.Result.(uint64),
+			"pools_count":                poolsCountData.Result.(int),
 		},
 	})
 }
@@ -382,4 +387,16 @@ func recoveryStatusData(ch chan Data) {
 			ch <- Data{nil, errors.New(err.(string))}
 		}
 	}
+}
+
+func getPoolsCount(explorer *core.Explorer, ch chan Data) {
+	defer recoveryStatusData(ch)
+
+	data := explorer.Cache.Get(fmt.Sprintf("pools_count"), func() interface{} {
+		count, err := explorer.PoolRepository.GetPoolsCount()
+		helpers.CheckErr(err)
+		return count
+	}, lastDataCacheTime)
+
+	ch <- Data{data, nil}
 }
