@@ -179,9 +179,9 @@ func (s *Service) RunPoolUpdater() {
 
 func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
 	for _, p := range pools {
-		s.plmx.Lock()
+		//s.plmx.Lock()
 		s.poolsLiquidity[p.Id] = s.swap.GetPoolLiquidity(pools, p)
-		s.plmx.Unlock()
+		//s.plmx.Unlock()
 	}
 }
 
@@ -200,9 +200,9 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 	}
 
 	for k, v := range coinPrice {
-		s.cpmx.Lock()
+		//s.cpmx.Lock()
 		s.coinPrices[k] = v
-		s.cpmx.Unlock()
+		//s.cpmx.Unlock()
 	}
 }
 
