@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	log "github.com/sirupsen/logrus"
 	"net/http"
+	"runtime/debug"
 )
 
 type Error struct {
@@ -61,5 +63,11 @@ func validationErrorToText(e validator.FieldError) string {
 		return fmt.Sprintf("The field %s can have the next values: %s", field, e.Param())
 	default:
 		return fmt.Sprintf("%s is not valid", field)
+	}
+}
+
+func Recovery() {
+	if err := recover(); err != nil {
+		log.WithField("stacktrace", string(debug.Stack())).Error(err)
 	}
 }
