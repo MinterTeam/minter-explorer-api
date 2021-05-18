@@ -4,7 +4,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/validator"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"time"
 )
 
 type BanResource struct {
@@ -17,7 +16,7 @@ func (BanResource) Transform(model resource.ItemInterface, params ...resource.Pa
 
 	return BanResource{
 		BlockID:   ban.BlockId,
-		Timestamp: ban.Block.CreatedAt.Format(time.RFC3339),
+		//Timestamp: ban.Block.CreatedAt.Format(time.RFC3339),
 	}
 }
 
@@ -32,7 +31,7 @@ func (AddressBanResource) Transform(model resource.ItemInterface, params ...reso
 
 	return AddressBanResource{
 		BlockID:   ban.BlockId,
-		Timestamp: ban.Block.CreatedAt.Format(time.RFC3339),
+		//Timestamp: ban.Block.CreatedAt.Format(time.RFC3339),
 		Validator: new(validator.Resource).Transform(*ban.Validator),
 	}
 }

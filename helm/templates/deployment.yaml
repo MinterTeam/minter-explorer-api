@@ -35,6 +35,9 @@ spec:
               containerPort: {{.Values.service.port}}
               protocol: TCP
           livenessProbe:
+            failureThreshold: 5
+            periodSeconds: 20
+            timeoutSeconds: 5
             httpGet:
               path: /api/v2/status
               port: http
