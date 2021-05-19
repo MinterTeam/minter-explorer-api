@@ -14,7 +14,6 @@ import (
 	"github.com/zsais/go-gin-prometheus"
 	"golang.org/x/time/rate"
 	"net/http"
-	"strings"
 	"sync"
 )
 
@@ -35,14 +34,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 
 	// metrics
 	p := ginprometheus.NewPrometheus("gin")
-	p.ReqCntURLLabelMappingFn = func(c *gin.Context) string {
-		url := c.Request.URL.Path
-		for _, p := range c.Params {
-			url = strings.Replace(url, p.Value, ":values", 1)
-			break
-		}
-		return url
-	}
+	p.ReqCntURLLabelMappingFn = func(c *gin.Context) string {return ""} // do not save stats for all routes
 	p.Use(router)
 
 	router.Use(cors.Default())              // CORS
