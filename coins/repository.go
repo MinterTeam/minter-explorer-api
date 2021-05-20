@@ -143,7 +143,6 @@ func (repository *Repository) FindIdBySymbol(symbol string) (uint64, error) {
 }
 
 func (repository *Repository) OnNewBlock(block blocks.Resource) {
-	fmt.Println("new block")
 	repository.fillCoinsMap()
 }
 
