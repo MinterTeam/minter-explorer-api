@@ -151,6 +151,7 @@ func (repository *Repository) fillCoinsMap() {
 	for _, coin := range repository.GetCoins() {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, coin models.Coin) {
+			defer wg.Done()
 			repository.coins.Store(uint64(coin.ID), coin)
 		}(wg, coin)
 	}
