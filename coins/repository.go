@@ -2,22 +2,26 @@ package coins
 
 import (
 	"fmt"
+	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
 	"strconv"
+	"sync"
 )
 
 type Repository struct {
 	DB        *pg.DB
 	baseModel *models.Coin
+	coins     *sync.Map
 }
 
 var GlobalRepository *Repository
 
 func NewRepository(db *pg.DB) *Repository {
 	GlobalRepository = &Repository{
-		DB: db,
+		DB:    db,
+		coins: new(sync.Map),
 	}
 
 	return GlobalRepository
@@ -106,6 +110,10 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 		return *repository.baseModel, nil
 	}
 
+	if c, ok := repository.coins.Load(id); ok {
+		return c.(models.Coin), nil
+	}
+
 	err := repository.DB.Model(&coin).
 		Where("id = ?", id).
 		Where("deleted_at IS NULL").
@@ -114,6 +122,8 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 	if id == 0 && repository.baseModel == nil {
 		repository.baseModel = &coin
 	}
+
+	repository.coins.Store(id, coin)
 
 	return coin, err
 }
@@ -130,4 +140,20 @@ func (repository *Repository) FindIdBySymbol(symbol string) (uint64, error) {
 	} else {
 		return id, nil
 	}
+}
+
+func (repository *Repository) OnNewBlock(block blocks.Resource) {
+	fmt.Println("new block")
+	repository.fillCoinsMap()
+}
+
+func (repository *Repository) fillCoinsMap() {
+	wg := &sync.WaitGroup{}
+	for _, coin := range repository.GetCoins() {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, coin models.Coin) {
+			repository.coins.Store(uint64(coin.ID), coin)
+		}(wg, coin)
+	}
+	wg.Wait()
 }
