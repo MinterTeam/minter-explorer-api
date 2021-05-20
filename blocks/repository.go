@@ -46,12 +46,12 @@ func (repository Repository) GetPaginated(pagination *tools.Pagination) []models
 
 	pagination.Total, err = repository.DB.Model(&blocks).
 		Relation("BlockValidators").
-		Relation("BlockValidators.Validator").
 		Apply(pagination.Filter).
 		Order("id DESC").
 		SelectAndCount()
 
 	helpers.CheckErr(err)
+
 
 	return blocks
 }
