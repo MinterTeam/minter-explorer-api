@@ -52,6 +52,7 @@ func (repository Repository) GetPaginated(pagination *tools.Pagination) []models
 
 	helpers.CheckErr(err)
 
+
 	return blocks
 }
 

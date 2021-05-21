@@ -15,7 +15,7 @@ func (BanResource) Transform(model resource.ItemInterface, params ...resource.Pa
 	ban := model.(models.ValidatorBan)
 
 	return BanResource{
-		BlockID: ban.BlockId,
+		BlockID:   ban.BlockId,
 		//Timestamp: ban.Block.CreatedAt.Format(time.RFC3339),
 	}
 }
@@ -30,7 +30,7 @@ func (AddressBanResource) Transform(model resource.ItemInterface, params ...reso
 	ban := model.(models.ValidatorBan)
 
 	return AddressBanResource{
-		BlockID: ban.BlockId,
+		BlockID:   ban.BlockId,
 		//Timestamp: ban.Block.CreatedAt.Format(time.RFC3339),
 		Validator: new(validator.Resource).Transform(*ban.Validator),
 	}

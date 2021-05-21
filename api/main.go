@@ -34,7 +34,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 
 	// metrics
 	p := ginprometheus.NewPrometheus("gin")
-	p.ReqCntURLLabelMappingFn = func(c *gin.Context) string { return "" } // do not save stats for all routes
+	p.ReqCntURLLabelMappingFn = func(c *gin.Context) string {return ""} // do not save stats for all routes
 	p.Use(router)
 
 	router.Use(cors.Default())              // CORS

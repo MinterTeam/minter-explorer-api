@@ -37,7 +37,7 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Int {
 		}
 
 		// just add base coin to sum
-		if stake.CoinID == 0 {
+		if stake.Coin.Symbol == s.baseCoin {
 			sum = sum.Add(sum, helpers.StringToBigInt(stake.Value))
 			continue
 		}
