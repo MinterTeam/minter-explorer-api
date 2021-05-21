@@ -252,19 +252,21 @@ func GetSwapPoolTransactions(c *gin.Context) {
 		return
 	}
 
-	pagination := tools.NewPagination(c.Request)
-	txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.PoolsFilter{
-		Coin0:      req.Coin0,
-		Coin1:      req.Coin1,
-		Token:      req.Token,
-		StartBlock: req.StartBlock,
-		EndBlock:   req.EndBlock,
-	}, &pagination)
+	data := explorer.Cache.Get(fmt.Sprintf("pools-txs-%s-%s-%s", req.Coin0, req.Coin1, req.Token), func() interface{} {
+		pagination := tools.NewPagination(c.Request)
+		txs := explorer.TransactionRepository.GetPaginatedTxsByFilter(transaction.PoolsFilter{
+			Coin0: req.Coin0,
+			Coin1: req.Coin1,
+			Token: req.Token,
+		}, &pagination)
 
-	txs, err := explorer.TransactionService.PrepareTransactionsModel(txs)
-	helpers.CheckErr(err)
+		txs, err := explorer.TransactionService.PrepareTransactionsModel(txs)
+		helpers.CheckErr(err)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
+		return resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination)
+	}, 3).(resource.PaginationResource)
+
+	c.JSON(http.StatusOK, data)
 }
 
 func GetCoinsList(c *gin.Context) {
