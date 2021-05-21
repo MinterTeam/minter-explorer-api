@@ -1,9 +1,7 @@
 package resource
 
 import (
-	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"reflect"
-	"sync"
 )
 
 type ItemInterface interface{}
@@ -17,14 +15,8 @@ func TransformCollection(collection interface{}, resource Interface) []Interface
 	models := makeItemsFromModelsCollection(collection)
 	result := make([]Interface, len(models))
 
-	wg := &sync.WaitGroup{}
 	for i := range models {
-		wg.Add(1)
-		go func(i int, wg *sync.WaitGroup) {
-			defer wg.Done()
-			defer errors.Recovery()
-			result[i] = resource.Transform(models[i])
-		}(i, wg)
+		result[i] = resource.Transform(models[i])
 	}
 
 	return result
@@ -34,16 +26,9 @@ func TransformCollectionWithCallback(collection interface{}, resource Interface,
 	models := makeItemsFromModelsCollection(collection)
 	result := make([]Interface, len(models))
 
-	wg := &sync.WaitGroup{}
 	for i := range models {
-		wg.Add(1)
-		go func(i int, wg *sync.WaitGroup) {
-			defer wg.Done()
-			defer errors.Recovery()
-			result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
-		}(i, wg)
+		result[i] = resource.Transform(models[i], callbackFunc(models[i])...)
 	}
-	wg.Wait()
 
 	return result
 }
