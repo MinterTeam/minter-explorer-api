@@ -110,9 +110,9 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 		return *repository.baseModel, nil
 	}
 
-	if c, ok := repository.coins.Load(id); ok {
-		return c.(models.Coin), nil
-	}
+	//if c, ok := repository.coins.Load(id); ok {
+	//	return c.(models.Coin), nil
+	//}
 
 	err := repository.DB.Model(&coin).
 		Where("id = ?", id).
