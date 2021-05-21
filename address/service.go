@@ -2,6 +2,7 @@ package address
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/balance"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/MinterTeam/minter-explorer-api/v2/stake"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 )
@@ -21,8 +22,7 @@ func NewService(rp *Repository, stakeRepository *stake.Repository, balanceServic
 }
 
 func (s *Service) GetBalance(minterAddress string, isTotal bool) (*Balance, error) {
-	model := s.rp.GetByAddress(minterAddress)
-
+	model := s.getModelByAddress(minterAddress)
 	if isTotal {
 		return s.GetTotalBalance(model)
 	}
@@ -51,4 +51,42 @@ func (s *Service) GetTotalBalance(model *models.Address) (*Balance, error) {
 		StakeBalanceSum:    stakeBalanceSum,
 		StakeBalanceSumUSD: stakeBalanceSumUSD,
 	}, nil
+}
+
+func (s *Service) getModelByAddress(address string) *models.Address {
+	model := s.rp.GetByAddress(address)
+
+	// if model not found
+	if model == nil || len(model.Balances) == 0 {
+		return s.makeEmptyAddressModel(address, config.BaseCoinSymbol)
+	}
+
+	isBaseSymbolExists := false
+	for _, b := range model.Balances {
+		if b.CoinID == 0 {
+			isBaseSymbolExists = true
+		}
+	}
+
+	if !isBaseSymbolExists {
+		model.Balances = append(model.Balances, &models.Balance{
+			Value: "0",
+			Coin:  &models.Coin{Symbol: config.BaseCoinSymbol, Type: models.CoinTypeBase},
+		})
+	}
+
+	return model
+}
+
+func (s *Service) makeEmptyAddressModel(minterAddress string, baseCoin string) *models.Address {
+	return &models.Address{
+		Address: minterAddress,
+		Balances: []*models.Balance{{
+			Coin: &models.Coin{
+				Symbol: baseCoin,
+				Type:   models.CoinTypeBase,
+			},
+			Value: "0",
+		}},
+	}
 }

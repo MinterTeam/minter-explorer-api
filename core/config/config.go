@@ -11,3 +11,7 @@ const (
 	MarketPriceUpdatePeriodInMin = 2
 	MaxDelegatorCount            = 1000
 )
+
+var (
+	BaseCoinSymbol string
+)

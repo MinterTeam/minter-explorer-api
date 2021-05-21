@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"log"
 	"os"
 	"strconv"
@@ -26,6 +27,8 @@ func NewEnvironment() *Environment {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	config.BaseCoinSymbol = os.Getenv("APP_BASE_COIN")
 
 	env := Environment{
 		DbName:          os.Getenv("DB_NAME"),
