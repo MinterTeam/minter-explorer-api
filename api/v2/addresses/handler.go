@@ -149,8 +149,8 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	// validate request query
-	var requestQuery AddressTransactionsQueryRequest
-	err = c.ShouldBindQuery(&requestQuery)
+	var req AddressTransactionsQueryRequest
+	err = c.ShouldBindQuery(&req)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
@@ -158,18 +158,22 @@ func GetTransactions(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
-		[]string{*minterAddress},
-		transaction.SelectFilter{
-			SendType:   requestQuery.SendType,
-			StartBlock: requestQuery.StartBlock,
-			EndBlock:   requestQuery.EndBlock,
-		}, &pagination)
+	data := explorer.Cache.ExecuteOrGet(fmt.Sprintf("address-txs-%s", *minterAddress), func() interface{} {
+		txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
+			[]string{*minterAddress},
+			transaction.SelectFilter{
+				SendType:   req.SendType,
+				StartBlock: req.StartBlock,
+				EndBlock:   req.EndBlock,
+			}, &pagination)
 
-	txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
-	helpers.CheckErr(err)
+		txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+		helpers.CheckErr(err)
 
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination))
+		return resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination)
+	}, 1, pagination.GetCurrentPage() != 1 || (req.StartBlock != nil || req.EndBlock != nil)).(resource.PaginationResource)
+
+	c.JSON(http.StatusOK, data)
 }
 
 // GetAggregatedRewards Get aggregated by day list of address rewards
