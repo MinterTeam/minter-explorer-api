@@ -10,7 +10,7 @@ import (
 )
 
 type Repository struct {
-	db    *pg.DB
+	db *pg.DB
 }
 
 func NewRepository(db *pg.DB) *Repository {
