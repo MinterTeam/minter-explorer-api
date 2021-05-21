@@ -270,12 +270,12 @@ func GetSwapPoolTransactions(c *gin.Context) {
 func GetCoinsList(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	poolCoins := explorer.Cache.Get("pools_coins_list", func() interface{} {
+	data := explorer.Cache.Get("pools_coins_list", func() interface{} {
 		poolCoins, _ := explorer.PoolRepository.GetPoolsCoins()
 		return resource.TransformCollection(poolCoins, coins.IdResource{})
 	}, CachePoolCoinsBlockCount).([]resource.Interface)
 
-	c.JSON(http.StatusOK, poolCoins)
+	c.JSON(http.StatusOK, data)
 }
 
 func GetCoinPossibleSwaps(c *gin.Context) {
