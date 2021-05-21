@@ -43,6 +43,7 @@ type Explorer struct {
 	PoolRepository               *pool.Repository
 	PoolService                  *pool.Service
 	SwapService                  *services.SwapService
+	AddressService               *address.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -52,15 +53,18 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	stakeRepository := stake.NewRepository(db)
 	coinRepository := coins.NewRepository(db)
 	poolRepository := pool.NewRepository(db)
+	addressRepository := address.NewRepository(db)
 	poolService := pool.NewService(poolRepository)
+	services.Swap = services.NewSwapService(poolService)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
 	transactionService := transaction.NewService(coinRepository, cacheService)
-	services.Swap = services.NewSwapService(poolService)
+	balanceService := balance.NewService(env.Basecoin, marketService, services.Swap)
+	addressService := address.NewService(addressRepository, stakeRepository, balanceService)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
 		CoinRepository:               *coinRepository,
-		AddressRepository:            *address.NewRepository(db),
+		AddressRepository:            *addressRepository,
 		TransactionRepository:        *transaction.NewRepository(db),
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),
 		RewardRepository:             *reward.NewRepository(db),
@@ -71,7 +75,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		Cache:                        cacheService,
 		MarketService:                marketService,
 		TransactionService:           transactionService,
-		BalanceService:               balance.NewService(env.Basecoin, marketService, services.Swap),
+		BalanceService:               balanceService,
 		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
 		UnbondRepository:             unbond.NewRepository(db),
 		StakeService:                 stake.NewService(stakeRepository),
@@ -79,5 +83,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		PoolRepository:               poolRepository,
 		PoolService:                  poolService,
 		SwapService:                  services.Swap,
+		AddressService:               addressService,
 	}
 }
