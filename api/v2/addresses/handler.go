@@ -116,27 +116,24 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 
-	balance := explorer.Cache.Get(fmt.Sprintf("address-%s-sum-%t", *minterAddress, request.WithSum), func() interface{} {
+	addressModel := explorer.Cache.Get(fmt.Sprintf("address-%s-sum-%t", *minterAddress, request.WithSum), func() interface{} {
 		balance, err := explorer.AddressService.GetBalance(*minterAddress, request.WithSum)
 		helpers.CheckErr(err)
-		return balance
-	}, 1).(*address.Balance)
 
-	if request.WithSum {
-		c.JSON(http.StatusOK, gin.H{
-			"data": new(address.Resource).Transform(*balance.Model, address.Params{
+		if request.WithSum {
+			return new(address.Resource).Transform(*balance.Model, address.Params{
 				TotalBalanceSum:    balance.TotalBalanceSum,
 				TotalBalanceSumUSD: balance.TotalBalanceSumUSD,
 				StakeBalanceSum:    balance.StakeBalanceSum,
 				StakeBalanceSumUSD: balance.StakeBalanceSumUSD,
-			}),
-			"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
-		})
-		return
-	}
+			})
+		}
+
+		return new(address.Resource).Transform(*balance.Model)
+	}, 1).(resource.Interface)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":              new(address.Resource).Transform(*balance.Model),
+		"data":              addressModel,
 		"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 	})
 }

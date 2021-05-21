@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
+	. "github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	log "github.com/sirupsen/logrus"
@@ -168,6 +169,8 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 }
 
 func (s *Service) RunPoolUpdater() {
+	defer Recovery()
+
 	pools, err := s.repository.GetAll()
 	if err != nil {
 		log.Error(err)
