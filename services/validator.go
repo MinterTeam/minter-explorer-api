@@ -28,7 +28,7 @@ func NewValidatorService(
 }
 
 const (
-	minStakeCacheTime = 120
+	minStakeCacheTime = 720
 )
 
 type ValidatorsMinStake map[uint]string

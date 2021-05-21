@@ -86,18 +86,6 @@ func registerApiValidators() {
 	}
 }
 
-// Send 500 status and JSON response
-//func apiRecovery(c *gin.Context) {
-//	defer func(c *gin.Context) {
-//		if rec := recover(); rec != nil {
-//			logrus.WithField("err", rec).Error("API error")
-//			errors.SetErrorResponse(http.StatusInternalServerError, -1, "Internal server error", c)
-//		}
-//	}(c)
-//
-//	c.Next()
-//}
-
 func throttle(ipMap *sync.Map) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		limiter, ok := ipMap.Load(c.ClientIP())

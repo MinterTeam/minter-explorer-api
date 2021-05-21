@@ -27,8 +27,8 @@ type GetValidatorTransactionsRequest struct {
 	EndBlock   *string `form:"end_block"    binding:"omitempty,numeric"`
 }
 
-// cache time
-const CacheBlocksCount = 1
+// CacheBlocksCount cache time
+const CacheBlocksCount = 3
 
 // Get list of transaction by validator public key
 func GetValidatorTransactions(c *gin.Context) {
@@ -106,33 +106,33 @@ func GetValidators(c *gin.Context) {
 
 	// fetch validators
 	validators := explorer.Cache.Get("validators", func() interface{} {
-		return explorer.ValidatorRepository.GetValidators()
-	}, CacheBlocksCount).([]models.Validator)
+		validators := explorer.ValidatorRepository.GetValidators()
 
-	activeValidatorIDs := getActiveValidatorIDs(explorer)
-	totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
+		activeValidatorIDs := getActiveValidatorIDs(explorer)
+		totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
 
-	// add params to each model resource
-	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		v := model.(models.Validator)
-		minStake := explorer.ValidatorService.GetMinStakesByValidator(&v)
+		// add params to each model resource
+		resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+			v := model.(models.Validator)
+			minStake := explorer.ValidatorService.GetMinStakesByValidator(&v)
 
-		params := validator.Params{
-			MinStake:            minStake,
-			TotalStake:          totalStake,
-			ActiveValidatorsIDs: activeValidatorIDs,
+			params := validator.Params{
+				MinStake:            minStake,
+				TotalStake:          totalStake,
+				ActiveValidatorsIDs: activeValidatorIDs,
+			}
+
+			return resource.ParamsInterface{params}
 		}
 
-		return resource.ParamsInterface{params}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollectionWithCallback(
+		return resource.TransformCollectionWithCallback(
 			validators,
 			validator.ResourceDetailed{},
 			resourceCallback,
-		),
-	})
+		)
+	}, CacheBlocksCount).([]resource.Interface)
+
+	c.JSON(http.StatusOK, gin.H{"data": validators})
 }
 
 type GetValidatorDelegationsRequestQuery struct {

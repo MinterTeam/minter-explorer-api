@@ -32,7 +32,6 @@ func GetCoins(c *gin.Context) {
 	// make response as empty array if no models found
 	if len(data) == 0 {
 		empty := make([]coins.Resource, 0)
-
 		c.JSON(http.StatusOK, gin.H{"data": empty})
 		return
 	}
