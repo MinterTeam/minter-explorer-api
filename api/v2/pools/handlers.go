@@ -39,26 +39,34 @@ func GetSwapPool(c *gin.Context) {
 		return
 	}
 
-	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
-	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
-		return
-	}
+	data := explorer.Cache.Get(fmt.Sprintf("pools-%s-%s-%", req.Coin0, req.Coin1, req.Token), func() interface{} {
+		p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
+		if err != nil {
+			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+			return nil
+		}
 
-	bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
-	tradeVolume, err := explorer.PoolService.GetLastMonthTradesVolume(p)
-	if err != nil {
-		log.WithError(err).Panic("failed to load last month trade for pool ", p.GetTokenSymbol())
-	}
+		bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
+		tradeVolume, err := explorer.PoolService.GetLastMonthTradesVolume(p)
+		if err != nil {
+			log.WithError(err).Panic("failed to load last month trade for pool ", p.GetTokenSymbol())
+			return nil
+		}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.Resource).Transform(p, pool.Params{
+		return new(pool.Resource).Transform(p, pool.Params{
 			LiquidityInBip: bipValue,
 			FirstCoin:      req.Coin0,
 			SecondCoin:     req.Coin1,
 			TradeVolume30d: tradeVolume.BipVolume,
-		}),
-	})
+		})
+	}, 1)
+
+	if data == nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": data.(resource.Interface)})
 }
 
 func GetSwapPoolProvider(c *gin.Context) {
