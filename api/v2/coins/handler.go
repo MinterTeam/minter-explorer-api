@@ -6,7 +6,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
-	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -18,16 +17,18 @@ func GetCoins(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 	symbol, version := helpers.GetSymbolAndVersionFromStr(c.Query("symbol"))
 
-	var data []models.Coin
+	// fetch coins resource
 	if symbol == "" {
-		// fetch coins resource
-		data = explorer.Cache.Get("coins", func() interface{} {
-			return explorer.CoinRepository.GetCoins()
-		}, CacheBlocksCount).([]models.Coin)
-	} else {
-		// fetch coins by symbol
-		data = explorer.CoinRepository.GetLikeSymbolAndVersion(symbol, version)
+		data := explorer.Cache.Get("coins", func() interface{} {
+			return resource.TransformCollection(explorer.CoinRepository.GetCoins(), coins.Resource{})
+		}, CacheBlocksCount).([]resource.Interface)
+
+		c.JSON(http.StatusOK, gin.H{"data": data})
+		return
 	}
+
+	// fetch coins by symbol
+	data := explorer.CoinRepository.GetLikeSymbolAndVersion(symbol, version)
 
 	// make response as empty array if no models found
 	if len(data) == 0 {
