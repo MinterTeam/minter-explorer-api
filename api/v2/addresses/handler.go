@@ -1,6 +1,7 @@
 package addresses
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/address"
 	"github.com/MinterTeam/minter-explorer-api/v2/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/v2/chart"
@@ -17,7 +18,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"log"
 	"net/http"
 )
 
@@ -116,38 +116,27 @@ func GetAddress(c *gin.Context) {
 		return
 	}
 
-	// fetch address
-	model := explorer.AddressRepository.GetByAddress(*minterAddress)
-	model = extendModelWithBaseSymbolBalance(model, *minterAddress, explorer.Environment.Basecoin)
+	balance := explorer.Cache.Get(fmt.Sprintf("address-%s-sum-%t", *minterAddress, request.WithSum), func() interface{} {
+		balance, err := explorer.AddressService.GetBalance(*minterAddress, request.WithSum)
+		helpers.CheckErr(err)
+		return balance
+	}, 1).(*address.Balance)
 
-	// calculate overall address balance in base coin and fiat
 	if request.WithSum {
-		stakes, err := explorer.StakeRepository.GetAllByAddress(model.Address)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// compute available balance from address balances
-		totalBalanceSum := explorer.BalanceService.GetTotalBalance(model)
-		totalBalanceSumUSD := explorer.BalanceService.GetTotalBalanceInUSD(totalBalanceSum)
-		stakeBalanceSum := explorer.BalanceService.GetStakeBalance(stakes)
-		stakeBalanceSumUSD := explorer.BalanceService.GetTotalBalanceInUSD(stakeBalanceSum)
-
 		c.JSON(http.StatusOK, gin.H{
-			"data": new(address.Resource).Transform(*model, address.Params{
-				TotalBalanceSum:    totalBalanceSum,
-				TotalBalanceSumUSD: totalBalanceSumUSD,
-				StakeBalanceSum:    stakeBalanceSum,
-				StakeBalanceSumUSD: stakeBalanceSumUSD,
+			"data": new(address.Resource).Transform(*balance.Model, address.Params{
+				TotalBalanceSum:    balance.TotalBalanceSum,
+				TotalBalanceSumUSD: balance.TotalBalanceSumUSD,
+				StakeBalanceSum:    balance.StakeBalanceSum,
+				StakeBalanceSumUSD: balance.StakeBalanceSumUSD,
 			}),
 			"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 		})
-
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":              new(address.Resource).Transform(*model),
+		"data":              new(address.Resource).Transform(*balance.Model),
 		"latest_block_time": explorer.Cache.GetLastBlock().Timestamp,
 	})
 }
