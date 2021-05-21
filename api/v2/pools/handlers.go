@@ -294,7 +294,7 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 		return
 	}
 
-	poolCoins := explorer.Cache.Get("pools_coins_list", func() interface{} {
+	poolCoins := explorer.Cache.Get("pools_coins_list_models", func() interface{} {
 		poolCoins, _ := explorer.PoolRepository.GetPoolsCoins()
 		return poolCoins
 	}, CachePoolCoinsBlockCount).([]models.Coin)
