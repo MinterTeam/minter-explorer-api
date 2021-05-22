@@ -197,6 +197,7 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 		secondCoinVolume := helpers.StrToBigFloat(p.SecondCoinVolume)
 
 		if p.FirstCoinId == 0 {
+			coinPrice[p.SecondCoinId] = big.NewFloat(0)
 			if firstCoinVolume.Cmp(big.NewFloat(1e20)) >= 0 {
 				coinPrice[p.SecondCoinId] = new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
 			}
