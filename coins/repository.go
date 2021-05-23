@@ -123,7 +123,29 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 		repository.baseModel = &coin
 	}
 
-	repository.coins.Store(id, coin)
+	if err == nil {
+		repository.coins.Store(id, coin)
+	}
+
+	return coin, err
+}
+
+func (repository Repository) FindByIdWithOwner(id uint) (models.Coin, error) {
+	var coin models.Coin
+
+	if id == 0 && repository.baseModel != nil {
+		return *repository.baseModel, nil
+	}
+
+	err := repository.DB.Model(&coin).
+		Relation("OwnerAddress").
+		Where(`"coin"."id" = ?`, id).
+		Where("deleted_at IS NULL").
+		Select()
+
+	if id == 0 && repository.baseModel == nil {
+		repository.baseModel = &coin
+	}
 
 	return coin, err
 }

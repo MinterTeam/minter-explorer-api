@@ -54,7 +54,7 @@ func GetCoinByID(c *gin.Context) {
 		return
 	}
 
-	coin, err := explorer.CoinRepository.FindByID(request.ID)
+	coin, err := explorer.CoinRepository.FindByIdWithOwner(request.ID)
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coin not found.", c)
 		return
