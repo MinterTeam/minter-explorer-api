@@ -66,7 +66,7 @@ func GetStatus(c *gin.Context) {
 			"bip_price_usd":           1 / usdtbip,
 			"bip_price_change":        marketPrice.Change,
 			"latest_block_height":     lastBlock.ID,
-			"total_transactions":      txTotalCount.Result.(int),
+			"total_transactions":      txTotalCount.Result.(int) + 12784024, // todo: move to config
 			"avg_block_time":          avgBlockTime.Result.(float64),
 			"latest_block_time":       lastBlock.CreatedAt.Format(time.RFC3339),
 			"market_cap":              getMarketCap(helpers.CalculateEmission(lastBlock.ID), marketPrice.Price),
