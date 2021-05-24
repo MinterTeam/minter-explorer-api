@@ -58,9 +58,12 @@ func GetStatus(c *gin.Context) {
 	lastBlock := lastBlockData.Result.(models.Block)
 	marketPrice := explorer.MarketService.PriceChange
 
+	// todo: move to config
+	usdtbip, _ := explorer.PoolService.GetCoinPriceInBip(1993).Float64()
+
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"bip_price_usd":           marketPrice.Price,
+			"bip_price_usd":           1 / usdtbip,
 			"bip_price_change":        marketPrice.Change,
 			"latest_block_height":     lastBlock.ID,
 			"total_transactions":      txTotalCount.Result.(int),
