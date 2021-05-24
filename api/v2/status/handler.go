@@ -143,7 +143,7 @@ func GetStatusPage(c *gin.Context) {
 			"status":                     status,
 			"blocks_count":               lastBlock.ID,
 			"block_speed_24h":            avgBlockTime.Result.(float64),
-			"transactions_total":         txTotalCount.Result.(int),
+			"transactions_total":         txTotalCount.Result.(int) + 12784024, // todo: move to config
 			"transaction_count_24h":      tx24hData.Result.(transaction.Tx24hData).Count,
 			"active_validators":          activeValidators.Result.(int),
 			"active_candidates":          activeCandidates.Result.(int),
