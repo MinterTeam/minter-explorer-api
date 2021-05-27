@@ -79,7 +79,7 @@ func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool
 		return nil, err
 	}
 
-	pools, err := s.getPathsRelatedPools(liquidityPools, paths[:10])
+	pools, err := s.getPathsRelatedPools(liquidityPools, paths)
 	if err != nil {
 		return nil, err
 	}
