@@ -30,4 +30,5 @@ func ApplyRoutes(r *gin.RouterGroup) {
 
 	// alias from v2
 	r.GET("/v1/info", status.GetInfo)
+	r.GET("/v2/check", status.HealthCheck)
 }

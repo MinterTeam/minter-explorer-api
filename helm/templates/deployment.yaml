@@ -39,11 +39,11 @@ spec:
             periodSeconds: 20
             timeoutSeconds: 5
             httpGet:
-              path: /api/v2/status
+              path: /api/v2/check
               port: http
           readinessProbe:
             httpGet:
-              path: /api/v2/status
+              path: /api/v2/check
               port: http
           resources:
       {{- toYaml .Values.resources | nindent 12 }}

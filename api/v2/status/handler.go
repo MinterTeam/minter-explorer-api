@@ -228,6 +228,10 @@ func GetInfo(c *gin.Context) {
 	})
 }
 
+func HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
 func getTotalTxCount(explorer *core.Explorer, ch chan Data) {
 	defer recoveryStatusData(ch)
 
