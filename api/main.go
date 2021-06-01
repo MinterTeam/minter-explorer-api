@@ -12,6 +12,7 @@ import (
 	"github.com/go-pg/pg/v10"
 	"github.com/go-playground/validator/v10"
 	"github.com/zsais/go-gin-prometheus"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"golang.org/x/time/rate"
 	"net/http"
 	"sync"
@@ -40,6 +41,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	router.Use(cors.Default())              // CORS
 	router.Use(gin.ErrorLogger())           // print all errors
 	router.Use(apiMiddleware(db, explorer)) // init global context
+	router.Use(otelgin.Middleware("ExplorerApi"))
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {

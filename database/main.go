@@ -1,10 +1,10 @@
 package database
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/go-pg/pg/extra/pgotel/v10"
 	"github.com/go-pg/pg/v10"
 	"os"
 )
@@ -29,9 +29,7 @@ func Connect(env *core.Environment) *pg.DB {
 		panic("Could not connect to database")
 	}
 
-	if env.IsDebug {
-		db.AddQueryHook(dbLogger{})
-	}
+	db.AddQueryHook(pgotel.NewTracingHook())
 
 	return db
 }
@@ -43,14 +41,14 @@ func Close(db *pg.DB) {
 	}
 }
 
-type dbLogger struct{}
-
-func (d dbLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Context, error) {
-	return ctx, nil
-}
-
-func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
-	//sql, _ := q.FormattedQuery()
-	//fmt.Println(string(sql[:]))
-	return nil
-}
+//type dbLogger struct{}
+//
+//func (d dbLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Context, error) {
+//	return ctx, nil
+//}
+//
+//func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
+//	//sql, _ := q.FormattedQuery()
+//	//fmt.Println(string(sql[:]))
+//	return nil
+//}

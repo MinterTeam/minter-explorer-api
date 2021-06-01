@@ -8,6 +8,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
+	"github.com/uptrace/uptrace-go/extra/otellogrus"
+	"github.com/uptrace/uptrace-go/uptrace"
 	"os"
 )
 
@@ -24,6 +26,9 @@ func main() {
 
 	// init environment
 	env := core.NewEnvironment()
+
+	uptrace.ConfigureOpentelemetry(&uptrace.Config{})
+	log.AddHook(otellogrus.NewLoggingHook())
 
 	// connect to database
 	db := database.Connect(env)
