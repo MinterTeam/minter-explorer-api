@@ -26,3 +26,8 @@ type TradeVolume struct {
 	SecondCoinVolume string
 	BipVolume        *big.Float
 }
+
+type TradeVolumes struct {
+	Day   TradeVolume
+	Month TradeVolume
+}

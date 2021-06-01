@@ -47,17 +47,15 @@ func GetSwapPool(c *gin.Context) {
 		}
 
 		bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
-		tradeVolume, err := explorer.PoolService.GetLastMonthTradesVolume(p)
-		if err != nil {
-			log.WithError(err).Panic("failed to load last month trade for pool ", p.GetTokenSymbol())
-			return nil
-		}
+		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
+		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
 
 		return new(pool.Resource).Transform(p, pool.Params{
 			LiquidityInBip: bipValue,
 			FirstCoin:      req.Coin0,
 			SecondCoin:     req.Coin1,
-			TradeVolume30d: tradeVolume.BipVolume,
+			TradeVolume1d:  tv1d.BipVolume,
+			TradeVolume30d: tv30d.BipVolume,
 		})
 	}, 1)
 
@@ -123,10 +121,13 @@ func fetchPools(req GetSwapPoolsRequest, c *gin.Context) resource.PaginationReso
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		p := model.(models.LiquidityPool)
-		tv, _ := explorer.PoolService.GetLastMonthTradesVolume(p)
+		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
+		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
+
 		return resource.ParamsInterface{pool.Params{
 			LiquidityInBip: explorer.PoolService.GetPoolLiquidityInBip(p),
-			TradeVolume30d: tv.BipVolume,
+			TradeVolume1d:  tv1d.BipVolume,
+			TradeVolume30d: tv30d.BipVolume,
 		}}
 	}
 

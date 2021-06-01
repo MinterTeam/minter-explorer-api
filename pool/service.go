@@ -23,7 +23,7 @@ type Service struct {
 	swap           *swap.Service
 	poolsLiquidity map[uint64]*big.Float
 	coinPrices     map[uint64]*big.Float
-	tradeVolumes   map[uint64]TradeVolume
+	tradeVolumes   map[uint64]TradeVolumes
 
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
@@ -36,7 +36,7 @@ func NewService(repository *Repository) *Service {
 		repository:     repository,
 		poolsLiquidity: make(map[uint64]*big.Float),
 		coinPrices:     make(map[uint64]*big.Float),
-		tradeVolumes:   make(map[uint64]TradeVolume),
+		tradeVolumes:   make(map[uint64]TradeVolumes),
 	}
 }
 
@@ -216,15 +216,21 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
-	volumes, err := s.getPoolsLastMonthTradesVolume(pools)
+	volumes1d, err := s.getTradeVolumesLastNDays(pools, 1)
+	if err != nil {
+		log.Errorf("failed to update last day trade volumes: %s", err)
+		return
+	}
+
+	volumes30d, err := s.getTradeVolumesLastNDays(pools, 30)
 	if err != nil {
 		log.Errorf("failed to update last month trade volumes: %s", err)
 		return
 	}
 
-	for pId, v := range volumes {
+	for pId, v := range volumes1d {
 		s.tvmx.Lock()
-		s.tradeVolumes[pId] = v
+		s.tradeVolumes[pId] = TradeVolumes{Day: v, Month: volumes30d[pId]}
 		s.tvmx.Unlock()
 	}
 }
@@ -286,13 +292,13 @@ func (s *Service) getLastMonthTradesVolume(pool models.LiquidityPool) (*TradeVol
 	}, nil
 }
 
-func (s *Service) getPoolsLastMonthTradesVolume(pools []models.LiquidityPool) (map[uint64]TradeVolume, error) {
+func (s *Service) getTradeVolumesLastNDays(pools []models.LiquidityPool, days int) (map[uint64]TradeVolume, error) {
 	poolsMap := make(map[uint64]models.LiquidityPool, len(pools))
 	for _, p := range pools {
 		poolsMap[p.Id] = p
 	}
 
-	startTime := time.Now().AddDate(0, -1, 0)
+	startTime := time.Now().AddDate(0, 0, -days)
 	volumes, err := s.repository.GetPoolsTradeVolumeByTimeRange(pools, startTime)
 	if err != nil {
 		return nil, err
@@ -324,13 +330,32 @@ func (s *Service) getPoolsLastMonthTradesVolume(pools []models.LiquidityPool) (m
 	return tvs, nil
 }
 
-func (s *Service) GetLastMonthTradesVolume(pool models.LiquidityPool) (*TradeVolume, error) {
+func (s *Service) GetLastMonthTradesVolume(pool models.LiquidityPool) *TradeVolume {
 	s.tvmx.RLock()
 	defer s.tvmx.RUnlock()
 
 	if tv, ok := s.tradeVolumes[pool.Id]; ok {
-		return &tv, nil
+		return &tv.Month
 	}
 
-	return nil, nil
+	return &TradeVolume{
+		FirstCoinVolume:  "0",
+		SecondCoinVolume: "0",
+		BipVolume:        big.NewFloat(0),
+	}
+}
+
+func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume {
+	s.tvmx.RLock()
+	defer s.tvmx.RUnlock()
+
+	if tv, ok := s.tradeVolumes[pool.Id]; ok {
+		return &tv.Day
+	}
+
+	return &TradeVolume{
+		FirstCoinVolume:  "0",
+		SecondCoinVolume: "0",
+		BipVolume:        big.NewFloat(0),
+	}
 }

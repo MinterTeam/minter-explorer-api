@@ -19,11 +19,13 @@ type Resource struct {
 	Amount1           string             `json:"amount1"`
 	Liquidity         string             `json:"liquidity"`
 	LiquidityInBip    string             `json:"liquidity_bip"`
+	TradeVolumeBip1d  string             `json:"trade_volume_bip_1d"`
 	TradeVolumeBip30d string             `json:"trade_volume_bip_30d"`
 }
 
 type Params struct {
 	LiquidityInBip *big.Float
+	TradeVolume1d  *big.Float
 	TradeVolume30d *big.Float
 	FirstCoin      string
 	SecondCoin     string
@@ -51,6 +53,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 			Amount1:           helpers.PipStr2Bip(pool.SecondCoinVolume),
 			Liquidity:         helpers.PipStr2Bip(pool.Liquidity),
 			LiquidityInBip:    helpers.Bip2Str(params.LiquidityInBip),
+			TradeVolumeBip1d:  helpers.Bip2Str(params.TradeVolume1d),
 			TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
 		}
 	}
@@ -63,6 +66,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 		Amount1:           helpers.PipStr2Bip(pool.FirstCoinVolume),
 		Liquidity:         helpers.PipStr2Bip(pool.Liquidity),
 		LiquidityInBip:    helpers.Bip2Str(params.LiquidityInBip),
+		TradeVolumeBip1d:  helpers.Bip2Str(params.TradeVolume1d),
 		TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
 	}
 }
