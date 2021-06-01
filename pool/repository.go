@@ -126,16 +126,15 @@ func (r *Repository) GetPoolsCoins() (coins []models.Coin, err error) {
 
 func (r *Repository) GetPoolTradesVolume(pool models.LiquidityPool, scale string, startTime *time.Time) (trades []tradeVolume, err error) {
 	q := r.db.Model(&models.LiquidityPoolTrade{}).
-		Relation("Block._").
 		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
 		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
-		ColumnExpr("date_trunc(?, block.created_at) as date", scale).
+		ColumnExpr("date_trunc(?, created_at) as date", scale).
 		Where("liquidity_pool_id = ?", pool.Id).
 		Group("date").
 		Order("date DESC")
 
 	if startTime != nil {
-		q.Where("block.created_at > ?", startTime.Format(time.RFC3339))
+		q.Where("created_at > ?", startTime.Format(time.RFC3339))
 	}
 
 	err = q.Select(&trades)
@@ -146,13 +145,12 @@ func (r *Repository) GetPoolTradesVolume(pool models.LiquidityPool, scale string
 func (r *Repository) GetPoolTradeVolumeByTimeRange(pool models.LiquidityPool, startTime time.Time) (*tradeVolume, error) {
 	tv := new(tradeVolume)
 	count, err := r.db.Model(&models.LiquidityPoolTrade{}).
-		Relation("Block._").
 		ColumnExpr("liquidity_pool_id as pool_id").
 		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
 		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
 		Group("liquidity_pool_id").
 		Where("liquidity_pool_id = ?", pool.Id).
-		Where("block.created_at > ?", startTime.Format(time.RFC3339)).
+		Where("created_at > ?", startTime.Format(time.RFC3339)).
 		SelectAndCount(tv)
 
 	if count == 0 {
@@ -169,13 +167,12 @@ func (r *Repository) GetPoolsTradeVolumeByTimeRange(pools []models.LiquidityPool
 	}
 
 	count, err := r.db.Model(&models.LiquidityPoolTrade{}).
-		Relation("Block._").
 		ColumnExpr("liquidity_pool_id as pool_id").
 		ColumnExpr("sum(first_coin_volume) as first_coin_volume").
 		ColumnExpr("sum(second_coin_volume) as second_coin_volume").
 		Group("liquidity_pool_id").
 		Where("liquidity_pool_id in (?)", pg.In(ids)).
-		Where("block.created_at > ?", startTime.Format(time.RFC3339)).
+		Where("created_at > ?", startTime.Format(time.RFC3339)).
 		SelectAndCount(&tvs)
 
 	if count == 0 {

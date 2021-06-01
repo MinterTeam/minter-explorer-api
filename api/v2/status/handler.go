@@ -69,7 +69,7 @@ func GetStatus(c *gin.Context) {
 			"total_transactions":      txTotalCount.Result.(int) + 12784024, // todo: move to config
 			"avg_block_time":          avgBlockTime.Result.(float64),
 			"latest_block_time":       lastBlock.CreatedAt.Format(time.RFC3339),
-			"market_cap":              getMarketCap(helpers.CalculateEmission(lastBlock.ID), 1 / usdtbip),
+			"market_cap":              getMarketCap(helpers.CalculateEmission(lastBlock.ID), 1/usdtbip),
 			"transactions_per_second": getTransactionSpeed(txTotalCount24h.Result.(int)),
 		},
 	})

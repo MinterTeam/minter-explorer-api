@@ -120,17 +120,13 @@ func fetchPools(req GetSwapPoolsRequest, c *gin.Context) resource.PaginationReso
 		ProviderAddress: req.Address,
 	}, &pagination)
 
-	tvs, err := explorer.PoolService.GetPoolsLastMonthTradesVolume(pools)
-	if err != nil {
-		log.Panicf("failed to load last month trades: %s", err)
-	}
-
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		p := model.(models.LiquidityPool)
+		tv, _ := explorer.PoolService.GetLastMonthTradesVolume(p)
 		return resource.ParamsInterface{pool.Params{
 			LiquidityInBip: explorer.PoolService.GetPoolLiquidityInBip(p),
-			TradeVolume30d: tvs[p.Id].BipVolume,
+			TradeVolume30d: tv.BipVolume,
 		}}
 	}
 
