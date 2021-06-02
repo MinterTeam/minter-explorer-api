@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"github.com/MinterTeam/minter-explorer-api/v2/api"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/core/ws"
@@ -9,11 +8,8 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpgrpc"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"google.golang.org/grpc/credentials"
+	"github.com/uptrace/uptrace-go/extra/otellogrus"
+	"github.com/uptrace/uptrace-go/uptrace"
 	"os"
 )
 
@@ -31,7 +27,7 @@ func main() {
 	// init environment
 	env := core.NewEnvironment()
 
-	startTracing(context.Background())
+	startTracing()
 
 	// connect to database
 	db := database.Connect(env)
@@ -64,24 +60,7 @@ func main() {
 	api.Run(db, explorer)
 }
 
-func startTracing(ctx context.Context) {
-	driver := otlpgrpc.NewDriver(
-		otlpgrpc.WithEndpoint("otlp.uptrace.dev:4317"),
-		otlpgrpc.WithHeaders(map[string]string{"uptrace-dsn": os.Getenv("UPTRACE_DSN")}),
-		otlpgrpc.WithCompressor("gzip"),
-		otlpgrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, "")),
-	)
-
-	exporter, err := otlp.NewExporter(ctx, driver)
-	if err != nil {
-		panic(err)
-	}
-
-	bsp := sdktrace.NewBatchSpanProcessor(exporter, sdktrace.WithMaxQueueSize(1000), sdktrace.WithMaxExportBatchSize(1000))
-
-	tracerProvider := sdktrace.NewTracerProvider()
-	tracerProvider.RegisterSpanProcessor(bsp)
-
-	// Install our tracer provider and we are done.
-	otel.SetTracerProvider(tracerProvider)
+func startTracing() {
+	uptrace.ConfigureOpentelemetry(&uptrace.Config{})
+	log.AddHook(otellogrus.NewLoggingHook())
 }
