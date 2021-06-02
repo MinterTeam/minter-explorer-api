@@ -14,4 +14,5 @@ const (
 
 var (
 	BaseCoinSymbol string
+	PriceCoinId    uint64 = 1993 // TODO: move to env
 )
