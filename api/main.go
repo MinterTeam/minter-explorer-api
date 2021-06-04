@@ -32,6 +32,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(gin.Logger())
 
 	// metrics
 	p := ginprometheus.NewPrometheus("gin")
