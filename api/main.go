@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-playground/validator/v10"
+	log "github.com/sirupsen/logrus"
 	"github.com/zsais/go-gin-prometheus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"golang.org/x/time/rate"
@@ -91,6 +92,7 @@ func registerApiValidators() {
 
 func throttle(ipMap *sync.Map) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Debugf("client ip: %s", c.ClientIP())
 		limiter, ok := ipMap.Load(c.ClientIP())
 		if !ok {
 			limiter = rate.NewLimiter(5, 5)
