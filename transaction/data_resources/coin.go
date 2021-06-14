@@ -30,12 +30,9 @@ type PoolCoin struct {
 }
 
 func (PoolCoin) Transform(data *api_pb.Coin, pipAmount string) PoolCoin {
-	coin, err := coins.GlobalRepository.FindByID(uint(data.GetId()))
-	helpers.CheckErr(err)
-
 	return PoolCoin{
 		ID:     data.GetId(),
-		Symbol: coin.GetSymbol(),
+		Symbol: data.GetSymbol(),
 		Amount: helpers.PipStr2Bip(pipAmount),
 	}
 }
