@@ -7,7 +7,7 @@ require (
 	github.com/MinterTeam/minter-explorer-extender/v2 v2.12.12-0.20210513095622-810621654289
 	github.com/MinterTeam/minter-go-node v1.0.5
 	github.com/MinterTeam/minter-go-sdk/v2 v2.2.0-alpha1.0.20210327021641-068a106a883b
-	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210327013510-012fe2754dfc
+	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210617121307-33b67143a706
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.7.1
@@ -15,6 +15,8 @@ require (
 	github.com/go-pg/pg/v10 v10.9.3
 	github.com/go-pg/urlstruct v0.2.8
 	github.com/go-playground/validator/v10 v10.4.1
+	github.com/golang/glog v0.0.0-20210429001901-424d2337a529 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.4.1
 	github.com/sirupsen/logrus v1.8.1
@@ -27,6 +29,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp v0.20.0
 	go.opentelemetry.io/otel/sdk v0.20.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
-	google.golang.org/grpc v1.37.0
+	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced // indirect
+	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 )
