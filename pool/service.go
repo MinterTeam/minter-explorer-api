@@ -370,7 +370,7 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 		graph.AddEdge(pool.SecondCoinId, pool.FirstCoinId, 1, nil)
 	}
 
-	_, paths, err := graph.Yen(fromCoinId, toCoinId, 150)
+	_, paths, err := graph.Yen(fromCoinId, toCoinId, 20)
 	if err != nil {
 		return nil, err
 	}
