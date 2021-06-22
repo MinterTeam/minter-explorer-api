@@ -77,7 +77,7 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 }
 
 func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.swap.FindSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 5)
+	paths, err := s.findSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 5)
 	if err != nil {
 		return nil, err
 	}
@@ -358,4 +358,43 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 		SecondCoinVolume: "0",
 		BipVolume:        big.NewFloat(0),
 	}
+}
+
+
+func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
+	graph := goraph.NewGraph()
+	for _, pool := range pools {
+		graph.AddVertex(pool.FirstCoinId, pool.FirstCoin)
+		graph.AddVertex(pool.SecondCoinId, pool.SecondCoin)
+		graph.AddEdge(pool.FirstCoinId, pool.SecondCoinId, 1, nil)
+		graph.AddEdge(pool.SecondCoinId, pool.FirstCoinId, 1, nil)
+	}
+
+	_, paths, err := graph.Yen(fromCoinId, toCoinId, 20)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(paths[0]) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	if depth == 0 {
+		return paths, nil
+	}
+
+	var result [][]goraph.ID
+	for _, path := range paths {
+		if len(path) > depth+1 || len(path) == 0 {
+			break
+		}
+
+		result = append(result, path)
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	return result, nil
 }
