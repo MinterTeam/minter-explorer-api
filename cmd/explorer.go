@@ -10,6 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/uptrace-go/extra/otellogrus"
 	"github.com/uptrace/uptrace-go/uptrace"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 )
 
@@ -57,6 +59,10 @@ func main() {
 	extender.Subscribe(sub)
 
 	// run api
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+	
 	api.Run(db, explorer)
 }
 
