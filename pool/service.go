@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	log "github.com/sirupsen/logrus"
+	"github.com/starwander/goraph"
 	"math/big"
 	"sync"
 	"time"
@@ -62,7 +63,7 @@ func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 }
 
 func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) bool {
-	_, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 1500)
+	_, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
 	return err == nil
 }
 
@@ -76,27 +77,90 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 }
 
 func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.swap.GetPossiblePaths(liquidityPools, fromCoinId, toCoinId, 5, 1500)
+	paths, err := s.findSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 5)
 	if err != nil {
 		return nil, err
 	}
 
-	var trade *swap.Trade
+	pools, err := s.getPathsRelatedPools(liquidityPools, paths)
+	if err != nil {
+		return nil, err
+	}
+
+	pairs := make([]swap.Pair, 0)
+	for _, p := range pools {
+		pairs = append(pairs, swap.NewPair(
+			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
+			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
+		))
+	}
+
+	var trades []swap.Trade
 	if tradeType == swap.TradeTypeExactInput {
-		trade, err = swap.GetBestTradeExactIn(paths, swap.NewTokenAmount(swap.NewToken(fromCoinId), amount), swap.NewToken(toCoinId))
+		trades, err = swap.GetBestTradeExactIn(
+			pairs,
+			swap.NewToken(toCoinId),
+			swap.NewTokenAmount(swap.NewToken(fromCoinId), amount),
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
+		)
 	} else {
-		trade, err = swap.GetBestTradeExactOut(paths, swap.NewTokenAmount(swap.NewToken(toCoinId), amount), swap.NewToken(fromCoinId))
+		trades, err = swap.GetBestTradeExactOut(
+			pairs,
+			swap.NewToken(fromCoinId),
+			swap.NewTokenAmount(swap.NewToken(toCoinId), amount),
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
+		)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	if trade == nil {
+	if len(trades) == 0 {
 		return nil, errors.New("path not found")
 	}
 
-	return trade, nil
+	return &trades[0], nil
+}
+
+func (s *Service) getPathsRelatedPools(pools []models.LiquidityPool, paths [][]goraph.ID) ([]models.LiquidityPool, error) {
+	related := make([]models.LiquidityPool, 0)
+	for _, path := range paths {
+		if len(path) == 0 {
+			break
+		}
+
+		for i := range path {
+			if i == 0 {
+				continue
+			}
+
+			firstCoinId, secondCoinId := path[i-1].(uint64), path[i].(uint64)
+			pchan := make(chan models.LiquidityPool)
+			for _, lp := range pools {
+				go func(lp models.LiquidityPool) {
+					if (lp.FirstCoinId == firstCoinId && lp.SecondCoinId == secondCoinId) || (lp.FirstCoinId == secondCoinId && lp.SecondCoinId == firstCoinId) {
+						pchan <- lp
+					}
+				}(lp)
+			}
+
+			p := <-pchan
+
+			isExists := false
+			for _, p2 := range related {
+				if p.Id == p2.Id {
+					isExists = true
+				}
+			}
+
+			if !isExists {
+				related = append(related, p)
+			}
+		}
+	}
+
+	return related, nil
 }
 
 func (s *Service) OnNewBlock(block blocks.Resource) {
@@ -294,4 +358,43 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 		SecondCoinVolume: "0",
 		BipVolume:        big.NewFloat(0),
 	}
+}
+
+
+func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
+	graph := goraph.NewGraph()
+	for _, pool := range pools {
+		graph.AddVertex(pool.FirstCoinId, pool.FirstCoin)
+		graph.AddVertex(pool.SecondCoinId, pool.SecondCoin)
+		graph.AddEdge(pool.FirstCoinId, pool.SecondCoinId, 1, nil)
+		graph.AddEdge(pool.SecondCoinId, pool.FirstCoinId, 1, nil)
+	}
+
+	_, paths, err := graph.Yen(fromCoinId, toCoinId, 20)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(paths[0]) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	if depth == 0 {
+		return paths, nil
+	}
+
+	var result [][]goraph.ID
+	for _, path := range paths {
+		if len(path) > depth+1 || len(path) == 0 {
+			break
+		}
+
+		result = append(result, path)
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	return result, nil
 }
