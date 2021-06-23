@@ -2,6 +2,7 @@ package pool
 
 import (
 	"errors"
+	"fmt"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	. "github.com/MinterTeam/minter-explorer-api/v2/errors"
@@ -24,6 +25,7 @@ type Service struct {
 	poolsLiquidity map[uint64]*big.Float
 	coinPrices     map[uint64]*big.Float
 	tradeVolumes   map[uint64]TradeVolumes
+	swapRoutes     *sync.Map
 
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
@@ -37,6 +39,7 @@ func NewService(repository *Repository) *Service {
 		poolsLiquidity: make(map[uint64]*big.Float),
 		coinPrices:     make(map[uint64]*big.Float),
 		tradeVolumes:   make(map[uint64]TradeVolumes),
+		swapRoutes:     new(sync.Map),
 	}
 }
 
@@ -360,41 +363,17 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 	}
 }
 
-
 func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
-	graph := goraph.NewGraph()
-	for _, pool := range pools {
-		graph.AddVertex(pool.FirstCoinId, pool.FirstCoin)
-		graph.AddVertex(pool.SecondCoinId, pool.SecondCoin)
-		graph.AddEdge(pool.FirstCoinId, pool.SecondCoinId, 1, nil)
-		graph.AddEdge(pool.SecondCoinId, pool.FirstCoinId, 1, nil)
+	key := fmt.Sprintf("%d-%d", fromCoinId, toCoinId)
+	if paths, ok := s.swapRoutes.Load(key); ok {
+		return paths.([][]goraph.ID), nil
 	}
 
-	_, paths, err := graph.Yen(fromCoinId, toCoinId, 20)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(paths[0]) == 0 {
-		return nil, errors.New("path not found")
-	}
-
-	if depth == 0 {
-		return paths, nil
-	}
-
-	var result [][]goraph.ID
-	for _, path := range paths {
-		if len(path) > depth+1 || len(path) == 0 {
-			break
-		}
-
-		result = append(result, path)
-	}
-
-	if len(result) == 0 {
-		return nil, errors.New("path not found")
-	}
-
-	return result, nil
+	s.swapRoutes.Store(key, paths)
+	return paths, nil
 }
