@@ -83,8 +83,8 @@ func GetSwapPoolProvider(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": new(pool.ProviderResource).Transform(p, pool.Params{
-			FirstCoin:  req.Coin0,
-			SecondCoin: req.Coin1,
+			FirstCoin:      req.Coin0,
+			SecondCoin:     req.Coin1,
 		}),
 	})
 }
@@ -152,7 +152,7 @@ func GetSwapPoolProviders(c *gin.Context) {
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
 		return resource.ParamsInterface{pool.Params{
-			FirstCoin:  req.Coin0,
+			FirstCoin: req.Coin0,
 			SecondCoin: req.Coin1,
 		}}
 	}
@@ -174,12 +174,7 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 	pools, err := explorer.PoolRepository.GetPoolsByProvider(helpers.RemoveMinterPrefix(req.Address), &pagination)
 	helpers.CheckErr(err)
 
-	// add params to each model resource
-	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		return resource.ParamsInterface{pool.Params{}}
-	}
-
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.ProviderResource{}, pagination, resourceCallback))
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(pools, pool.ProviderResource{}, pagination))
 }
 
 func FindSwapPoolRoute(c *gin.Context) {
