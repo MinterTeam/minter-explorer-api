@@ -43,17 +43,6 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-func (s *Service) GetPoolLiquidityInBip(pool models.LiquidityPool) *big.Float {
-	s.plmx.RLock()
-	defer s.plmx.RUnlock()
-
-	if liquidity, ok := s.poolsLiquidity[pool.Id]; ok {
-		return liquidity
-	}
-
-	return big.NewFloat(0)
-}
-
 func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 	s.cpmx.RLock()
 	defer s.cpmx.RUnlock()
@@ -183,7 +172,6 @@ func (s *Service) RunPoolUpdater() {
 	}
 
 	s.RunCoinPriceCalculation(pools)
-	s.RunLiquidityCalculation(pools)
 	s.RunPoolTradeVolumesUpdater(pools)
 }
 

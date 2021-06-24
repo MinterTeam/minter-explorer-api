@@ -46,12 +46,10 @@ func GetSwapPool(c *gin.Context) {
 			return nil
 		}
 
-		bipValue := explorer.PoolService.GetPoolLiquidityInBip(p)
 		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
 		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
 
 		return new(pool.Resource).Transform(p, pool.Params{
-			LiquidityInBip: bipValue,
 			FirstCoin:      req.Coin0,
 			SecondCoin:     req.Coin1,
 			TradeVolume1d:  tv1d.BipVolume,
@@ -83,10 +81,11 @@ func GetSwapPoolProvider(c *gin.Context) {
 		return
 	}
 
-	bipValue := explorer.PoolService.GetPoolLiquidityInBip(*p.LiquidityPool)
-
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(pool.ProviderResource).Transform(p, pool.Params{LiquidityInBip: bipValue, FirstCoin: req.Coin0, SecondCoin: req.Coin1}),
+		"data": new(pool.ProviderResource).Transform(p, pool.Params{
+			FirstCoin:      req.Coin0,
+			SecondCoin:     req.Coin1,
+		}),
 	})
 }
 
@@ -125,7 +124,6 @@ func fetchPools(req GetSwapPoolsRequest, c *gin.Context) resource.PaginationReso
 		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
 
 		return resource.ParamsInterface{pool.Params{
-			LiquidityInBip: explorer.PoolService.GetPoolLiquidityInBip(p),
 			TradeVolume1d:  tv1d.BipVolume,
 			TradeVolume30d: tv30d.BipVolume,
 		}}
@@ -153,8 +151,10 @@ func GetSwapPoolProviders(c *gin.Context) {
 
 	// add params to each model resource
 	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
-		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue, FirstCoin: req.Coin0, SecondCoin: req.Coin1}}
+		return resource.ParamsInterface{pool.Params{
+			FirstCoin: req.Coin0,
+			SecondCoin: req.Coin1,
+		}}
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(providers, pool.ProviderResource{}, pagination, resourceCallback))
@@ -174,13 +174,7 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 	pools, err := explorer.PoolRepository.GetPoolsByProvider(helpers.RemoveMinterPrefix(req.Address), &pagination)
 	helpers.CheckErr(err)
 
-	// add params to each model resource
-	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		bipValue := explorer.PoolService.GetPoolLiquidityInBip(*model.(models.AddressLiquidityPool).LiquidityPool)
-		return resource.ParamsInterface{pool.Params{LiquidityInBip: bipValue}}
-	}
-
-	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.ProviderResource{}, pagination, resourceCallback))
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(pools, pool.ProviderResource{}, pagination))
 }
 
 func FindSwapPoolRoute(c *gin.Context) {

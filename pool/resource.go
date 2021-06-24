@@ -24,7 +24,6 @@ type Resource struct {
 }
 
 type Params struct {
-	LiquidityInBip *big.Float
 	TradeVolume1d  *big.Float
 	TradeVolume30d *big.Float
 	FirstCoin      string
@@ -52,7 +51,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 			Amount0:           helpers.PipStr2Bip(pool.FirstCoinVolume),
 			Amount1:           helpers.PipStr2Bip(pool.SecondCoinVolume),
 			Liquidity:         helpers.PipStr2Bip(pool.Liquidity),
-			LiquidityInBip:    helpers.Bip2Str(params.LiquidityInBip),
+			LiquidityInBip:    helpers.Pip2BipStr(helpers.StringToBigInt(pool.LiquidityBip)),
 			TradeVolumeBip1d:  helpers.Bip2Str(params.TradeVolume1d),
 			TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
 		}
@@ -65,7 +64,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 		Amount0:           helpers.PipStr2Bip(pool.SecondCoinVolume),
 		Amount1:           helpers.PipStr2Bip(pool.FirstCoinVolume),
 		Liquidity:         helpers.PipStr2Bip(pool.Liquidity),
-		LiquidityInBip:    helpers.Bip2Str(params.LiquidityInBip),
+		LiquidityInBip:    helpers.Pip2BipStr(helpers.StringToBigInt(pool.LiquidityBip)),
 		TradeVolumeBip1d:  helpers.Bip2Str(params.TradeVolume1d),
 		TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
 	}
@@ -96,7 +95,7 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	amount1, _ := new(big.Float).Mul(part, new(big.Float).SetInt(helpers.StringToBigInt(provider.LiquidityPool.SecondCoinVolume))).Int(nil)
 
 	liquidityShare, _ := part.Float64()
-	liquidityInBip := new(big.Float).Mul(part, resourceParams[0].(Params).LiquidityInBip)
+	liquidityInBip := new(big.Float).Mul(part, helpers.Pip2Bip(helpers.StringToBigInt(provider.LiquidityPool.LiquidityBip)))
 
 	inverseOrder := false
 	if len(params.FirstCoin) != 0 && len(params.SecondCoin) != 0 {
