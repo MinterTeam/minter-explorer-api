@@ -26,6 +26,8 @@ type Service struct {
 	coinPrices     map[uint64]*big.Float
 	tradeVolumes   map[uint64]TradeVolumes
 	swapRoutes     *sync.Map
+	poolsMap       *sync.Map
+	pools          []models.LiquidityPool
 
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
@@ -40,6 +42,8 @@ func NewService(repository *Repository) *Service {
 		coinPrices:     make(map[uint64]*big.Float),
 		tradeVolumes:   make(map[uint64]TradeVolumes),
 		swapRoutes:     new(sync.Map),
+		poolsMap:       new(sync.Map),
+		pools:          make([]models.LiquidityPool, 0),
 	}
 }
 
@@ -55,64 +59,37 @@ func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 }
 
 func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) bool {
-	_, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
+	_, err := s.findSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
 	return err == nil
 }
 
 func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	pools, err := s.repository.GetAll()
+	paths, err := s.findSwapRoutePathsByGraph(s.pools, fromCoinId, toCoinId, 5)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.FindSwapRoutePathByPools(pools, fromCoinId, toCoinId, tradeType, amount)
-}
-
-func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.findSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 5)
+	pairs, err := s.swap.MakePairsFromPaths(paths, s.poolsMap)
 	if err != nil {
 		return nil, err
 	}
 
-	pools, err := s.getPathsRelatedPools(liquidityPools, paths)
-	if err != nil {
-		return nil, err
-	}
-
-	pairs := make([]swap.Pair, 0)
-	for _, p := range pools {
-		pairs = append(pairs, swap.NewPair(
-			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
-			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
-		))
-	}
-
-	var trades []swap.Trade
+	var trade *swap.Trade
 	if tradeType == swap.TradeTypeExactInput {
-		trades, err = swap.GetBestTradeExactIn(
-			pairs,
-			swap.NewToken(toCoinId),
-			swap.NewTokenAmount(swap.NewToken(fromCoinId), amount),
-			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
-		)
+		trade, err = swap.GetBestTradeExactIn(pairs, swap.NewTokenAmount(swap.NewToken(fromCoinId), amount), swap.NewToken(toCoinId))
 	} else {
-		trades, err = swap.GetBestTradeExactOut(
-			pairs,
-			swap.NewToken(fromCoinId),
-			swap.NewTokenAmount(swap.NewToken(toCoinId), amount),
-			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
-		)
+		trade, err = swap.GetBestTradeExactOut(pairs, swap.NewTokenAmount(swap.NewToken(toCoinId), amount), swap.NewToken(fromCoinId))
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	if len(trades) == 0 {
+	if trade == nil {
 		return nil, errors.New("path not found")
 	}
 
-	return &trades[0], nil
+	return trade, nil
 }
 
 func (s *Service) getPathsRelatedPools(pools []models.LiquidityPool, paths [][]goraph.ID) ([]models.LiquidityPool, error) {
@@ -169,6 +146,11 @@ func (s *Service) RunPoolUpdater() {
 	pools, err := s.repository.GetAll()
 	if err != nil {
 		log.Error(err)
+	}
+
+	s.pools = pools
+	for _, p := range pools {
+		s.poolsMap.Store(fmt.Sprintf("%d-%d", p.FirstCoinId, p.SecondCoinId), p)
 	}
 
 	s.RunCoinPriceCalculation(pools)
@@ -357,7 +339,15 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 		return paths.([][]goraph.ID), nil
 	}
 
-	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
+	lps := make([]models.LiquidityPool, 0)
+	minLiquidity, _ := new(big.Int).SetString("20000000000000000000000", 10) // TODO: 20000 is temporary value, fix to dynamic value in usd
+	for _, p := range pools {
+		if helpers.StringToBigInt(p.LiquidityBip).Cmp(minLiquidity) >= 0 {
+			lps = append(lps, p)
+		}
+	}
+
+	paths, err := s.swap.FindSwapRoutePathsByGraph(lps, fromCoinId, toCoinId, depth, 1500)
 	if err != nil {
 		return nil, err
 	}
