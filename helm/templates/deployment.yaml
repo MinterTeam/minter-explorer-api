@@ -34,7 +34,7 @@ spec:
             - name: http
               containerPort: {{.Values.service.port}}
               protocol: TCP
-           - name: pprof
+            - name: pprof
               containerPort: 6060
               protocol: TCP
           livenessProbe:
