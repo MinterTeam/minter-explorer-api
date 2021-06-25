@@ -51,6 +51,9 @@ type VoteCommission struct {
 	BurnToken               string `json:"burn_token"`
 	VoteCommission          string `json:"vote_commission"`
 	VoteUpdate              string `json:"vote_update"`
+	Failedtx                string `json:"failed_tx"`
+	AddLimitOrder           string `json:"add_limit_order"`
+	RemoveLimitOrder        string `json:"remove_limit_order"`
 }
 
 func (VoteCommission) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -102,6 +105,9 @@ func (VoteCommission) Transform(txData resource.ItemInterface, params ...resourc
 		BurnToken:               data.BurnToken,
 		VoteCommission:          data.VoteCommission,
 		VoteUpdate:              data.VoteUpdate,
+		Failedtx:                data.FailedTx,
+		AddLimitOrder:           data.AddLimitOrder,
+		RemoveLimitOrder:        data.RemoveLimitOrder,
 	}
 }
 
