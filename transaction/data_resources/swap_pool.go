@@ -97,3 +97,21 @@ func (CreateSwapPool) Transform(txData resource.ItemInterface, params ...resourc
 		},
 	}
 }
+
+type AddOrderSwapPool struct {
+	CoinToSell  Coin   `json:"coin_to_sell"`
+	CoinToBuy   Coin   `json:"coin_to_buy"`
+	ValueToBuy  string `json:"value_to_buy"`
+	ValueToSell string `json:"value_to_sell"`
+}
+
+func (AddOrderSwapPool) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
+	data := txData.(*api_pb.AddOrderSwapPoolData)
+
+	return AddOrderSwapPool{
+		CoinToBuy:   new(Coin).Transform(data.CoinToBuy),
+		CoinToSell:  new(Coin).Transform(data.CoinToSell),
+		ValueToBuy:  helpers.PipStr2Bip(data.ValueToBuy),
+		ValueToSell: helpers.PipStr2Bip(data.ValueToSell),
+	}
+}
