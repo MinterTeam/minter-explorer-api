@@ -6,7 +6,7 @@ require (
 	github.com/MinterTeam/explorer-sdk v0.1.1-0.20210521135222-1500182959d7
 	github.com/MinterTeam/minter-explorer-extender/v2 v2.12.12-0.20210513095622-810621654289
 	github.com/MinterTeam/minter-go-node v1.0.5
-	github.com/MinterTeam/minter-go-sdk/v2 v2.2.0-alpha1.0.20210327021641-068a106a883b
+	github.com/MinterTeam/minter-go-sdk/v2 v2.3.1-0.20210624082905-9004eed7c44f
 	github.com/MinterTeam/node-grpc-gateway v1.2.2-0.20210624203409-a64297b6dc75
 	github.com/centrifugal/centrifuge-go v0.3.0
 	github.com/gin-contrib/cors v1.3.0
