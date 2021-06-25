@@ -44,12 +44,16 @@ func (PoolCoin) TransformCollection(data []*api_pb.Coin, model models.Transactio
 	for i, coin := range data {
 		pool := pools[0]
 		if len(pools) > 1 {
-			pool = pools[(i+1)/2]
+			if i == len(pools) {
+				pool = pools[i-1]
+			} else {
+				pool = pools[i]
+			}
 		}
 
-		amount := pool.ValueOut
-		if i == 0 {
-			amount = pool.ValueIn
+		amount := pool.ValueIn
+		if i == len(pools) {
+			amount = pool.ValueOut
 		}
 
 		coins[i] = new(PoolCoin).Transform(coin, amount)
