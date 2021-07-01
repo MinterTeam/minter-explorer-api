@@ -15,6 +15,7 @@ require (
 	github.com/go-pg/pg/v10 v10.9.3
 	github.com/go-pg/urlstruct v0.2.8
 	github.com/go-playground/validator/v10 v10.4.1
+	github.com/go-resty/resty/v2 v2.3.0
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0 // indirect

@@ -35,6 +35,7 @@ func main() {
 	explorer := core.NewExplorer(db, env)
 
 	// run market price update
+	go explorer.CoinService.RunVerifiedCoinsUpdater()
 	go explorer.MarketService.Run()
 	go explorer.PoolService.RunPoolUpdater()
 

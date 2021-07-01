@@ -44,6 +44,7 @@ type Explorer struct {
 	PoolService                  *pool.Service
 	SwapService                  *services.SwapService
 	AddressService               *address.Service
+	CoinService                  *coins.Service
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -60,6 +61,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	transactionService := transaction.NewService(coinRepository, cacheService)
 	balanceService := balance.NewService(env.Basecoin, marketService, services.Swap)
 	addressService := address.NewService(addressRepository, stakeRepository, balanceService)
+	coinService := coins.NewService(coinRepository)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
@@ -84,5 +86,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		PoolService:                  poolService,
 		SwapService:                  services.Swap,
 		AddressService:               addressService,
+		CoinService:                  coinService,
 	}
 }
