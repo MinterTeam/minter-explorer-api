@@ -42,7 +42,6 @@ func GetSwapPool(c *gin.Context) {
 	data := explorer.Cache.Get(fmt.Sprintf("pools-%s-%s-%s", req.Coin0, req.Coin1, req.Token), func() interface{} {
 		p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
 		if err != nil {
-			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
 			return nil
 		}
 
