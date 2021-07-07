@@ -11,6 +11,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"time"
 )
 
 func main() {
@@ -18,6 +19,10 @@ func main() {
 	log.SetOutput(os.Stdout)
 	log.SetReportCaller(true)
 	log.SetLevel(log.DebugLevel)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: time.RFC3339Nano,
+	})
 
 	err := godotenv.Load()
 	if err != nil {

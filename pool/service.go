@@ -26,6 +26,7 @@ type Service struct {
 	coinPrices     map[uint64]*big.Float
 	tradeVolumes   map[uint64]TradeVolumes
 	swapRoutes     *sync.Map
+	pools          []models.LiquidityPool
 
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
@@ -33,6 +34,8 @@ type Service struct {
 }
 
 func NewService(repository *Repository) *Service {
+	pools, _ := repository.GetAll()
+
 	return &Service{
 		swap:           swap.NewService(repository.db),
 		repository:     repository,
@@ -40,6 +43,7 @@ func NewService(repository *Repository) *Service {
 		coinPrices:     make(map[uint64]*big.Float),
 		tradeVolumes:   make(map[uint64]TradeVolumes),
 		swapRoutes:     new(sync.Map),
+		pools:          pools,
 	}
 }
 
@@ -59,25 +63,24 @@ func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinI
 	return err == nil
 }
 
-func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	pools, err := s.repository.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return s.FindSwapRoutePathByPools(pools, fromCoinId, toCoinId, tradeType, amount)
+func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+	return s.FindSwapRoutePathByPools(rlog, s.pools, fromCoinId, toCoinId, tradeType, amount)
 }
 
-func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+func (s *Service) FindSwapRoutePathByPools(rlog *log.Entry, liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("find paths")
 	paths, err := s.findSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 5)
 	if err != nil {
 		return nil, err
 	}
 
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
 	pools, err := s.getPathsRelatedPools(liquidityPools, paths)
 	if err != nil {
 		return nil, err
 	}
+
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("related pools found")
 
 	pairs := make([]swap.Pair, 0)
 	for _, p := range pools {
@@ -103,6 +106,8 @@ func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool
 			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
 		)
 	}
+
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("best trade found")
 
 	if err != nil {
 		return nil, err
@@ -171,6 +176,7 @@ func (s *Service) RunPoolUpdater() {
 		log.Error(err)
 	}
 
+	s.pools = pools
 	s.RunCoinPriceCalculation(pools)
 	s.RunPoolTradeVolumesUpdater(pools)
 }
