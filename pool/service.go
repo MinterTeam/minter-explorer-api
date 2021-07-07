@@ -27,6 +27,7 @@ type Service struct {
 	tradeVolumes   map[uint64]TradeVolumes
 	swapRoutes     *sync.Map
 	pools          []models.LiquidityPool
+	poolsMap       *sync.Map
 
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
@@ -36,15 +37,20 @@ type Service struct {
 func NewService(repository *Repository) *Service {
 	pools, _ := repository.GetAll()
 
-	return &Service{
+	s := &Service{
 		swap:           swap.NewService(repository.db),
 		repository:     repository,
 		poolsLiquidity: make(map[uint64]*big.Float),
 		coinPrices:     make(map[uint64]*big.Float),
 		tradeVolumes:   make(map[uint64]TradeVolumes),
 		swapRoutes:     new(sync.Map),
+		poolsMap:       new(sync.Map),
 		pools:          pools,
 	}
+
+	s.SavePoolsToMap()
+
+	return s
 }
 
 func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
@@ -133,16 +139,13 @@ func (s *Service) getPathsRelatedPools(pools []models.LiquidityPool, paths [][]g
 			}
 
 			firstCoinId, secondCoinId := path[i-1].(uint64), path[i].(uint64)
-			pchan := make(chan models.LiquidityPool)
-			for _, lp := range pools {
-				go func(lp models.LiquidityPool) {
-					if (lp.FirstCoinId == firstCoinId && lp.SecondCoinId == secondCoinId) || (lp.FirstCoinId == secondCoinId && lp.SecondCoinId == firstCoinId) {
-						pchan <- lp
-					}
-				}(lp)
+
+			data, ok := s.poolsMap.Load(fmt.Sprintf("%d-%d", firstCoinId, secondCoinId))
+			if !ok {
+				data, _ = s.poolsMap.Load(fmt.Sprintf("%d-%d", secondCoinId, firstCoinId))
 			}
 
-			p := <-pchan
+			p := data.(models.LiquidityPool)
 
 			isExists := false
 			for _, p2 := range related {
@@ -177,8 +180,16 @@ func (s *Service) RunPoolUpdater() {
 	}
 
 	s.pools = pools
+	s.SavePoolsToMap()
 	s.RunCoinPriceCalculation(pools)
 	s.RunPoolTradeVolumesUpdater(pools)
+}
+
+func (s *Service) SavePoolsToMap() {
+	for _, p := range s.pools {
+		key := fmt.Sprintf("%d-%d", p.FirstCoinId, p.SecondCoinId)
+		s.poolsMap.Store(key, p)
+	}
 }
 
 func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
