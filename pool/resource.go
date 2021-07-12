@@ -37,8 +37,8 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 	inverseOrder := false
 	if len(params.FirstCoin) != 0 && len(params.SecondCoin) != 0 {
 		if id, err := strconv.Atoi(params.FirstCoin); err == nil {
-			inverseOrder = uint(id) != pool.FirstCoin.ID && params.FirstCoin != pool.FirstCoin.Symbol
-		} else if params.FirstCoin != pool.FirstCoin.Symbol {
+			inverseOrder = uint(id) != pool.FirstCoin.ID && params.FirstCoin != pool.FirstCoin.GetSymbol()
+		} else if params.FirstCoin != pool.FirstCoin.GetSymbol() {
 			inverseOrder = true
 		}
 	}
@@ -98,10 +98,11 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	liquidityInBip := new(big.Float).Mul(part, helpers.Pip2Bip(helpers.StringToBigInt(provider.LiquidityPool.LiquidityBip)))
 
 	inverseOrder := false
+
 	if len(params.FirstCoin) != 0 && len(params.SecondCoin) != 0 {
 		if id, err := strconv.Atoi(params.FirstCoin); err == nil {
 			inverseOrder = uint(id) != provider.LiquidityPool.FirstCoin.ID
-		} else if params.FirstCoin != provider.LiquidityPool.FirstCoin.Symbol {
+		} else if params.FirstCoin != provider.LiquidityPool.FirstCoin.GetSymbol() {
 			inverseOrder = true
 		}
 	}
