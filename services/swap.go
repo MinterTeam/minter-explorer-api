@@ -75,6 +75,10 @@ func (s *SwapService) EstimateSellByBancor(coinFrom models.Coin, coinTo models.C
 			coinFrom.Crr,
 			swapAmount,
 		)
+
+		if !s.checkCoinReserveUnderflow(coinFrom, swapAmount) {
+			return nil, errors.New("coin reserve underflow")
+		}
 	}
 
 	if coinTo.ID != 0 {
@@ -84,6 +88,10 @@ func (s *SwapService) EstimateSellByBancor(coinFrom models.Coin, coinTo models.C
 			coinTo.Crr,
 			swapAmount,
 		)
+
+		if !s.checkCoinReserveUnderflow(coinTo, swapAmount) {
+			return nil, errors.New("coin reserve underflow")
+		}
 	}
 
 	return swapAmount, nil
@@ -101,6 +109,10 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 			coinTo.Crr,
 			swapAmount,
 		)
+
+		if !s.checkCoinReserveUnderflow(coinTo, swapAmount) {
+			return nil, errors.New("coin reserve underflow")
+		}
 	}
 
 	if coinFrom.ID != 0 {
@@ -110,7 +122,21 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 			coinFrom.Crr,
 			swapAmount,
 		)
+
+		if !s.checkCoinReserveUnderflow(coinFrom, swapAmount) {
+			return nil, errors.New("coin reserve underflow")
+		}
 	}
 
 	return swapAmount, nil
+}
+
+func (s *SwapService) checkCoinReserveUnderflow(coin models.Coin, delta *big.Int) bool {
+	total := big.NewInt(0).Sub(helpers.StringToBigInt(coin.Reserve), delta)
+
+	if total.Cmp(helpers.Bip2Pip(big.NewFloat(10000))) == -1 {
+		return false
+	}
+
+	return true
 }
