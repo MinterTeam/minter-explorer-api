@@ -65,7 +65,7 @@ func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 }
 
 func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) bool {
-	_, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
+	_, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 20)
 	return err == nil
 }
 
@@ -368,7 +368,7 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 		return paths.([][]goraph.ID), nil
 	}
 
-	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 100)
 	if err != nil {
 		return nil, err
 	}
