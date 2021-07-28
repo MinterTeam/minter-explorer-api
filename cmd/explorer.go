@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"github.com/MinterTeam/minter-explorer-api/v2/api"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/core/ws"
