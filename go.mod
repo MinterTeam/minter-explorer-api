@@ -17,21 +17,14 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-resty/resty/v2 v2.3.0
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529 // indirect
-	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.4.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/starwander/goraph v0.0.0-20200325033650-cb8f0beb44cc
-	github.com/uptrace/uptrace-go v0.20.0
-	github.com/uptrace/uptrace-go/extra/otellogrus v0.20.0
 	github.com/zsais/go-gin-prometheus v0.1.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.20.0
-	go.opentelemetry.io/otel v0.20.0
-	go.opentelemetry.io/otel/exporters/otlp v0.20.0
-	go.opentelemetry.io/otel/sdk v0.20.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced // indirect
-	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 )
