@@ -75,6 +75,10 @@ func Seconds2Nano(sec int) float64 {
 }
 
 func StringToBigInt(string string) *big.Int {
+	if len(string) == 0 {
+		return big.NewInt(0)
+	}
+
 	bInt, err := new(big.Int).SetString(string, 10)
 	CheckErrBool(err)
 
