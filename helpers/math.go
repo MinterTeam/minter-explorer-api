@@ -86,6 +86,10 @@ func StringToBigInt(string string) *big.Int {
 }
 
 func StrToBigFloat(string string) *big.Float {
+	if len(string) == 0 {
+		return big.NewFloat(0)
+	}
+
 	bFloat, err := new(big.Float).SetString(string)
 	CheckErrBool(err)
 
