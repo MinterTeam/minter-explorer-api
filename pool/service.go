@@ -74,18 +74,10 @@ func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.
 }
 
 func (s *Service) FindSwapRoutePathByPools(liquidityPools []models.LiquidityPool, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	paths, err := s.findSwapRoutePathsByGraph(liquidityPools, fromCoinId, toCoinId, 5)
-	if err != nil {
-		return nil, err
-	}
-
-	pools, err := s.getPathsRelatedPools(liquidityPools, paths)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 
 	pairs := make([]swap.Pair, 0)
-	for _, p := range pools {
+	for _, p := range liquidityPools {
 		pairs = append(pairs, swap.NewPair(
 			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
 			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
@@ -363,7 +355,7 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 }
 
 func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
-	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 20)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 50)
 	if err != nil {
 		return nil, err
 	}
