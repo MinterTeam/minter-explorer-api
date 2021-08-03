@@ -363,7 +363,7 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 }
 
 func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCoinId, toCoinId uint64, depth int) ([][]goraph.ID, error) {
-	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 20)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 50)
 	if err != nil {
 		return nil, err
 	}
