@@ -115,7 +115,10 @@ func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 		return nil, err
 	}
 
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("best trade found")
+	rlog.WithTime(time.Now()).
+		WithField("pools count", len(pools)).
+		WithField("pairs count", len(pairs)).
+		WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("best trade found")
 
 	if len(trades) == 0 {
 		return nil, errors.New("path not found")
