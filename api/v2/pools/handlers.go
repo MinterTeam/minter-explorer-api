@@ -1,6 +1,9 @@
 package pools
 
 import (
+	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
@@ -18,6 +21,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 )
 
 type CachePoolsList struct {
@@ -184,6 +188,15 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 func FindSwapPoolRoute(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
+	// todo: remove, temp stats collector
+	hasher := md5.New()
+	hasher.Write([]byte(c.Request.RequestURI + time.Now().String() + c.ClientIP()))
+	rid := hex.EncodeToString(hasher.Sum(nil))
+	rlog := log.WithFields(log.Fields{"req": c.Request.RequestURI, "rid": rid, "ip": c.ClientIP()}).
+		WithContext(context.WithValue(context.Background(), "time", time.Now()))
+	rlog.WithTime(time.Now()).Debug("start")
+	// -----------
+
 	// validate request
 	var req FindSwapPoolRouteRequest
 	if err := c.ShouldBindUri(&req); err != nil {
@@ -229,11 +242,13 @@ func FindSwapPoolRoute(c *gin.Context) {
 		tradeType = swap.TradeTypeExactOutput
 	}
 
-	trade, err := explorer.PoolService.FindSwapRoutePath(fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
+	trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
 	}
+
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("trade found")
 
 	path := make([]models.Coin, len(trade.Route.Path))
 	for i, t := range trade.Route.Path {
@@ -241,6 +256,8 @@ func FindSwapPoolRoute(c *gin.Context) {
 		helpers.CheckErr(err)
 		path[i] = coin
 	}
+
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("result created")
 
 	c.JSON(http.StatusOK, new(pool.RouteResource).Transform(path, trade))
 }
@@ -362,6 +379,15 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 func EstimateSwap(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
+	// todo: remove, temp stats collector
+	hasher := md5.New()
+	hasher.Write([]byte(c.Request.RequestURI + time.Now().String() + c.ClientIP()))
+	rid := hex.EncodeToString(hasher.Sum(nil))
+	rlog := log.WithFields(log.Fields{"req": c.Request.RequestURI, "rid": rid, "ip": c.ClientIP()}).
+		WithContext(context.WithValue(context.Background(), "time", time.Now()))
+	rlog.WithTime(time.Now()).Debug("start")
+	// -----------
+
 	// validate request
 	var req FindSwapPoolRouteRequest
 	if err := c.ShouldBindUri(&req); err != nil {
@@ -388,7 +414,7 @@ func EstimateSwap(c *gin.Context) {
 	}
 
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	trade, poolErr := explorer.PoolService.FindSwapRoutePath(uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
+	trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
 
 	if poolErr != nil && bancorErr != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
