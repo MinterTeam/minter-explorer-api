@@ -391,7 +391,7 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 }
 
 func (s *Service) runWorkers() {
-	for w := 1; w <= 20; w++ {
+	for w := 1; w <= 35; w++ {
 		go s.findSwapRoutePathWorker(s.tradeSearchJobs)
 	}
 }
