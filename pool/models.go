@@ -1,6 +1,8 @@
 package pool
 
 import (
+	"github.com/MinterTeam/explorer-sdk/swap"
+	log "github.com/sirupsen/logrus"
 	"math/big"
 	"time"
 )
@@ -30,4 +32,13 @@ type TradeVolume struct {
 type TradeVolumes struct {
 	Day   TradeVolume
 	Month TradeVolume
+}
+
+type TradeSearch struct {
+	Log        *log.Entry
+	FromCoinId uint64
+	ToCoinId   uint64
+	TradeType  swap.TradeType
+	Amount     *big.Int
+	Trade      chan *swap.Trade
 }
