@@ -415,5 +415,9 @@ func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 	s.tradeSearchJobs <- ts
 	trade := <-ts.Trade
 
+	if trade == nil {
+		return nil, errors.New("trade not found")
+	}
+
 	return trade, nil
 }
