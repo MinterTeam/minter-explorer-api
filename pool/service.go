@@ -74,24 +74,24 @@ func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinI
 }
 
 func (s *Service) findSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	//rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("find paths")
-	//
-	//paths, err := s.findSwapRoutePathsByGraph(s.pools, fromCoinId, toCoinId, 5)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
-	//
-	//pools, err := s.getPathsRelatedPools(paths)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("find paths")
+
+	paths, err := s.findSwapRoutePathsByGraph(s.pools, fromCoinId, toCoinId, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
+
+	pools, err := s.getPathsRelatedPools(paths)
+	if err != nil {
+		return nil, err
+	}
+
+	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
 
 	pairs := make([]swap.Pair, 0)
-	for _, p := range s.pools {
+	for _, p := range pools {
 		pairs = append(pairs, swap.NewPair(
 			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
 			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
@@ -99,8 +99,6 @@ func (s *Service) findSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 	}
 
 	var trades []swap.Trade
-	var err error
-
 	if tradeType == swap.TradeTypeExactInput {
 		trades, err = swap.GetBestTradeExactIn(
 			pairs,
@@ -380,7 +378,7 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 		return paths.([][]goraph.ID), nil
 	}
 
-	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 100)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 130)
 	if err != nil {
 		return nil, err
 	}
@@ -391,7 +389,7 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 }
 
 func (s *Service) runWorkers() {
-	for w := 1; w <= 35; w++ {
+	for w := 1; w <= 40; w++ {
 		go s.findSwapRoutePathWorker(s.tradeSearchJobs)
 	}
 }
