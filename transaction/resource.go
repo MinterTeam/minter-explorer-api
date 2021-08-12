@@ -101,7 +101,7 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeVoteCommission):          {Model: new(api_pb.VoteCommissionData), Resource: data_resources.VoteCommission{}},
 	uint8(transaction.TypeVoteUpdate):              {Model: new(api_pb.VoteUpdateData), Resource: data_resources.VoteUpdate{}},
 	uint8(transaction.TypeCreateSwapPool):          {Model: new(api_pb.CreateSwapPoolData), Resource: data_resources.CreateSwapPool{}},
-	uint8(transaction.TypeAddOrderSwapPool):        {Model: new(api_pb.AddOrderSwapPoolData), Resource: data_resources.AddOrderSwapPool{}},
+	//uint8(transaction.TypeAddOrderSwapPool):        {Model: new(api_pb.AddOrderSwapPoolData), Resource: data_resources.AddOrderSwapPool{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {
