@@ -39,7 +39,7 @@ func (PoolCoin) Transform(data *api_pb.Coin, pipAmount string) PoolCoin {
 
 func (PoolCoin) TransformCollection(data []*api_pb.Coin, model models.Transaction) []PoolCoin {
 	pools := pool.GetPoolChainFromStr(model.Tags["tx.pools"])
-	coins := make([]PoolCoin, len(data))
+	poolCoins := make([]PoolCoin, len(data))
 
 	for i, coin := range data {
 		pool := pools[0]
@@ -56,8 +56,13 @@ func (PoolCoin) TransformCollection(data []*api_pb.Coin, model models.Transactio
 			amount = pool.ValueOut
 		}
 
-		coins[i] = new(PoolCoin).Transform(coin, amount)
+		// todo: refactor
+		coinModel, err := coins.GlobalRepository.FindByID(uint(coin.Id))
+		helpers.CheckErr(err)
+		coin.Symbol = coinModel.GetSymbol()
+
+		poolCoins[i] = new(PoolCoin).Transform(coin, amount)
 	}
 
-	return coins
+	return poolCoins
 }

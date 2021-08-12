@@ -11,5 +11,6 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		coins.GET("", GetCoins)
 		coins.GET("symbol/:symbol", GetCoinBySymbol)
 		coins.GET("id/:id", GetCoinByID)
+		coins.GET("oracle/verified", GetOracleVerifiedCoins)
 	}
 }
