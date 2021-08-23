@@ -104,7 +104,7 @@ func (f PoolsFilter) Filter(q *orm.Query) (*orm.Query, error) {
 				Where(`first_coin.symbol = ?`, symbol).Where(`first_coin.version = ?`, version)
 
 			q = q.Join("LEFT JOIN coins as second_coin").JoinOn("second_coin.id = liquidity_pools.second_coin_id").
-				Where(`second_coin.symbol = ?`, symbol1).Where(`second_coin.version = ?`, version)
+				Where(`second_coin.symbol = ?`, symbol1).Where(`second_coin.version = ?`, version1)
 		}
 
 		firstCoinAlias := "first_coin"

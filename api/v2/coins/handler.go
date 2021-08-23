@@ -91,3 +91,12 @@ func GetCoinBySymbol(c *gin.Context) {
 		"data": new(coins.Resource).Transform(models[0]),
 	})
 }
+
+func GetOracleVerifiedCoins(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+	verified := explorer.CoinService.GetVerifiedCoins()
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(verified, coins.Resource{}),
+	})
+}

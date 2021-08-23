@@ -30,14 +30,6 @@ jobs:
           TAG_NAME: ${{ github.sha }}
           DOCKER_BUILD_ARGS: --build-arg VERSION=${{ steps.version.outputs.text }}
 
-      - name: deploy to production cluster
-        uses: wahyd4/kubectl-helm-action@v0.1.2
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
-          TAG_NAME: ${{ github.sha }}
-        with:
-          args: helm upgrade -n mainnet -i api helm/ --atomic --timeout 100s --reuse-values --set image.tag=$TAG_NAME
-     
       - name: DigitalOcean Kubernetes
         uses: matootie/dokube@master
         with:
@@ -51,7 +43,15 @@ jobs:
         env:
           TAG_NAME: ${{ github.sha }}
         run: ./linux-amd64/helm upgrade -n mainnet-reserved -i api helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
-     
+
+      - name: deploy to production cluster
+        uses: wahyd4/kubectl-helm-action@v0.1.2
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
+          TAG_NAME: ${{ github.sha }}
+        with:
+          args: helm upgrade -n mainnet -i api helm/ --atomic --timeout 100s --reuse-values --set image.tag=$TAG_NAME
+
       - name: notification
         if: cancelled() == false
         uses: xinthink/action-telegram@v1.1
