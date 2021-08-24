@@ -17,6 +17,8 @@ func NewRepository(db *pg.DB) *Repository {
 func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...tools.Filter) (orders []models.Order, err error) {
 	q := r.db.Model(&orders).
 		Relation("Address").
+		Relation("CoinSell").
+		Relation("CoinBuy").
 		Apply(pagination.Filter)
 
 	for _, f := range filters {

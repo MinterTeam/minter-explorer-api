@@ -546,7 +546,10 @@ func GetSwapPoolOrders(c *gin.Context) {
 	}
 
 	pagination := tools.NewPagination(c.Request)
-	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewPoolFilter(p), order.NewAddressFilter(rq.Address))
+	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewPoolFilter(p),
+		order.NewAddressFilter(helpers.RemoveMinterPrefix(rq.Address)),
+	)
+
 	if err != nil {
 		log.WithError(err).Fatal("failed to load orders for pool")
 	}
