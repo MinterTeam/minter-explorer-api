@@ -10,6 +10,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/order"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
@@ -518,4 +519,37 @@ func GetSwapPoolsList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resources)
+}
+
+// GetSwapPoolOrders Get orders related to liquidity pool
+func GetSwapPoolOrders(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetSwapPoolRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request
+	var rq GetSwapPoolOrdersRequest
+	if err := c.ShouldBindQuery(&rq); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		return
+	}
+
+	pagination := tools.NewPagination(c.Request)
+	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewPoolFilter(p), order.NewAddressFilter(rq.Address))
+	if err != nil {
+		log.WithError(err).Fatal("failed to load orders for pool")
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))
 }
