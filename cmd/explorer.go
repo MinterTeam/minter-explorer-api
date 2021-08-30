@@ -8,7 +8,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"github.com/uptrace/uptrace-go/uptrace"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -30,7 +29,7 @@ func main() {
 		log.Fatal(".env file not found")
 	}
 
-	uptrace.ConfigureOpentelemetry()
+	//uptrace.ConfigureOpentelemetry()
 
 	// init environment
 	env := core.NewEnvironment()
