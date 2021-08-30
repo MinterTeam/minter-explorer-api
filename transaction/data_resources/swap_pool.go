@@ -5,6 +5,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
+	"strconv"
 )
 
 type BuySwapPool struct {
@@ -103,16 +104,20 @@ type AddLimitOrder struct {
 	CoinToBuy   Coin   `json:"coin_to_buy"`
 	ValueToBuy  string `json:"value_to_buy"`
 	ValueToSell string `json:"value_to_sell"`
+	OrderId     uint64 `json:"order_id"`
 }
 
 func (AddLimitOrder) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	data := txData.(*api_pb.AddLimitOrderData)
+	model := params[0].(models.Transaction)
+	orderId, _ := strconv.ParseUint(model.Tags["tx.order_id"], 10, 64)
 
 	return AddLimitOrder{
 		CoinToBuy:   new(Coin).Transform(data.CoinToBuy),
 		CoinToSell:  new(Coin).Transform(data.CoinToSell),
 		ValueToBuy:  helpers.PipStr2Bip(data.ValueToBuy),
 		ValueToSell: helpers.PipStr2Bip(data.ValueToSell),
+		OrderId:     orderId,
 	}
 }
 
