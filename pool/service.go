@@ -34,21 +34,24 @@ type Service struct {
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
 	tvmx sync.RWMutex
+
+	lastTradeVolumesUpdate *time.Time
 }
 
 func NewService(repository *Repository) *Service {
 	pools, _ := repository.GetAll()
 
 	s := &Service{
-		swap:            swap.NewService(repository.db),
-		repository:      repository,
-		poolsLiquidity:  make(map[uint64]*big.Float),
-		coinPrices:      make(map[uint64]*big.Float),
-		tradeVolumes:    make(map[uint64]TradeVolumes),
-		swapRoutes:      new(sync.Map),
-		poolsMap:        new(sync.Map),
-		pools:           pools,
-		tradeSearchJobs: make(chan TradeSearch),
+		swap:                   swap.NewService(repository.db),
+		repository:             repository,
+		poolsLiquidity:         make(map[uint64]*big.Float),
+		coinPrices:             make(map[uint64]*big.Float),
+		tradeVolumes:           make(map[uint64]TradeVolumes),
+		swapRoutes:             new(sync.Map),
+		poolsMap:               new(sync.Map),
+		pools:                  pools,
+		tradeSearchJobs:        make(chan TradeSearch),
+		lastTradeVolumesUpdate: nil,
 	}
 
 	s.runWorkers()
@@ -228,6 +231,11 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
+	t := time.Now()
+	if s.lastTradeVolumesUpdate != nil && s.lastTradeVolumesUpdate.Add(10 * time.Minute).Before(t) {
+		return
+	}
+
 	volumes1d, err := s.getTradeVolumesLastNDays(pools, 1)
 	if err != nil {
 		log.Errorf("failed to update last day trade volumes: %s", err)
@@ -245,6 +253,8 @@ func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
 		s.tradeVolumes[pId] = TradeVolumes{Day: v, Month: volumes30d[pId]}
 		s.tvmx.Unlock()
 	}
+
+	s.lastTradeVolumesUpdate = &t
 }
 
 func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string, startTime *time.Time) ([]TradeVolume, error) {

@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/aggregated_reward"
 	"github.com/MinterTeam/minter-explorer-api/v2/chart"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/MinterTeam/minter-explorer-api/v2/delegation"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/events"
@@ -172,7 +173,7 @@ func GetTransactions(c *gin.Context) {
 		helpers.CheckErr(err)
 
 		return resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination)
-	}, 1, pagination.GetCurrentPage() != 1 || (req.StartBlock != nil || req.EndBlock != nil)).(resource.PaginationResource)
+	}, 1, pagination.GetCurrentPage() != 1 || req.StartBlock != nil || req.EndBlock != nil || req.SendType != nil || pagination.Pager.GetLimit() != config.DefaultPaginationLimit).(resource.PaginationResource)
 
 	c.JSON(http.StatusOK, data)
 }

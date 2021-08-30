@@ -106,7 +106,7 @@ func GetValidators(c *gin.Context) {
 
 	// fetch validators
 	validators := explorer.Cache.Get("validators", func() interface{} {
-		validators := explorer.ValidatorRepository.GetValidators()
+		validators := explorer.ValidatorRepository.GetValidatorsAndStakes()
 
 		activeValidatorIDs := getActiveValidatorIDs(explorer)
 		totalStake := getTotalStakeByActiveValidators(explorer, activeValidatorIDs)
@@ -231,4 +231,17 @@ func GetValidatorBans(c *gin.Context) {
 	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(bans, events.BanResource{}, pagination))
+}
+
+// GetValidatorsMeta Get list of validators meta
+func GetValidatorsMeta(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// fetch validators
+	validators := explorer.Cache.Get("validators-meta", func() interface{} {
+		validators := explorer.ValidatorRepository.GetValidators()
+		return resource.TransformCollection(validators, validator.Resource{})
+	}, 120).([]resource.Interface)
+
+	c.JSON(http.StatusOK, gin.H{"data": validators})
 }
