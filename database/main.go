@@ -14,7 +14,7 @@ func Connect(env *core.Environment) *pg.DB {
 		User:     env.DbUser,
 		Password: env.DbPassword,
 		Database: env.DbName,
-		PoolSize: 60,
+		PoolSize: 20,
 		Addr:     fmt.Sprintf("%s:%s", env.DbHost, env.DbPort),
 	}
 
