@@ -20,7 +20,7 @@ jobs:
           path: VERSION
 
       - name: Build & Push to Docker Hub
-        uses: opspresso/action-docker@master
+        uses: opspresso/action-docker@v0.2.13
         env:
           USERNAME: ${{ secrets.DOCKER_HUB_USER }}
           PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}

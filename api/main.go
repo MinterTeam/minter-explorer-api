@@ -94,7 +94,7 @@ func throttle(ipMap *sync.Map) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		limiter, ok := ipMap.Load(c.ClientIP())
 		if !ok {
-			limiter = rate.NewLimiter(7, 7)
+			limiter = rate.NewLimiter(10, 10)
 			ipMap.Store(c.ClientIP(), limiter)
 		}
 
