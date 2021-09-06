@@ -48,7 +48,8 @@ jobs:
         uses: wahyd4/kubectl-helm-action@v0.1.2
         env:
           TAG_NAME: ${{ github.sha }}
-        run: helm upgrade -n mainnet-reserved -i api helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
+        with:
+          args: helm upgrade -n mainnet-reserved -i api helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
 
       - name: notification
         if: cancelled() == false
