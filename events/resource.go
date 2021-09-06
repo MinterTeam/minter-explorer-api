@@ -8,8 +8,8 @@ import (
 )
 
 type BanResource struct {
-	FromBlockId   uint64 `json:"from_block_id"`
-	FromTimestamp string `json:"from_timestamp"`
+	FromBlockId   uint64 `json:"height"`
+	FromTimestamp string `json:"timestamp"`
 	ToBlockId     uint64 `json:"to_block_id"`
 }
 
@@ -24,10 +24,9 @@ func (BanResource) Transform(model resource.ItemInterface, params ...resource.Pa
 }
 
 type AddressBanResource struct {
-	FromBlockId   uint64             `json:"from_block_id"`
-	FromTimestamp string             `json:"from_timestamp"`
+	FromBlockId   uint64             `json:"height"`
+	FromTimestamp string             `json:"timestamp"`
 	ToBlockId     uint64             `json:"to_block_id"`
-	Timestamp     string             `json:"timestamp"`
 	Validator     resource.Interface `json:"validator"`
 }
 
