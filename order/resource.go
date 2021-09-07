@@ -8,6 +8,7 @@ import (
 )
 
 type Resource struct {
+	Id               uint64             `json:"id"`
 	Address          string             `json:"address"`
 	PoolId           uint64             `json:"pool_id"`
 	CoinToBuyVolume  string             `json:"coin_to_buy_volume"`
@@ -19,6 +20,7 @@ type Resource struct {
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	order := model.(models.Order)
 	return Resource{
+		Id:               order.Id,
 		Address:          order.Address.GetAddress(),
 		PoolId:           order.LiquidityPoolId,
 		CoinToSell:       new(coins.IdResource).Transform(*order.CoinSell),
