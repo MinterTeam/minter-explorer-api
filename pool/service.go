@@ -154,6 +154,11 @@ func (s *Service) getPathsRelatedPools(paths [][]goraph.ID) ([]models.LiquidityP
 			}
 
 			p := data.(models.LiquidityPool)
+			if len(paths) > 130 {
+				if helpers.Pip2Bip(helpers.StringToBigInt(p.LiquidityBip)).Cmp(big.NewFloat(100)) == -1 {
+					continue
+				}
+			}
 
 			isExists := false
 			for _, p2 := range related {
