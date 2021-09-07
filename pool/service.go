@@ -8,9 +8,11 @@ import (
 	. "github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
 	"github.com/starwander/goraph"
 	"math/big"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -36,6 +38,7 @@ type Service struct {
 	tvmx sync.RWMutex
 
 	lastTradeVolumesUpdate *time.Time
+	node                   *resty.Client
 }
 
 func NewService(repository *Repository) *Service {
@@ -52,6 +55,7 @@ func NewService(repository *Repository) *Service {
 		pools:                  pools,
 		tradeSearchJobs:        make(chan TradeSearch),
 		lastTradeVolumesUpdate: nil,
+		node:                   resty.New(),
 	}
 
 	s.runWorkers()
@@ -238,7 +242,7 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 
 func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
 	t := time.Now()
-	if s.lastTradeVolumesUpdate != nil && s.lastTradeVolumesUpdate.Add(10 * time.Minute).Before(t) {
+	if s.lastTradeVolumesUpdate != nil && s.lastTradeVolumesUpdate.Add(10*time.Minute).Before(t) {
 		return
 	}
 
@@ -435,4 +439,47 @@ func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 	}
 
 	return trade, nil
+}
+
+// ----------------------------------------------
+// TODO: remove, temp solution
+
+type nodeSwapRouteResponse struct {
+	Path   []string `json:"path"`
+	Result string   `json:"result"`
+	Price  string   `json:"price"`
+}
+
+func (s *Service) FindSwapRoutePathByNode(fromCoinId, toCoinId uint64, tradeType, amount string) (*swap.Trade, error) {
+	var data nodeSwapRouteResponse
+	resp, err := s.node.R().
+		SetResult(&data).
+		Get(fmt.Sprintf("http://gate-node.minter.network:8843/v2/best_trade/%d/%d/%s/%s", fromCoinId, toCoinId, tradeType, amount))
+
+	if resp.StatusCode() != 200 || err != nil {
+		return nil, errors.New("not found")
+	}
+
+	coins := make([]swap.Token, len(data.Path))
+	for i, id := range data.Path {
+		coinId, _ := strconv.ParseUint(id, 10, 64)
+		coins[i] = swap.NewToken(coinId)
+	}
+
+	amountFrom, amountTo := amount, data.Result
+
+	tt := swap.TradeTypeExactInput
+	if tradeType == "output" {
+		tt = swap.TradeTypeExactOutput
+		amountFrom, amountTo = data.Result, amount
+	}
+
+	return &swap.Trade{
+		Route: swap.Route{
+			Path: coins,
+		},
+		TradeType:    tt,
+		InputAmount:  swap.NewTokenAmount(swap.NewToken(fromCoinId), helpers.StringToBigInt(amountFrom)),
+		OutputAmount: swap.NewTokenAmount(swap.NewToken(toCoinId), helpers.StringToBigInt(amountTo)),
+	}, nil
 }
