@@ -237,10 +237,10 @@ func FindSwapPoolRoute(c *gin.Context) {
 	}
 
 	// define trade type
-	tradeType := swap.TradeTypeExactInput
-	if reqQuery.TradeType == "output" {
-		tradeType = swap.TradeTypeExactOutput
-	}
+	//tradeType := swap.TradeTypeExactInput
+	//if reqQuery.TradeType == "output" {
+	//	tradeType = swap.TradeTypeExactOutput
+	//}
 
 	//trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
 	//if err != nil {
