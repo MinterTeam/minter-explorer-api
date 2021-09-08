@@ -47,6 +47,7 @@ jobs:
       - name: Deploy to DO
         uses: wahyd4/kubectl-helm-action@v0.1.2
         env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_PROD_CONFIG_DATA }}
           TAG_NAME: ${{ github.sha }}
         with:
           args: helm upgrade -n mainnet-reserved -i api helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
