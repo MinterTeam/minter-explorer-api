@@ -81,25 +81,11 @@ func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinI
 }
 
 func (s *Service) findSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("find paths")
-
-	paths, err := s.findSwapRoutePathsByGraph(s.pools, fromCoinId, toCoinId, 5)
-	if err != nil {
-		return nil, err
-	}
-
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
-
-	pools, err := s.getPathsRelatedPools(paths)
-	if err != nil {
-		return nil, err
-	}
-
-	//var err error
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
+	var err error
+	rlog.WithTime(time.Now()).WithField("pools count", len(s.pools)).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("use all pools")
 
 	pairs := make([]swap.Pair, 0)
-	for _, p := range pools {
+	for _, p := range s.pools {
 		pairs = append(pairs, swap.NewPair(
 			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
 			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
