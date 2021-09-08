@@ -93,6 +93,7 @@ func (r *Repository) GetAll() (pools []models.LiquidityPool, err error) {
 	err = r.db.Model(&pools).
 		Relation("FirstCoin").
 		Relation("SecondCoin").
+		Relation("Token").
 		Order("liquidity_bip DESC").
 		Select()
 

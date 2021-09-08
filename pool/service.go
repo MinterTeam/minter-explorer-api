@@ -441,6 +441,10 @@ func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 	return trade, nil
 }
 
+func (s *Service) GetPools() []models.LiquidityPool {
+	return s.pools
+}
+
 // ----------------------------------------------
 // TODO: remove, temp solution
 

@@ -525,3 +525,22 @@ func GetSwapPoolsList(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resources)
 }
+
+// GetAllSwapPools get all swap pool list
+func GetAllSwapPools(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		p := model.(models.LiquidityPool)
+		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
+		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
+
+		return resource.ParamsInterface{pool.Params{
+			TradeVolume1d:  tv1d.BipVolume,
+			TradeVolume30d: tv30d.BipVolume,
+		}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(explorer.PoolService.GetPools(), new(pool.Resource), resourceCallback))
+}

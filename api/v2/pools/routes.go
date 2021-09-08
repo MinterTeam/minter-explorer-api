@@ -7,6 +7,7 @@ func ApplyRoutes(r *gin.RouterGroup) {
 	pools := r.Group("/pools")
 	{
 		pools.GET("", GetSwapPools)
+		pools.GET("/all", GetAllSwapPools)
 		pools.GET("/token/:token", GetSwapPool)
 		pools.GET("/token/:token/transactions", GetSwapPoolTransactions)
 		pools.GET("/token/:token/providers", GetSwapPoolProviders)
