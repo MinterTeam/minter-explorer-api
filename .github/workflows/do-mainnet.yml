@@ -42,7 +42,7 @@ jobs:
       - name: Deploy to reserv
         env:
           TAG_NAME: ${{ github.sha }}
-        run: ./linux-amd64/helm upgrade -n mainnet-reserved extender chart/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
+        run: ./linux-amd64/helm upgrade -n mainnet-reserved extender helm/ --atomic --timeout 100s --set image.tag=$TAG_NAME --reuse-values
 
       - name: notification
         if: cancelled() == false
