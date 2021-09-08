@@ -242,17 +242,17 @@ func FindSwapPoolRoute(c *gin.Context) {
 		tradeType = swap.TradeTypeExactOutput
 	}
 
-	trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
-	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
-		return
-	}
-
-	//trade, err := explorer.PoolService.FindSwapRoutePathByNode(fromCoinId, toCoinId, reqQuery.TradeType, reqQuery.Amount)
+	//trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
 	//if err != nil {
 	//	errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 	//	return
 	//}
+
+	trade, err := explorer.PoolService.FindSwapRoutePathByNode(fromCoinId, toCoinId, reqQuery.TradeType, reqQuery.Amount)
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+		return
+	}
 
 	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("trade found")
 
@@ -420,8 +420,8 @@ func EstimateSwap(c *gin.Context) {
 	}
 
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
-	//trade, poolErr := explorer.PoolService.FindSwapRoutePathByNode(uint64(coinFrom.ID), uint64(coinTo.ID), reqQuery.TradeType, reqQuery.Amount)
+	//trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
+	trade, poolErr := explorer.PoolService.FindSwapRoutePathByNode(uint64(coinFrom.ID), uint64(coinTo.ID), reqQuery.TradeType, reqQuery.Amount)
 
 	if poolErr != nil && bancorErr != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
