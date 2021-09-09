@@ -19,6 +19,7 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 		Relation("Address").
 		Relation("CoinSell").
 		Relation("CoinBuy").
+		Order("coin_sell_volume / coin_buy_volume desc").
 		Apply(pagination.Filter)
 
 	for _, f := range filters {
