@@ -16,6 +16,7 @@ type Resource struct {
 	CoinToSell       resource.Interface `json:"coin_to_sell"`
 	CoinToBuy        resource.Interface `json:"coin_to_buy"`
 	Height           uint64             `json:"height"`
+	Status           string             `json:"status"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -29,5 +30,6 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		CoinToBuyVolume:  helpers.PipStr2Bip(order.CoinBuyVolume),
 		CoinToSellVolume: helpers.PipStr2Bip(order.CoinSellVolume),
 		Height:           order.CreatedAtBlock,
+		Status:           MakeOrderStatus(order.Status),
 	}
 }
