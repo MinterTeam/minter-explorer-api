@@ -2,7 +2,6 @@ package order
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
-	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
 )
 
@@ -14,11 +13,15 @@ func NewRepository(db *pg.DB) *Repository {
 	return &Repository{db}
 }
 
-func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...tools.Filter) (orders []models.Order, err error) {
+func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...tools.Filter) (orders []OrderTransaction, err error) {
 	q := r.db.Model(&orders).
 		Relation("Address").
 		Relation("CoinSell").
 		Relation("CoinBuy").
+		Column("coin_sell_volume", "coin_buy_volume", "created_at_block", "status", "liquidity_pool_id").
+		ColumnExpr(`"order_transaction".id AS "id"`).
+		ColumnExpr(`transactions.data AS "transaction__data"`).
+		Join(`JOIN transactions ON (transactions.tags->>'tx.order_id')::int = "order_transaction".id`).
 		OrderExpr("coin_sell_volume / coin_buy_volume desc").
 		Apply(pagination.Filter)
 
