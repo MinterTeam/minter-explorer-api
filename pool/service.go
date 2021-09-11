@@ -395,21 +395,53 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 }
 
 func (s *Service) runWorkers() {
-	for w := 1; w <= 40; w++ {
+	for w := 1; w <= 15; w++ {
 		go s.findSwapRoutePathWorker(s.tradeSearchJobs)
 	}
 }
 
 func (s *Service) findSwapRoutePathWorker(jobs <-chan TradeSearch) {
 	for j := range jobs {
-		trade, _ := s.findSwapRoutePath(j.Log, j.FromCoinId, j.ToCoinId, j.TradeType, j.Amount)
+		trade, _ := s.findSwapRoutePathByNode(j.FromCoinId, j.ToCoinId, j.TradeType, j.Amount)
 		j.Trade <- trade
 	}
 }
 
-func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+//func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+//	ts := TradeSearch{
+//		Log:        rlog,
+//		FromCoinId: fromCoinId,
+//		ToCoinId:   toCoinId,
+//		TradeType:  tradeType,
+//		Amount:     amount,
+//		Trade:      make(chan *swap.Trade),
+//	}
+//
+//	s.tradeSearchJobs <- ts
+//	trade := <-ts.Trade
+//
+//	if trade == nil {
+//		return nil, errors.New("trade not found")
+//	}
+//
+//	return trade, nil
+//}
+
+func (s *Service) GetPools() []models.LiquidityPool {
+	return s.pools
+}
+
+// ----------------------------------------------
+// TODO: remove, temp solution
+
+type nodeSwapRouteResponse struct {
+	Path   []string `json:"path"`
+	Result string   `json:"result"`
+	Price  string   `json:"price"`
+}
+
+func (s *Service) FindSwapRoutePathByNode(fromCoinId, toCoinId uint64, tradeType, amount string) (*swap.Trade, error) {
 	ts := TradeSearch{
-		Log:        rlog,
 		FromCoinId: fromCoinId,
 		ToCoinId:   toCoinId,
 		TradeType:  tradeType,
@@ -427,20 +459,7 @@ func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 	return trade, nil
 }
 
-func (s *Service) GetPools() []models.LiquidityPool {
-	return s.pools
-}
-
-// ----------------------------------------------
-// TODO: remove, temp solution
-
-type nodeSwapRouteResponse struct {
-	Path   []string `json:"path"`
-	Result string   `json:"result"`
-	Price  string   `json:"price"`
-}
-
-func (s *Service) FindSwapRoutePathByNode(fromCoinId, toCoinId uint64, tradeType, amount string) (*swap.Trade, error) {
+func (s *Service) findSwapRoutePathByNode(fromCoinId, toCoinId uint64, tradeType, amount string) (*swap.Trade, error) {
 	var data nodeSwapRouteResponse
 	resp, err := s.node.R().
 		SetResult(&data).
