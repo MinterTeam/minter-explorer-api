@@ -25,14 +25,23 @@ func (f AddressFilter) Filter(q *orm.Query) (*orm.Query, error) {
 
 type TypeFilter struct {
 	Type Type
+	coinId uint64
 }
 
-func NewTypeFilter(f string) TypeFilter {
-	return TypeFilter{}
+func NewTypeFilter(f string, coinId uint64) TypeFilter {
+	return TypeFilter{Type(f), coinId}
 }
 
 func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
-	return q.Where(""), nil
+	if f.Type == OrderTypeBuy {
+		return q.Where("coin_buy_id = ?", f.coinId), nil
+	}
+
+	if f.Type == OrderTypeSell {
+		return q.Where("coin_sell_id = ?", f.coinId), nil
+	}
+
+	return q, nil
 }
 
 // ------------------------------

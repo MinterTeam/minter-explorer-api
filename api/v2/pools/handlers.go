@@ -545,9 +545,16 @@ func GetSwapPoolOrders(c *gin.Context) {
 		return
 	}
 
+	fromCoinId := uint64(0)
+	if id, err := strconv.ParseUint(req.Coin0, 10, 64); err == nil {
+		fromCoinId = id
+	} else {
+		fromCoinId, _ = explorer.CoinRepository.FindIdBySymbol(req.Coin0)
+	}
+
 	pagination := tools.NewPagination(c.Request)
 	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewPoolFilter(p),
-		order.NewAddressFilter(helpers.RemoveMinterPrefix(rq.Address)),
+		order.NewAddressFilter(helpers.RemoveMinterPrefix(rq.Address)), order.NewTypeFilter(rq.Type, fromCoinId),
 	)
 
 	if err != nil {
