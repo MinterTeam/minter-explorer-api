@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
+	"github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/go-pg/pg/v10"
 )
 
@@ -21,7 +22,7 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 		Column("coin_sell_volume", "coin_buy_volume", "created_at_block", "status", "liquidity_pool_id").
 		ColumnExpr(`"order_transaction".id AS "id"`).
 		ColumnExpr(`transactions.data AS "transaction__data"`).
-		Join(`JOIN transactions ON (transactions.tags->>'tx.order_id')::int = "order_transaction".id`).
+		Join(`JOIN transactions ON (transactions.tags->>'tx.order_id')::int = "order_transaction".id and transactions.type = ?`, transaction.TypeAddLimitOrder).
 		OrderExpr("coin_sell_volume / coin_buy_volume desc").
 		Apply(pagination.Filter)
 
