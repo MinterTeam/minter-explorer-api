@@ -5,6 +5,7 @@ import "github.com/MinterTeam/minter-explorer-extender/v2/models"
 var (
 	statuses = map[models.OrderType]string{
 		models.OrderTypeActive:          "active",
+		models.OrderTypeNew:             "active",
 		models.OrderTypePartiallyFilled: "partially_filled",
 		models.OrderTypeFilled:          "filled",
 		models.OrderTypeCanceled:        "canceled",
