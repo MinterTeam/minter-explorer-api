@@ -39,7 +39,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	p.ReqCntURLLabelMappingFn = func(c *gin.Context) string { return "" } // do not save stats for all routes
 	p.Use(router)
 
-	router.Use(cors.Default())                    // CORS
+	// router.Use(cors.Default())                    // CORS
 	router.Use(gin.ErrorLogger())                 // print all errors
 	router.Use(apiMiddleware(db, explorer))       // init global context
 	router.Use(otelgin.Middleware("ExplorerApi")) // metrics
