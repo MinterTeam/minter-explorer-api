@@ -19,11 +19,11 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 		Relation("Address").
 		Relation("CoinSell").
 		Relation("CoinBuy").
-		Column("coin_sell_volume", "coin_buy_volume", "created_at_block", "status", "liquidity_pool_id").
+		Column("coin_sell_volume", "coin_buy_volume", "created_at_block", "status", "liquidity_pool_id", "price").
 		ColumnExpr(`"order_transaction".id AS "id"`).
 		ColumnExpr(`transactions.data AS "transaction__data"`).
 		Join(`JOIN transactions ON (transactions.tags->>'tx.order_id')::int = "order_transaction".id and transactions.type = ?`, transaction.TypeAddLimitOrder).
-		OrderExpr("coin_sell_volume / coin_buy_volume desc").
+		OrderExpr("price desc").
 		Apply(pagination.Filter)
 
 	for _, f := range filters {
