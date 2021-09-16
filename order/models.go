@@ -12,6 +12,7 @@ type OrderTransaction struct {
 	CoinBuyId       uint64   `json:"coin_buy_id"       pg:",use_zero"`
 	CoinBuyVolume   string   `json:"coin_buy_volume"`
 	CreatedAtBlock  uint64   `json:"created_at_block"`
+	Price           string   `json:"price"`
 	IsCanceled      bool
 	Status          models.OrderType      `json:"status"`
 	Address         *models.Address       `json:"address"           pg:"rel:has-one,fk:address_id"`
