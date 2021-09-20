@@ -34,7 +34,7 @@ func NewTypeFilter(f string, coinId uint64) TypeFilter {
 
 func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.Type == OrderTypeBuy {
-		return q.Where("coin_buy_id = ?", f.coinId), nil
+		return q.Where("coin_buy_id = ?", f.coinId).OrderExpr("price asc"), nil
 	}
 
 	if f.Type == OrderTypeSell {

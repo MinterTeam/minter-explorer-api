@@ -23,12 +23,13 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 		ColumnExpr(`"order_transaction".id AS "id"`).
 		ColumnExpr(`transactions.data AS "transaction__data"`).
 		Join(`JOIN transactions ON (transactions.tags->>'tx.order_id')::int = "order_transaction".id and transactions.type = ?`, transaction.TypeAddLimitOrder).
-		OrderExpr("price desc").
 		Apply(pagination.Filter)
 
 	for _, f := range filters {
 		q = q.Apply(f.Filter)
 	}
+	
+	q = q.OrderExpr("price desc")
 
 	pagination.Total, err = q.SelectAndCount()
 	return
