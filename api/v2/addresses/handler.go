@@ -349,6 +349,10 @@ func GetBans(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(bans, events.AddressBanResource{}, pagination))
 }
 
+type GetOrdersRequest struct {
+	Status string `form:"status"  binding:"omitempty,oneof=canceled active expired partially_filled filled"`
+}
+
 // GetLimitOrders Get list of limit orders created by address
 func GetLimitOrders(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
@@ -360,8 +364,15 @@ func GetLimitOrders(c *gin.Context) {
 		return
 	}
 
+	// validate request
+	var rq GetOrdersRequest
+	if err := c.ShouldBindQuery(&rq); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
 	pagination := tools.NewPagination(c.Request)
-	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewAddressFilter(*minterAddress))
+	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewAddressFilter(*minterAddress), order.NewStatusFilter(rq.Status))
 	if err != nil {
 		log.WithError(err).Fatal("failed to load orders")
 	}
