@@ -554,7 +554,7 @@ func GetSwapPoolOrders(c *gin.Context) {
 
 	pagination := tools.NewPagination(c.Request)
 	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewPoolFilter(p),
-		order.NewAddressFilter(helpers.RemoveMinterPrefix(rq.Address)), order.NewTypeFilter(rq.Type, fromCoinId),
+		order.NewAddressFilter(helpers.RemoveMinterPrefix(rq.Address)), order.NewTypeFilter(rq.Type, p, fromCoinId),
 	)
 
 	if err != nil {

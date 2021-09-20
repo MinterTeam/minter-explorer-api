@@ -28,8 +28,6 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 	for _, f := range filters {
 		q = q.Apply(f.Filter)
 	}
-	
-	q = q.OrderExpr("price desc")
 
 	pagination.Total, err = q.SelectAndCount()
 	return

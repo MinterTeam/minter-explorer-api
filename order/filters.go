@@ -24,21 +24,38 @@ func (f AddressFilter) Filter(q *orm.Query) (*orm.Query, error) {
 // ------------------------------
 
 type TypeFilter struct {
-	Type Type
+	Type   Type
+	pool   models.LiquidityPool
 	coinId uint64
 }
 
-func NewTypeFilter(f string, coinId uint64) TypeFilter {
-	return TypeFilter{Type(f), coinId}
+func NewTypeFilter(f string, pool models.LiquidityPool, coinId uint64) TypeFilter {
+	return TypeFilter{Type(f), pool, coinId}
 }
 
 func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.Type == OrderTypeBuy {
-		return q.Where("coin_buy_id = ?", f.coinId).OrderExpr("price asc"), nil
+		q = q.Where("coin_buy_id = ?", f.coinId)
+
+		if f.pool.FirstCoinId == f.coinId {
+			q = q.OrderExpr("price asc")
+		} else {
+			q = q.OrderExpr("price desc")
+		}
 	}
 
 	if f.Type == OrderTypeSell {
-		return q.Where("coin_sell_id = ?", f.coinId), nil
+		q = q.Where("coin_sell_id = ?", f.coinId)
+
+		if f.pool.FirstCoinId == f.coinId {
+			q = q.OrderExpr("price desc")
+		} else {
+			q = q.OrderExpr("price asc")
+		}
+	}
+
+	if len(f.Type) == 0 {
+		return q.OrderExpr("price desc"), nil
 	}
 
 	return q, nil
