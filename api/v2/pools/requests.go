@@ -44,6 +44,7 @@ type FindSwapPoolRouteRequest struct {
 type GetSwapPoolOrdersRequest struct {
 	Type    string `form:"type"    binding:"omitempty,oneof=buy sell"`
 	Address string `form:"address" binding:"omitempty,minterAddress"`
+	Status  string `form:"status"  binding:"omitempty,oneof=canceled active expired partially_filled filled"`
 }
 
 func (req *FindSwapPoolRouteRequest) GetCoins(explorer *core.Explorer) (coinFrom models.Coin, coinTo models.Coin, err error) {

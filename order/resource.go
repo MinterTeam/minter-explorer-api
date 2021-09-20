@@ -21,7 +21,7 @@ type Resource struct {
 	CoinToSell              resource.Interface `json:"coin_to_sell"`
 	CoinToBuy               resource.Interface `json:"coin_to_buy"`
 	Height                  uint64             `json:"height"`
-	Status                  string             `json:"status"`
+	Status                  Status             `json:"status"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {

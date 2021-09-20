@@ -74,3 +74,42 @@ func NewPoolFilter(p models.LiquidityPool) PoolFilter {
 func (f PoolFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	return q.Where("liquidity_pool_id = ?", f.Pool.Id), nil
 }
+
+
+// ------------------------------
+
+type StatusFilter struct {
+	status Status
+}
+
+func NewStatusFilter(status string) StatusFilter {
+	return StatusFilter{Status(status)}
+}
+
+func (f StatusFilter) Filter(q *orm.Query) (*orm.Query, error) {
+	if len(f.status) == 0 {
+		return q, nil
+	}
+
+	if f.status == OrderStatusActive {
+		return q.Where(`"status" in (?, ?)`, models.OrderTypeActive, models.OrderTypeNew), nil
+	}
+
+	if f.status == OrderStatusCanceled {
+		return q.Where(`"status" = ?`, models.OrderTypeCanceled), nil
+	}
+
+	if f.status == OrderStatusExpired {
+		return q.Where(`"status" = ?`, models.OrderTypeExpired), nil
+	}
+
+	if f.status == OrderStatusFilled {
+		return q.Where(`"status" = ?`, models.OrderTypeFilled), nil
+	}
+
+	if f.status == OrderStatusPartiallyFilled {
+		return q.Where(`"status" = ?`, models.OrderTypePartiallyFilled), nil
+	}
+
+	return q, nil
+}

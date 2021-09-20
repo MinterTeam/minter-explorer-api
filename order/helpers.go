@@ -3,16 +3,16 @@ package order
 import "github.com/MinterTeam/minter-explorer-extender/v2/models"
 
 var (
-	statuses = map[models.OrderType]string{
-		models.OrderTypeActive:          "active",
-		models.OrderTypeNew:             "active",
-		models.OrderTypePartiallyFilled: "partially_filled",
-		models.OrderTypeFilled:          "filled",
-		models.OrderTypeCanceled:        "canceled",
-		models.OrderTypeExpired:         "expired",
+	statuses = map[models.OrderType]Status{
+		models.OrderTypeActive:          OrderStatusActive,
+		models.OrderTypeNew:             OrderStatusActive,
+		models.OrderTypePartiallyFilled: OrderStatusPartiallyFilled,
+		models.OrderTypeFilled:          OrderStatusFilled,
+		models.OrderTypeCanceled:        OrderStatusCanceled,
+		models.OrderTypeExpired:         OrderStatusExpired,
 	}
 )
 
-func MakeOrderStatus(status models.OrderType) string {
+func MakeOrderStatus(status models.OrderType) Status {
 	return statuses[status]
 }
