@@ -40,7 +40,7 @@ func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		if f.pool.FirstCoinId == f.coinId {
 			q = q.OrderExpr("price desc")
 		} else {
-			q = q.OrderExpr("price asc")
+			q = q.OrderExpr("price desc")
 		}
 	}
 
@@ -50,7 +50,7 @@ func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		if f.pool.FirstCoinId == f.coinId {
 			q = q.OrderExpr("price desc")
 		} else {
-			q = q.OrderExpr("price asc")
+			q = q.OrderExpr("price desc")
 		}
 	}
 
