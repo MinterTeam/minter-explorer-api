@@ -38,9 +38,9 @@ func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
 		q = q.Where("coin_buy_id = ?", f.coinId)
 
 		if f.pool.FirstCoinId == f.coinId {
-			q = q.OrderExpr("price asc")
-		} else {
 			q = q.OrderExpr("price desc")
+		} else {
+			q = q.OrderExpr("price asc")
 		}
 	}
 
