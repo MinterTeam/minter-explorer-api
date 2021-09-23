@@ -29,6 +29,8 @@ func main() {
 		log.Fatal(".env file not found")
 	}
 
+	//uptrace.ConfigureOpentelemetry()
+
 	// init environment
 	env := core.NewEnvironment()
 

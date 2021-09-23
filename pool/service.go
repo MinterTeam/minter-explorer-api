@@ -8,9 +8,11 @@ import (
 	. "github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
 	"github.com/starwander/goraph"
 	"math/big"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -34,21 +36,26 @@ type Service struct {
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
 	tvmx sync.RWMutex
+
+	lastTradeVolumesUpdate *time.Time
+	node                   *resty.Client
 }
 
 func NewService(repository *Repository) *Service {
 	pools, _ := repository.GetAll()
 
 	s := &Service{
-		swap:            swap.NewService(repository.db),
-		repository:      repository,
-		poolsLiquidity:  make(map[uint64]*big.Float),
-		coinPrices:      make(map[uint64]*big.Float),
-		tradeVolumes:    make(map[uint64]TradeVolumes),
-		swapRoutes:      new(sync.Map),
-		poolsMap:        new(sync.Map),
-		pools:           pools,
-		tradeSearchJobs: make(chan TradeSearch),
+		swap:                   swap.NewService(repository.db),
+		repository:             repository,
+		poolsLiquidity:         make(map[uint64]*big.Float),
+		coinPrices:             make(map[uint64]*big.Float),
+		tradeVolumes:           make(map[uint64]TradeVolumes),
+		swapRoutes:             new(sync.Map),
+		poolsMap:               new(sync.Map),
+		pools:                  pools,
+		tradeSearchJobs:        make(chan TradeSearch),
+		lastTradeVolumesUpdate: nil,
+		node:                   resty.New(),
 	}
 
 	s.runWorkers()
@@ -73,25 +80,12 @@ func (s *Service) IsSwapExists(pools []models.LiquidityPool, fromCoinId, toCoinI
 	return err == nil
 }
 
-func (s *Service) findSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("find paths")
-
-	paths, err := s.findSwapRoutePathsByGraph(s.pools, fromCoinId, toCoinId, 5)
-	if err != nil {
-		return nil, err
-	}
-
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
-
-	pools, err := s.getPathsRelatedPools(paths)
-	if err != nil {
-		return nil, err
-	}
-
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("paths found")
+func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+	var err error
+	rlog.WithTime(time.Now()).WithField("pools count", len(s.pools)).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("use all pools")
 
 	pairs := make([]swap.Pair, 0)
-	for _, p := range pools {
+	for _, p := range s.pools {
 		pairs = append(pairs, swap.NewPair(
 			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
 			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
@@ -150,6 +144,11 @@ func (s *Service) getPathsRelatedPools(paths [][]goraph.ID) ([]models.LiquidityP
 			}
 
 			p := data.(models.LiquidityPool)
+			if len(paths) > 130 {
+				if helpers.Pip2Bip(helpers.StringToBigInt(p.LiquidityBip)).Cmp(big.NewFloat(100)) == -1 {
+					continue
+				}
+			}
 
 			isExists := false
 			for _, p2 := range related {
@@ -228,6 +227,11 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
+	t := time.Now()
+	if s.lastTradeVolumesUpdate != nil && s.lastTradeVolumesUpdate.Add(10*time.Minute).Before(t) {
+		return
+	}
+
 	volumes1d, err := s.getTradeVolumesLastNDays(pools, 1)
 	if err != nil {
 		log.Errorf("failed to update last day trade volumes: %s", err)
@@ -245,6 +249,8 @@ func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
 		s.tradeVolumes[pId] = TradeVolumes{Day: v, Month: volumes30d[pId]}
 		s.tvmx.Unlock()
 	}
+
+	s.lastTradeVolumesUpdate = &t
 }
 
 func (s *Service) GetTradesVolume(pool models.LiquidityPool, scale *string, startTime *time.Time) ([]TradeVolume, error) {
@@ -378,7 +384,7 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 		return paths.([][]goraph.ID), nil
 	}
 
-	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 130)
+	paths, err := s.swap.FindSwapRoutePathsByGraph(pools, fromCoinId, toCoinId, depth, 500)
 	if err != nil {
 		return nil, err
 	}
@@ -389,21 +395,53 @@ func (s *Service) findSwapRoutePathsByGraph(pools []models.LiquidityPool, fromCo
 }
 
 func (s *Service) runWorkers() {
-	for w := 1; w <= 50; w++ {
+	for w := 1; w <= 15; w++ {
 		go s.findSwapRoutePathWorker(s.tradeSearchJobs)
 	}
 }
 
 func (s *Service) findSwapRoutePathWorker(jobs <-chan TradeSearch) {
 	for j := range jobs {
-		trade, _ := s.findSwapRoutePath(j.Log, j.FromCoinId, j.ToCoinId, j.TradeType, j.Amount)
+		trade, _ := s.findSwapRoutePathByNode(j.FromCoinId, j.ToCoinId, j.TradeType, j.Amount)
 		j.Trade <- trade
 	}
 }
 
-func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+//func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+//	ts := TradeSearch{
+//		Log:        rlog,
+//		FromCoinId: fromCoinId,
+//		ToCoinId:   toCoinId,
+//		TradeType:  tradeType,
+//		Amount:     amount,
+//		Trade:      make(chan *swap.Trade),
+//	}
+//
+//	s.tradeSearchJobs <- ts
+//	trade := <-ts.Trade
+//
+//	if trade == nil {
+//		return nil, errors.New("trade not found")
+//	}
+//
+//	return trade, nil
+//}
+
+func (s *Service) GetPools() []models.LiquidityPool {
+	return s.pools
+}
+
+// ----------------------------------------------
+// TODO: remove, temp solution
+
+type nodeSwapRouteResponse struct {
+	Path   []string `json:"path"`
+	Result string   `json:"result"`
+	Price  string   `json:"price"`
+}
+
+func (s *Service) FindSwapRoutePathByNode(fromCoinId, toCoinId uint64, tradeType, amount string) (*swap.Trade, error) {
 	ts := TradeSearch{
-		Log:        rlog,
 		FromCoinId: fromCoinId,
 		ToCoinId:   toCoinId,
 		TradeType:  tradeType,
@@ -419,4 +457,38 @@ func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64
 	}
 
 	return trade, nil
+}
+
+func (s *Service) findSwapRoutePathByNode(fromCoinId, toCoinId uint64, tradeType, amount string) (*swap.Trade, error) {
+	var data nodeSwapRouteResponse
+	resp, err := s.node.R().
+		SetResult(&data).
+		Get(fmt.Sprintf("http://gate-node.minter.network:8843/v2/best_trade/%d/%d/%s/%s", fromCoinId, toCoinId, tradeType, amount))
+
+	if resp.StatusCode() != 200 || err != nil {
+		return nil, errors.New("not found")
+	}
+
+	coins := make([]swap.Token, len(data.Path))
+	for i, id := range data.Path {
+		coinId, _ := strconv.ParseUint(id, 10, 64)
+		coins[i] = swap.NewToken(coinId)
+	}
+
+	amountFrom, amountTo := amount, data.Result
+
+	tt := swap.TradeTypeExactInput
+	if tradeType == "output" {
+		tt = swap.TradeTypeExactOutput
+		amountFrom, amountTo = data.Result, amount
+	}
+
+	return &swap.Trade{
+		Route: swap.Route{
+			Path: coins,
+		},
+		TradeType:    tt,
+		InputAmount:  swap.NewTokenAmount(swap.NewToken(fromCoinId), helpers.StringToBigInt(amountFrom)),
+		OutputAmount: swap.NewTokenAmount(swap.NewToken(toCoinId), helpers.StringToBigInt(amountTo)),
+	}, nil
 }

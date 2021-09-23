@@ -237,12 +237,18 @@ func FindSwapPoolRoute(c *gin.Context) {
 	}
 
 	// define trade type
-	tradeType := swap.TradeTypeExactInput
-	if reqQuery.TradeType == "output" {
-		tradeType = swap.TradeTypeExactOutput
-	}
+	//tradeType := swap.TradeTypeExactInput
+	//if reqQuery.TradeType == "output" {
+	//	tradeType = swap.TradeTypeExactOutput
+	//}
+	//
+	//trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
+	//if err != nil {
+	//	errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+	//	return
+	//}
 
-	trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
+	trade, err := explorer.PoolService.FindSwapRoutePathByNode(fromCoinId, toCoinId, reqQuery.TradeType, reqQuery.Amount)
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
@@ -414,7 +420,8 @@ func EstimateSwap(c *gin.Context) {
 	}
 
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
+	//trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
+	trade, poolErr := explorer.PoolService.FindSwapRoutePathByNode(uint64(coinFrom.ID), uint64(coinTo.ID), reqQuery.TradeType, reqQuery.Amount)
 
 	if poolErr != nil && bancorErr != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
@@ -518,4 +525,23 @@ func GetSwapPoolsList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resources)
+}
+
+// GetAllSwapPools get all swap pool list
+func GetAllSwapPools(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		p := model.(models.LiquidityPool)
+		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
+		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
+
+		return resource.ParamsInterface{pool.Params{
+			TradeVolume1d:  tv1d.BipVolume,
+			TradeVolume30d: tv30d.BipVolume,
+		}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(explorer.PoolService.GetPools(), new(pool.Resource), resourceCallback))
 }
