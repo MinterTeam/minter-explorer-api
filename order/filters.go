@@ -35,23 +35,11 @@ func NewTypeFilter(f string, pool models.LiquidityPool, coinId uint64) TypeFilte
 
 func (f TypeFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.Type == OrderTypeBuy {
-		q = q.Where("coin_buy_id = ?", f.coinId)
-
-		if f.pool.FirstCoinId == f.coinId {
-			q = q.OrderExpr("price desc")
-		} else {
-			q = q.OrderExpr("price desc")
-		}
+		q = q.Where("coin_buy_id = ?", f.coinId).OrderExpr("price desc")
 	}
 
 	if f.Type == OrderTypeSell {
-		q = q.Where("coin_sell_id = ?", f.coinId)
-
-		if f.pool.FirstCoinId == f.coinId {
-			q = q.OrderExpr("price desc")
-		} else {
-			q = q.OrderExpr("price desc")
-		}
+		q = q.Where("coin_sell_id = ?", f.coinId).OrderExpr("price desc")
 	}
 
 	if len(f.Type) == 0 {
