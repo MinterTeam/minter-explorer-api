@@ -25,6 +25,7 @@ func (r *Repository) GetListByAddress(filter *events.SelectFilter, pagination *t
 		ColumnExpr("unbond.block_id, unbond.value, address.address as address__address").
 		Join("JOIN addresses as address ON address.id = unbond.address_id").
 		Apply(filter.Filter).
+		Order("unbond.block_id desc").
 		SelectAndCount()
 
 	return unbonds, err
