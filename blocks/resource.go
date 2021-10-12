@@ -42,11 +42,10 @@ type ResourceDetailed struct {
 	Timestamp       string               `json:"timestamp"`
 	BlockReward     string               `json:"reward"`
 	Hash            string               `json:"hash"`
-	ValidatorsCount *uint64              `json:"validators_count"`
 	Validators      []resource.Interface `json:"validators"`
 }
 
-// lastBlockId - uint64 pointer to the last block height, optional field.
+// Transform lastBlockId - uint64 pointer to the last block height, optional field.
 func (ResourceDetailed) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	block := model.(models.Block)
 
