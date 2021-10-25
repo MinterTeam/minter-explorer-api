@@ -38,8 +38,8 @@ func Bip2Str(bip *big.Float) string {
 }
 
 func Bip2Pip(bip *big.Float) *big.Int {
-	value, _ := bip.Int(nil)
-	return new(big.Int).Mul(value, big.NewInt(1e18))
+	value, _ := bip.Mul(bip, pipInBip).Int(nil)
+	return value
 }
 
 func Fee2Bip(value uint64) string {

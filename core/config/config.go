@@ -16,3 +16,11 @@ var (
 	BaseCoinSymbol string
 	PriceCoinId    uint64 = 1993 // TODO: move to env
 )
+
+const (
+	MUSD = uint64(2024)
+)
+
+var (
+	StableCoinIds = []uint64{1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2024}
+)
