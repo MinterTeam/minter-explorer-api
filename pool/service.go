@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	. "github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
@@ -22,14 +24,15 @@ const (
 )
 
 type Service struct {
-	repository     *Repository
-	swap           *swap.Service
-	poolsLiquidity map[uint64]*big.Float
-	coinPrices     map[uint64]*big.Float
-	tradeVolumes   map[uint64]TradeVolumes
-	swapRoutes     *sync.Map
-	pools          []models.LiquidityPool
-	poolsMap       *sync.Map
+	repository            *Repository
+	swap                  *swap.Service
+	poolsLiquidity        map[uint64]*big.Float
+	coinPrices            map[uint64]*big.Float
+	tradeVolumes          map[uint64]TradeVolumes
+	swapRoutes            *sync.Map
+	pools                 []models.LiquidityPool
+	poolsMap              *sync.Map
+	coinToTrackedPoolsMap *sync.Map
 
 	tradeSearchJobs chan TradeSearch
 
@@ -39,20 +42,24 @@ type Service struct {
 
 	lastTradeVolumesUpdate *time.Time
 	node                   *resty.Client
+
+	coinService *coins.Service
 }
 
-func NewService(repository *Repository) *Service {
+func NewService(repository *Repository, coinService *coins.Service) *Service {
 	pools, _ := repository.GetAll()
 
 	s := &Service{
 		swap:                   swap.NewService(repository.db),
+		coinService:            coinService,
 		repository:             repository,
+		pools:                  pools,
 		poolsLiquidity:         make(map[uint64]*big.Float),
 		coinPrices:             make(map[uint64]*big.Float),
 		tradeVolumes:           make(map[uint64]TradeVolumes),
 		swapRoutes:             new(sync.Map),
 		poolsMap:               new(sync.Map),
-		pools:                  pools,
+		coinToTrackedPoolsMap:  new(sync.Map),
 		tradeSearchJobs:        make(chan TradeSearch),
 		lastTradeVolumesUpdate: nil,
 		node:                   resty.New(),
@@ -69,7 +76,7 @@ func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 	defer s.cpmx.RUnlock()
 
 	if amount, ok := s.coinPrices[coinId]; ok {
-		return amount
+		return new(big.Float).Quo(amount, s.coinPrices[0])
 	}
 
 	return big.NewFloat(0)
@@ -205,25 +212,134 @@ func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
-	coinPrice := make(map[uint64]*big.Float)
+	verifiedCoins := s.coinService.GetVerifiedCoins()
+	verifiedCoinIds := s.mapToVerifiedCoinIds(verifiedCoins)
+	s.fillCoinToTrackedPoolsMap(pools, verifiedCoinIds)
+	coinprices := s.computeCoinPrices(pools, s.computeTrackedCoinPrices(verifiedCoins))
 
+	coinprices.Range(func(key, value interface{}) bool {
+		s.cpmx.Lock()
+		s.coinPrices[uint64(key.(uint))] = value.(*big.Float)
+		s.cpmx.Unlock()
+		return true
+	})
+}
+
+func (s *Service) mapToVerifiedCoinIds(verified []models.Coin) []uint64 {
+	ids := []uint64{2024}
+	for _, vc := range verified {
+		ids = append(ids, uint64(vc.ID))
+	}
+
+	return ids
+}
+
+func (s *Service) fillCoinToTrackedPoolsMap(pools []models.LiquidityPool, verifiedCoinIds []uint64) {
+	wg := new(sync.WaitGroup)
 	for _, p := range pools {
-		firstCoinVolume := helpers.StrToBigFloat(p.FirstCoinVolume)
-		secondCoinVolume := helpers.StrToBigFloat(p.SecondCoinVolume)
+		wg.Add(1)
+		go func(p models.LiquidityPool, wg *sync.WaitGroup) {
+			defer wg.Done()
 
-		if p.FirstCoinId == 0 {
-			coinPrice[p.SecondCoinId] = big.NewFloat(0)
-			if firstCoinVolume.Cmp(big.NewFloat(1e20)) >= 0 {
-				coinPrice[p.SecondCoinId] = new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
+			if helpers.InArray(p.FirstCoinId, verifiedCoinIds) || helpers.InArray(p.SecondCoinId, verifiedCoinIds) {
+				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.FirstCoinId); ok {
+					s.coinToTrackedPoolsMap.Store(p.FirstCoinId, append(coinPools.([]models.LiquidityPool), p))
+				} else {
+					s.coinToTrackedPoolsMap.Store(p.FirstCoinId, []models.LiquidityPool{p})
+				}
+
+				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.SecondCoinId); ok {
+					s.coinToTrackedPoolsMap.Store(p.SecondCoinId, append(coinPools.([]models.LiquidityPool), p))
+				} else {
+					s.coinToTrackedPoolsMap.Store(p.SecondCoinId, []models.LiquidityPool{p})
+				}
+			}
+		}(p, wg)
+	}
+	wg.Wait()
+}
+
+func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Map {
+	coinPrices := new(sync.Map)
+	coinPrices.Store(uint(config.MUSD), big.NewFloat(1))
+
+	for _, p := range verifiedCoins {
+		pid := uint64(p.ID)
+		if helpers.InArray(pid, config.StableCoinIds) {
+			coinPrices.Store(p.ID, big.NewFloat(1))
+			continue
+		}
+
+		coinPools, ok := s.coinToTrackedPoolsMap.Load(pid)
+		if !ok {
+			continue
+		}
+
+		for _, cp := range coinPools.([]models.LiquidityPool) {
+			if helpers.InArray(cp.FirstCoinId, config.StableCoinIds) || helpers.InArray(cp.SecondCoinId, config.StableCoinIds) {
+				firstCoinVolume := helpers.StrToBigFloat(cp.FirstCoinVolume)
+				secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
+
+				if cp.FirstCoinId == pid {
+					coinPrices.Store(p.ID, new(big.Float).Quo(secondCoinVolume, firstCoinVolume))
+					break
+				}
+
+				coinPrices.Store(p.ID, new(big.Float).Quo(firstCoinVolume, secondCoinVolume))
+				break
 			}
 		}
 	}
 
-	for k, v := range coinPrice {
-		s.cpmx.Lock()
-		s.coinPrices[k] = v
-		s.cpmx.Unlock()
+	return coinPrices
+}
+
+func (s *Service) computeCoinPrices(pools []models.LiquidityPool, coinPrices *sync.Map) *sync.Map {
+	wg := new(sync.WaitGroup)
+	for _, p := range pools {
+		wg.Add(1)
+		go func(p models.LiquidityPool, wg *sync.WaitGroup) {
+			defer wg.Done()
+			if _, ok := coinPrices.Load(uint(p.FirstCoinId)); !ok {
+				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.FirstCoinId); ok {
+					cp := coinPools.([]models.LiquidityPool)[0]
+					firstCoinVolume := helpers.StrToBigFloat(cp.FirstCoinVolume)
+					secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
+
+					if cp.FirstCoinId == p.FirstCoinId {
+						price, _ := coinPrices.Load(uint(cp.SecondCoinId))
+						temp := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
+						coinPrices.Store(uint(p.FirstCoinId), temp.Mul(temp, price.(*big.Float)))
+					} else {
+						price, _ := coinPrices.Load(uint(cp.FirstCoinId))
+						temp := new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
+						coinPrices.Store(uint(p.FirstCoinId), temp.Mul(temp, price.(*big.Float)))
+					}
+				}
+			}
+
+			if _, ok := coinPrices.Load(uint(p.SecondCoinId)); !ok {
+				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.SecondCoinId); ok {
+					cp := coinPools.([]models.LiquidityPool)[0]
+					firstCoinVolume := helpers.StrToBigFloat(cp.FirstCoinVolume)
+					secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
+
+					if cp.FirstCoinId == p.SecondCoinId {
+						price, _ := coinPrices.Load(uint(cp.SecondCoinId))
+						temp := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
+						coinPrices.Store(uint(p.SecondCoinId), temp.Mul(temp, price.(*big.Float)))
+					} else {
+						price, _ := coinPrices.Load(uint(cp.FirstCoinId))
+						temp := new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
+						coinPrices.Store(uint(p.SecondCoinId), temp.Mul(temp, price.(*big.Float)))
+					}
+				}
+			}
+		}(p, wg)
 	}
+	wg.Wait()
+
+	return coinPrices
 }
 
 func (s *Service) RunPoolTradeVolumesUpdater(pools []models.LiquidityPool) {
@@ -406,26 +522,6 @@ func (s *Service) findSwapRoutePathWorker(jobs <-chan TradeSearch) {
 		j.Trade <- trade
 	}
 }
-
-//func (s *Service) FindSwapRoutePath(rlog *log.Entry, fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
-//	ts := TradeSearch{
-//		Log:        rlog,
-//		FromCoinId: fromCoinId,
-//		ToCoinId:   toCoinId,
-//		TradeType:  tradeType,
-//		Amount:     amount,
-//		Trade:      make(chan *swap.Trade),
-//	}
-//
-//	s.tradeSearchJobs <- ts
-//	trade := <-ts.Trade
-//
-//	if trade == nil {
-//		return nil, errors.New("trade not found")
-//	}
-//
-//	return trade, nil
-//}
 
 func (s *Service) GetPools() []models.LiquidityPool {
 	return s.pools
