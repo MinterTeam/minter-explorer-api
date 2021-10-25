@@ -242,6 +242,11 @@ func (s *Service) fillCoinToTrackedPoolsMap(pools []models.LiquidityPool, verifi
 			defer wg.Done()
 
 			if helpers.InArray(p.FirstCoinId, verifiedCoinIds) || helpers.InArray(p.SecondCoinId, verifiedCoinIds) {
+				minLiquidity, _ := new(big.Int).SetString("10000000000000000000000", 10)
+				if helpers.StringToBigInt(p.LiquidityBip).Cmp(minLiquidity) == -1 {
+					return
+				}
+
 				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.FirstCoinId); ok {
 					s.coinToTrackedPoolsMap.Store(p.FirstCoinId, append(coinPools.([]models.LiquidityPool), p))
 				} else {
