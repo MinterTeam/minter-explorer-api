@@ -55,13 +55,13 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	coinRepository := coins.NewRepository(db)
 	poolRepository := pool.NewRepository(db)
 	addressRepository := address.NewRepository(db)
-	coinService := coins.NewService(coinRepository)
-	poolService := pool.NewService(poolRepository, coinService)
+	poolService := pool.NewService(poolRepository)
 	services.Swap = services.NewSwapService(poolService)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
 	transactionService := transaction.NewService(coinRepository, cacheService)
 	balanceService := balance.NewService(env.Basecoin, marketService, services.Swap)
 	addressService := address.NewService(addressRepository, stakeRepository, balanceService)
+	coinService := coins.NewService(coinRepository)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
