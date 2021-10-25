@@ -312,13 +312,15 @@ func (s *Service) computeCoinPrices(pools []models.LiquidityPool, coinPrices *sy
 					secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
 
 					if cp.FirstCoinId == p.FirstCoinId {
-						price, _ := coinPrices.Load(uint(cp.SecondCoinId))
-						temp := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
-						coinPrices.Store(uint(p.FirstCoinId), temp.Mul(temp, price.(*big.Float)))
+						if price, ok := coinPrices.Load(uint(cp.SecondCoinId)); ok {
+							temp := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
+							coinPrices.Store(uint(p.FirstCoinId), temp.Mul(temp, price.(*big.Float)))
+						}
 					} else {
-						price, _ := coinPrices.Load(uint(cp.FirstCoinId))
-						temp := new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
-						coinPrices.Store(uint(p.FirstCoinId), temp.Mul(temp, price.(*big.Float)))
+						if price, ok := coinPrices.Load(uint(cp.FirstCoinId)); ok {
+							temp := new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
+							coinPrices.Store(uint(p.FirstCoinId), temp.Mul(temp, price.(*big.Float)))
+						}
 					}
 				}
 			}
@@ -330,13 +332,15 @@ func (s *Service) computeCoinPrices(pools []models.LiquidityPool, coinPrices *sy
 					secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
 
 					if cp.FirstCoinId == p.SecondCoinId {
-						price, _ := coinPrices.Load(uint(cp.SecondCoinId))
-						temp := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
-						coinPrices.Store(uint(p.SecondCoinId), temp.Mul(temp, price.(*big.Float)))
+						if price, ok := coinPrices.Load(uint(cp.SecondCoinId)); ok {
+							temp := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
+							coinPrices.Store(uint(p.SecondCoinId), temp.Mul(temp, price.(*big.Float)))
+						}
 					} else {
-						price, _ := coinPrices.Load(uint(cp.FirstCoinId))
-						temp := new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
-						coinPrices.Store(uint(p.SecondCoinId), temp.Mul(temp, price.(*big.Float)))
+						if price, ok := coinPrices.Load(uint(cp.FirstCoinId)); ok {
+							temp := new(big.Float).Quo(firstCoinVolume, secondCoinVolume)
+							coinPrices.Store(uint(p.SecondCoinId), temp.Mul(temp, price.(*big.Float)))
+						}
 					}
 				}
 			}
