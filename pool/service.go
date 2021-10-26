@@ -246,33 +246,32 @@ func (s *Service) mapToVerifiedCoinIds(verified []models.Coin) []uint64 {
 }
 
 func (s *Service) fillCoinToTrackedPoolsMap(pools []models.LiquidityPool, verifiedCoinIds []uint64) {
-	wg := new(sync.WaitGroup)
+	minLiquidity, _ := new(big.Int).SetString("10000000000000000000000", 10)
+	coinToTrackedPoolsMap := make(map[uint64][]models.LiquidityPool)
+
 	for _, p := range pools {
-		wg.Add(1)
-		go func(p models.LiquidityPool, wg *sync.WaitGroup) {
-			defer wg.Done()
-
-			if helpers.InArray(p.FirstCoinId, verifiedCoinIds) || helpers.InArray(p.SecondCoinId, verifiedCoinIds) {
-				minLiquidity, _ := new(big.Int).SetString("10000000000000000000000", 10)
-				if helpers.StringToBigInt(p.LiquidityBip).Cmp(minLiquidity) == -1 {
-					return
-				}
-
-				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.FirstCoinId); ok {
-					s.coinToTrackedPoolsMap.Store(p.FirstCoinId, append(coinPools.([]models.LiquidityPool), p))
-				} else {
-					s.coinToTrackedPoolsMap.Store(p.FirstCoinId, []models.LiquidityPool{p})
-				}
-
-				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.SecondCoinId); ok {
-					s.coinToTrackedPoolsMap.Store(p.SecondCoinId, append(coinPools.([]models.LiquidityPool), p))
-				} else {
-					s.coinToTrackedPoolsMap.Store(p.SecondCoinId, []models.LiquidityPool{p})
-				}
+		if helpers.InArray(p.FirstCoinId, verifiedCoinIds) || helpers.InArray(p.SecondCoinId, verifiedCoinIds) {
+			if helpers.StringToBigInt(p.LiquidityBip).Cmp(minLiquidity) == -1 {
+				continue
 			}
-		}(p, wg)
+
+			if coinPools, ok := coinToTrackedPoolsMap[p.FirstCoinId]; ok {
+				coinToTrackedPoolsMap[p.FirstCoinId] = append(coinPools, p)
+			} else {
+				coinToTrackedPoolsMap[p.FirstCoinId] = []models.LiquidityPool{p}
+			}
+
+			if coinPools, ok := coinToTrackedPoolsMap[p.SecondCoinId]; ok {
+				coinToTrackedPoolsMap[p.SecondCoinId] = append(coinPools, p)
+			} else {
+				coinToTrackedPoolsMap[p.SecondCoinId] = []models.LiquidityPool{p}
+			}
+		}
 	}
-	wg.Wait()
+
+	for id, coinPools := range coinToTrackedPoolsMap {
+		s.coinToTrackedPoolsMap.Store(id, coinPools)
+	}
 }
 
 func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Map {
