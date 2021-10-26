@@ -2,21 +2,21 @@ package balance
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/services"
-	"github.com/MinterTeam/minter-explorer-api/v2/tools/market"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/minter-go-node/formula"
 	"math/big"
 )
 
 type Service struct {
-	baseCoin      string
-	marketService *market.Service
-	swapService   *services.SwapService
+	baseCoin    string
+	poolService *pool.Service
+	swapService *services.SwapService
 }
 
-func NewService(baseCoin string, marketService *market.Service, swapService *services.SwapService) *Service {
-	return &Service{baseCoin, marketService, swapService}
+func NewService(baseCoin string, poolService *pool.Service, swapService *services.SwapService) *Service {
+	return &Service{baseCoin, poolService, swapService}
 }
 
 func (s *Service) GetTotalBalance(address *models.Address) *big.Int {
@@ -55,5 +55,5 @@ func (s *Service) GetStakeBalance(stakes []models.Stake) *big.Int {
 }
 
 func (s *Service) GetTotalBalanceInUSD(sumInBasecoin *big.Int) *big.Float {
-	return new(big.Float).Mul(new(big.Float).SetInt(sumInBasecoin), big.NewFloat(s.marketService.PriceChange.Price))
+	return new(big.Float).Mul(new(big.Float).SetInt(sumInBasecoin), s.poolService.GetCoinPrice(0))
 }

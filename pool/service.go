@@ -71,6 +71,17 @@ func NewService(repository *Repository, coinService *coins.Service) *Service {
 	return s
 }
 
+func (s *Service) GetCoinPrice(coinId uint64) *big.Float {
+	s.cpmx.RLock()
+	defer s.cpmx.RUnlock()
+
+	if amount, ok := s.coinPrices[coinId]; ok {
+		return amount
+	}
+
+	return big.NewFloat(0)
+}
+
 func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 	s.cpmx.RLock()
 	defer s.cpmx.RUnlock()

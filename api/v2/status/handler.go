@@ -61,8 +61,7 @@ func GetStatus(c *gin.Context) {
 	// todo: move to config
 	usdtbip := 0.0
 	if config.BaseCoinSymbol == "BIP" {
-		usdtbip, _ = explorer.PoolService.GetCoinPriceInBip(config.PriceCoinId).Float64()
-		usdtbip = 1 / usdtbip
+		usdtbip, _ = explorer.PoolService.GetCoinPrice(0).Float64()
 	}
 
 	c.JSON(http.StatusOK, gin.H{
