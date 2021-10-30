@@ -43,10 +43,7 @@ func ProxySwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	resp, err := resty.New().R().
-		SetError(swapRouterErrorResponse{}).
-		SetResult(&swapRouterResponse{}).
-		Get(fmt.Sprintf("https://swap-router-api.minter.network/api/v1/pools/%s/%s/route?amount=%s&type=%s", req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType))
+	resp, err := proxySwapPoolRouteRequest(req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType)
 
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
@@ -59,4 +56,11 @@ func ProxySwapPoolRoute(c *gin.Context) {
 	}
 
 	c.JSON(resp.StatusCode(), resp.Result())
+}
+
+func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.Response, error) {
+	return resty.New().R().
+		SetError(swapRouterErrorResponse{}).
+		SetResult(&swapRouterResponse{}).
+		Get(fmt.Sprintf("https://swap-router-api.minter.network/api/v1/pools/%s/%s/route?amount=%s&type=%s", coin0, coin1, amount, tradeType))
 }
