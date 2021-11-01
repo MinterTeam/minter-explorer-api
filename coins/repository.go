@@ -31,12 +31,26 @@ func NewRepository(db *pg.DB) *Repository {
 func (repository *Repository) GetCoins() []models.Coin {
 	var coins []models.Coin
 
-	err := repository.DB.Model(&coins).
-		Relation("OwnerAddress").
-		Where("deleted_at IS NULL").
-		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
-		Order("reserve DESC").
-		Select()
+	allCoins := repository.DB.Model(new(models.Coin)).
+		ColumnExpr("id").
+		ColumnExpr("reserve").
+		Where("deleted_at is null").
+		UnionAll(repository.DB.Model(new(models.LiquidityPool)).
+			ColumnExpr("first_coin_id as id").
+			ColumnExpr("liquidity_bip as reserve")).
+		UnionAll(repository.DB.Model(new(models.LiquidityPool)).
+			ColumnExpr("second_coin_id as id").
+			ColumnExpr("liquidity_bip as reserve"))
+
+	err := repository.DB.Model().
+		With("all_coins", allCoins).
+		Table("all_coins").
+		ColumnExpr("coins.*").
+		Join("JOIN coins ON coins.id = all_coins.id").
+		GroupExpr("coins.id").
+		OrderExpr(`case when coins.id = 0 then 0 else 1 end`).
+		OrderExpr("max(all_coins.reserve) desc").
+		Select(&coins)
 
 	helpers.CheckErr(err)
 
