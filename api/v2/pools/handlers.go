@@ -328,6 +328,11 @@ func EstimateSwap(c *gin.Context) {
 		}
 	}
 
+	if poolResp.IsError() {
+		c.JSON(poolResp.StatusCode(), poolResp.Error())
+		return
+	}
+
 	c.JSON(poolResp.StatusCode(), poolResp.Result())
 }
 

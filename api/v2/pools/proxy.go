@@ -60,7 +60,7 @@ func ProxySwapPoolRoute(c *gin.Context) {
 
 func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.Response, error) {
 	return resty.New().R().
-		SetError(swapRouterErrorResponse{}).
+		SetError(&swapRouterErrorResponse{}).
 		SetResult(&swapRouterResponse{}).
 		Get(fmt.Sprintf("https://swap-router-api.minter.network/api/v1/pools/%s/%s/route?amount=%s&type=%s", coin0, coin1, amount, tradeType))
 }
