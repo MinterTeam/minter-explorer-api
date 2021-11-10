@@ -14,6 +14,8 @@ type Repository struct {
 	DB        *pg.DB
 	baseModel *models.Coin
 	coins     *sync.Map
+
+	blockListCoinIds []uint64
 }
 
 var GlobalRepository *Repository
@@ -25,6 +27,13 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 
 	return GlobalRepository
+}
+
+func (repository Repository) GetAll() []models.Coin {
+	var coins []models.Coin
+	err := repository.DB.Model(&coins).Relation("OwnerAddress").Where("deleted_at is null").Select()
+	helpers.CheckErr(err)
+	return coins
 }
 
 // Get list of coins
@@ -49,11 +58,11 @@ func (repository *Repository) GetCoins() []models.Coin {
 		ColumnExpr(`addresses.address as owner_address__address`).
 		Join("JOIN coins ON coins.id = all_coins.id").
 		Join("left outer JOIN addresses on addresses.id = coins.owner_address_id").
+		Where("coins.id not in (?)", pg.In(repository.blockListCoinIds)).
 		GroupExpr("coins.id, addresses.address").
 		OrderExpr(`case when coins.id = 0 then 0 else 1 end`).
 		OrderExpr("max(all_coins.reserve) desc").
 		Select(&coins)
-
 
 	helpers.CheckErr(err)
 
@@ -68,6 +77,7 @@ func (repository *Repository) GetLikeSymbolAndVersion(symbol string, version *ui
 		Relation("OwnerAddress").
 		Where("symbol LIKE ?", fmt.Sprintf("%%%s%%", symbol)).
 		Where("deleted_at IS NULL").
+		Where(`"coin"."id" not in (?)`, pg.In(repository.blockListCoinIds)).
 		OrderExpr(`case when "coin"."id" = 0 then 0 else 1 end`).
 		Order("reserve DESC")
 
@@ -181,13 +191,18 @@ func (repository *Repository) FindIdBySymbol(symbol string) (uint64, error) {
 	}
 }
 
+func (repository *Repository) GetBySymbols(symbols []string) (coins []models.Coin, err error) {
+	err = repository.DB.Model(&coins).Where("symbol in (?)", pg.In(symbols)).Select()
+	return
+}
+
 func (repository *Repository) OnNewBlock(block blocks.Resource) {
 	repository.fillCoinsMap()
 }
 
 func (repository *Repository) fillCoinsMap() {
 	wg := &sync.WaitGroup{}
-	for _, coin := range repository.GetCoins() {
+	for _, coin := range repository.GetAll() {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, coin models.Coin) {
 			defer wg.Done()
@@ -195,4 +210,8 @@ func (repository *Repository) fillCoinsMap() {
 		}(wg, coin)
 	}
 	wg.Wait()
+}
+
+func (repository *Repository) SetBlocklistCoinIds(ids []uint64) {
+	repository.blockListCoinIds = ids
 }
