@@ -188,6 +188,13 @@ func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Ma
 	coinPrices := new(sync.Map)
 	coinPrices.Store(uint(config.MUSD), big.NewFloat(1))
 
+	// move bip to start
+	for i, p := range verifiedCoins {
+		if p.ID == 0 {
+			verifiedCoins = append([]models.Coin{p}, append(verifiedCoins[:i], verifiedCoins[i+1:]...)...)
+		}
+	}
+
 	for _, p := range verifiedCoins {
 		pid := uint64(p.ID)
 		if helpers.InArray(pid, config.StableCoinIds) {
@@ -201,6 +208,16 @@ func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Ma
 		}
 
 		for _, cp := range coinPools.([]models.LiquidityPool) {
+			if cp.FirstCoinId == 0 && p.ID != 0 {
+				firstCoinVolume := helpers.StrToBigFloat(cp.FirstCoinVolume)
+				secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
+				bipPrice, _ := coinPrices.Load(uint(0))
+				bipToCoin := new(big.Float).Quo(secondCoinVolume, firstCoinVolume)
+				usdPrice := new(big.Float).Quo(bipPrice.(*big.Float), bipToCoin)
+				coinPrices.Store(p.ID, usdPrice)
+				break
+			}
+
 			if helpers.InArray(cp.FirstCoinId, config.StableCoinIds) || helpers.InArray(cp.SecondCoinId, config.StableCoinIds) {
 				firstCoinVolume := helpers.StrToBigFloat(cp.FirstCoinVolume)
 				secondCoinVolume := helpers.StrToBigFloat(cp.SecondCoinVolume)
