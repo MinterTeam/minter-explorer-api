@@ -189,13 +189,14 @@ func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Ma
 	coinPrices.Store(uint(config.MUSD), big.NewFloat(1))
 
 	// move bip to start
+	verifiedCoinsSorted := make([]models.Coin, len(verifiedCoins))
 	for i, p := range verifiedCoins {
 		if p.ID == 0 {
-			verifiedCoins = append([]models.Coin{p}, append(verifiedCoins[:i], verifiedCoins[i+1:]...)...)
+			verifiedCoinsSorted = append(append([]models.Coin{p}, verifiedCoins[:i]...), verifiedCoins[i+1:]...)
 		}
 	}
 
-	for _, p := range verifiedCoins {
+	for _, p := range verifiedCoinsSorted {
 		pid := uint64(p.ID)
 		if helpers.InArray(pid, config.StableCoinIds) {
 			coinPrices.Store(p.ID, big.NewFloat(1))
