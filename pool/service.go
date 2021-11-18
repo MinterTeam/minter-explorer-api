@@ -138,12 +138,16 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 	s.fillCoinToTrackedPoolsMap(pools, verifiedCoinIds)
 	coinprices := s.computeCoinPrices(pools, s.computeTrackedCoinPrices(verifiedCoins))
 
+
+	coinPricesMap := make(map[uint64]*big.Float)
 	coinprices.Range(func(key, value interface{}) bool {
-		s.cpmx.Lock()
-		s.coinPrices[uint64(key.(uint))] = value.(*big.Float)
-		s.cpmx.Unlock()
+		coinPricesMap[uint64(key.(uint))] = value.(*big.Float)
 		return true
 	})
+
+	s.cpmx.Lock()
+	s.coinPrices = coinPricesMap
+	s.cpmx.Unlock()
 }
 
 func (s *Service) mapToVerifiedCoinIds(verified []models.Coin) []uint64 {
