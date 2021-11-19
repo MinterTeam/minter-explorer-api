@@ -26,6 +26,7 @@ type Service struct {
 	poolsLiquidity        map[uint64]*big.Float
 	coinPrices            map[uint64]*big.Float
 	tradeVolumes          map[uint64]TradeVolumes
+	poolTokenToPoolMap    *sync.Map
 	swapRoutes            *sync.Map
 	pools                 []models.LiquidityPool
 	poolsMap              *sync.Map
@@ -57,6 +58,7 @@ func NewService(repository *Repository, coinService *coins.Service) *Service {
 		swapRoutes:             new(sync.Map),
 		poolsMap:               new(sync.Map),
 		coinToTrackedPoolsMap:  new(sync.Map),
+		poolTokenToPoolMap:     new(sync.Map),
 		tradeSearchJobs:        make(chan TradeSearch),
 		lastTradeVolumesUpdate: nil,
 		node:                   resty.New(),
@@ -120,7 +122,17 @@ func (s *Service) SavePoolsToMap() {
 	for _, p := range s.pools {
 		key := fmt.Sprintf("%d-%d", p.FirstCoinId, p.SecondCoinId)
 		s.poolsMap.Store(key, p)
+		s.poolTokenToPoolMap.Store(p.TokenId, p)
 	}
+}
+
+func (s *Service) GetPoolByToken(token *models.Coin) *models.LiquidityPool {
+	if lp, ok := s.poolTokenToPoolMap.Load(uint64(token.ID)); ok {
+		pool := lp.(models.LiquidityPool)
+		return &pool
+	}
+
+	return nil
 }
 
 func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
@@ -137,7 +149,6 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 	verifiedCoinIds := s.mapToVerifiedCoinIds(verifiedCoins)
 	s.fillCoinToTrackedPoolsMap(pools, verifiedCoinIds)
 	coinprices := s.computeCoinPrices(pools, s.computeTrackedCoinPrices(verifiedCoins))
-
 
 	coinPricesMap := make(map[uint64]*big.Float)
 	coinprices.Range(func(key, value interface{}) bool {
