@@ -10,6 +10,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/order"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
@@ -237,18 +238,12 @@ func FindSwapPoolRoute(c *gin.Context) {
 	}
 
 	// define trade type
-	//tradeType := swap.TradeTypeExactInput
-	//if reqQuery.TradeType == "output" {
-	//	tradeType = swap.TradeTypeExactOutput
-	//}
+	tradeType := swap.TradeTypeExactInput
+	if reqQuery.TradeType == "output" {
+		tradeType = swap.TradeTypeExactOutput
+	}
 
-	//trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
-	//if err != nil {
-	//	errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
-	//	return
-	//}
-
-	trade, err := explorer.PoolService.FindSwapRoutePathByNode(fromCoinId, toCoinId, reqQuery.TradeType, reqQuery.Amount)
+	trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
@@ -420,8 +415,7 @@ func EstimateSwap(c *gin.Context) {
 	}
 
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	//trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
-	trade, poolErr := explorer.PoolService.FindSwapRoutePathByNode(uint64(coinFrom.ID), uint64(coinTo.ID), reqQuery.TradeType, reqQuery.Amount)
+	trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
 
 	if poolErr != nil && bancorErr != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
@@ -527,21 +521,46 @@ func GetSwapPoolsList(c *gin.Context) {
 	c.JSON(http.StatusOK, resources)
 }
 
-// GetAllSwapPools get all swap pool list
-func GetAllSwapPools(c *gin.Context) {
+// GetSwapPoolOrders Get orders related to liquidity pool
+func GetSwapPoolOrders(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	// add params to each model resource
-	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
-		p := model.(models.LiquidityPool)
-		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
-		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
-
-		return resource.ParamsInterface{pool.Params{
-			TradeVolume1d:  tv1d.BipVolume,
-			TradeVolume30d: tv30d.BipVolume,
-		}}
+	// validate request
+	var req GetSwapPoolRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
 	}
 
-	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(explorer.PoolService.GetPools(), new(pool.Resource), resourceCallback))
+	// validate request
+	var rq GetSwapPoolOrdersRequest
+	if err := c.ShouldBindQuery(&rq); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		return
+	}
+
+	fromCoinId := uint64(0)
+	if id, err := strconv.ParseUint(req.Coin0, 10, 64); err == nil {
+		fromCoinId = id
+	} else {
+		fromCoinId, _ = explorer.CoinRepository.FindIdBySymbol(req.Coin0)
+	}
+
+	pagination := tools.NewPagination(c.Request)
+	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewPoolFilter(p),
+		order.NewAddressFilter(helpers.RemoveMinterPrefix(rq.Address)), order.NewTypeFilter(rq.Type, p, fromCoinId),
+		order.NewStatusFilter(rq.Status),
+	)
+
+	if err != nil {
+		log.WithError(err).Fatal("failed to load orders for pool")
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))
 }

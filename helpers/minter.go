@@ -8,6 +8,10 @@ import (
 )
 
 func RemoveMinterPrefix(raw string) string {
+	if len(raw) < 2 {
+		return raw
+	}
+
 	return raw[2:]
 }
 

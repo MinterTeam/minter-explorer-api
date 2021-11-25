@@ -41,6 +41,12 @@ type FindSwapPoolRouteRequest struct {
 	Coin1 string `uri:"coin1"  binding:"required"`
 }
 
+type GetSwapPoolOrdersRequest struct {
+	Type    string `form:"type"    binding:"omitempty,oneof=buy sell"`
+	Address string `form:"address" binding:"omitempty,minterAddress"`
+	Status  string `form:"status"  binding:"omitempty,oneof=canceled active expired partially_filled filled"`
+}
+
 func (req *FindSwapPoolRouteRequest) GetCoins(explorer *core.Explorer) (coinFrom models.Coin, coinTo models.Coin, err error) {
 	fromCoinId, toCoinId := uint64(0), uint64(0)
 	if id, err := strconv.ParseUint(req.Coin0, 10, 64); err == nil {

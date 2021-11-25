@@ -8,6 +8,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/coingecko"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/invalid_transaction"
+	"github.com/MinterTeam/minter-explorer-api/v2/order"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-api/v2/reward"
 	"github.com/MinterTeam/minter-explorer-api/v2/services"
@@ -45,6 +46,7 @@ type Explorer struct {
 	SwapService                  *services.SwapService
 	AddressService               *address.Service
 	CoinService                  *coins.Service
+	OrderRepository              *order.Repository
 }
 
 func NewExplorer(db *pg.DB, env *Environment) *Explorer {
@@ -87,5 +89,6 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		SwapService:                  services.Swap,
 		AddressService:               addressService,
 		CoinService:                  coinService,
+		OrderRepository:              order.NewRepository(db),
 	}
 }
