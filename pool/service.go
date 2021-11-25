@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"errors"
 	"fmt"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
@@ -458,4 +459,45 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 
 func (s *Service) GetPools() []models.LiquidityPool {
 	return s.pools
+}
+
+// legacy
+
+func (s *Service) FindSwapRoutePath(fromCoinId, toCoinId uint64, tradeType swap.TradeType, amount *big.Int) (*swap.Trade, error) {
+	var err error
+
+	pairs := make([]swap.Pair, 0)
+	for _, p := range s.pools {
+		pairs = append(pairs, swap.NewPair(
+			swap.NewTokenAmount(swap.NewToken(p.FirstCoinId), helpers.StringToBigInt(p.FirstCoinVolume)),
+			swap.NewTokenAmount(swap.NewToken(p.SecondCoinId), helpers.StringToBigInt(p.SecondCoinVolume)),
+		))
+	}
+
+	var trades []swap.Trade
+	if tradeType == swap.TradeTypeExactInput {
+		trades, err = swap.GetBestTradeExactIn(
+			pairs,
+			swap.NewToken(toCoinId),
+			swap.NewTokenAmount(swap.NewToken(fromCoinId), amount),
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
+		)
+	} else {
+		trades, err = swap.GetBestTradeExactOut(
+			pairs,
+			swap.NewToken(fromCoinId),
+			swap.NewTokenAmount(swap.NewToken(toCoinId), amount),
+			swap.TradeOptions{MaxNumResults: 1, MaxHops: 4},
+		)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(trades) == 0 {
+		return nil, errors.New("path not found")
+	}
+
+	return &trades[0], nil
 }
