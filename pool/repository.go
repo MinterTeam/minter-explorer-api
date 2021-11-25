@@ -67,6 +67,7 @@ func (r *Repository) GetPoolsByProvider(provider string, pagination *tools.Pagin
 		Relation("LiquidityPool.FirstCoin").
 		Relation("LiquidityPool.SecondCoin").
 		Where("address.address = ?", provider).
+		Apply(pagination.Filter).
 		OrderExpr(`(("address_liquidity_pool"."liquidity" / "liquidity_pool"."liquidity") * "liquidity_pool"."liquidity_bip" ) desc`).
 		SelectAndCount()
 

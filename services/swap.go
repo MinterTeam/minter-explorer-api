@@ -50,9 +50,19 @@ func (s *SwapService) EstimateInBipByBancor(coin *models.Coin, swapAmount *big.I
 }
 
 func (s *SwapService) estimateInBipByPools(coin *models.Coin, swapAmount *big.Int) *big.Int {
+	if coin.Type == models.CoinTypePoolToken {
+		return s.estimateInBipPoolToken(coin, new(big.Float).SetInt(swapAmount))
+	}
+
 	price := s.poolService.GetCoinPriceInBip(uint64(coin.ID))
 	bip := new(big.Float).Mul(helpers.Pip2Bip(swapAmount), price)
 	return helpers.Bip2Pip(bip)
+}
+
+func (s *SwapService) estimateInBipPoolToken(coin *models.Coin, swapAmount *big.Float) *big.Int {
+	lpBip := helpers.StrToBigFloat(s.poolService.GetPoolByToken(coin).LiquidityBip)
+	pip, _ := new(big.Float).Mul(new(big.Float).Quo(swapAmount, helpers.StrToBigFloat(coin.Volume)), lpBip).Int(nil)
+	return pip
 }
 
 func (s *SwapService) EstimateByBancor(coinFrom models.Coin, coinTo models.Coin, swapAmount *big.Int, tradeType swap.TradeType) (*big.Int, error) {
@@ -92,6 +102,10 @@ func (s *SwapService) EstimateSellByBancor(coinFrom models.Coin, coinTo models.C
 		if !s.checkCoinReserveUnderflow(coinTo, swapAmount) {
 			return nil, errors.New("coin reserve underflow")
 		}
+
+		if !(s.checkCoinMaxSupply(coinTo, swapAmount)) {
+			return nil, errors.New("coin max supply reached")
+		}
 	}
 
 	return swapAmount, nil
@@ -112,6 +126,10 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 
 		if !s.checkCoinReserveUnderflow(coinTo, swapAmount) {
 			return nil, errors.New("coin reserve underflow")
+		}
+
+		if !(s.checkCoinMaxSupply(coinTo, swapAmount)) {
+			return nil, errors.New("coin max supply reached")
 		}
 	}
 
@@ -139,4 +157,10 @@ func (s *SwapService) checkCoinReserveUnderflow(coin models.Coin, delta *big.Int
 	}
 
 	return true
+}
+
+func (s *SwapService) checkCoinMaxSupply(coin models.Coin, delta *big.Int) bool {
+	maxSupply := helpers.StringToBigInt(coin.MaxSupply)
+	volume := helpers.StringToBigInt(coin.Volume)
+	return maxSupply.Cmp(new(big.Int).Add(volume, delta)) != -1
 }

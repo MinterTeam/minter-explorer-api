@@ -1,16 +1,11 @@
 package pools
 
 import (
-	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
-	log "github.com/sirupsen/logrus"
 	"net/http"
-	"time"
 )
 
 type swapRouterResponse struct {
@@ -30,14 +25,6 @@ type swapRouterErrorResponse struct {
 }
 
 func ProxySwapPoolRoute(c *gin.Context) {
-	// todo: remove, temp stats collector
-	hasher := md5.New()
-	hasher.Write([]byte(c.Request.RequestURI + time.Now().String() + c.ClientIP()))
-	rid := hex.EncodeToString(hasher.Sum(nil))
-	rlog := log.WithFields(log.Fields{"req": c.Request.RequestURI, "rid": rid, "ip": c.ClientIP()}).WithContext(context.WithValue(context.Background(), "time", time.Now()))
-	rlog.WithTime(time.Now()).Debug("start")
-	// -----------
-
 	// validate request
 	var req FindSwapPoolRouteRequest
 	if err := c.ShouldBindUri(&req); err != nil {
@@ -56,10 +43,7 @@ func ProxySwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	resp, err := resty.New().R().
-		SetError(swapRouterErrorResponse{}).
-		SetResult(&swapRouterResponse{}).
-		Get(fmt.Sprintf("https://swap-router-api.minter.network/api/v1/pools/%s/%s/route?amount=%s&type=%s", req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType))
+	resp, err := proxySwapPoolRouteRequest(req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType)
 
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
@@ -71,7 +55,12 @@ func ProxySwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("result created")
-
 	c.JSON(resp.StatusCode(), resp.Result())
+}
+
+func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.Response, error) {
+	return resty.New().R().
+		SetError(&swapRouterErrorResponse{}).
+		SetResult(&swapRouterResponse{}).
+		Get(fmt.Sprintf("https://swap-router-api.minter.network/api/v1/pools/%s/%s/route?amount=%s&type=%s", coin0, coin1, amount, tradeType))
 }

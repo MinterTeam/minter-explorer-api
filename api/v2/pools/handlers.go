@@ -1,9 +1,6 @@
 package pools
 
 import (
-	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
@@ -21,8 +18,6 @@ import (
 	"math/big"
 	"net/http"
 	"strconv"
-	"sync"
-	"time"
 )
 
 type CachePoolsList struct {
@@ -186,83 +181,6 @@ func GetSwapPoolsByProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollectionWithCallback(pools, pool.ProviderResource{}, pagination, resourceCallback))
 }
 
-func FindSwapPoolRoute(c *gin.Context) {
-	explorer := c.MustGet("explorer").(*core.Explorer)
-
-	// todo: remove, temp stats collector
-	hasher := md5.New()
-	hasher.Write([]byte(c.Request.RequestURI + time.Now().String() + c.ClientIP()))
-	rid := hex.EncodeToString(hasher.Sum(nil))
-	rlog := log.WithFields(log.Fields{"req": c.Request.RequestURI, "rid": rid, "ip": c.ClientIP()}).
-		WithContext(context.WithValue(context.Background(), "time", time.Now()))
-	rlog.WithTime(time.Now()).Debug("start")
-	// -----------
-
-	// validate request
-	var req FindSwapPoolRouteRequest
-	if err := c.ShouldBindUri(&req); err != nil {
-		errors.SetValidationErrorResponse(err, c)
-		return
-	}
-
-	if req.Coin0 == req.Coin1 {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
-		return
-	}
-
-	var reqQuery FindSwapPoolRouteRequestQuery
-	if err := c.ShouldBindQuery(&reqQuery); err != nil {
-		errors.SetValidationErrorResponse(err, c)
-		return
-	}
-
-	fromCoinId, toCoinId := uint64(0), uint64(0)
-	if id, err := strconv.ParseUint(req.Coin0, 10, 64); err == nil {
-		fromCoinId = id
-	} else {
-		fromCoinId, err = explorer.CoinRepository.FindIdBySymbol(req.Coin0)
-		if err != nil {
-			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
-			return
-		}
-	}
-
-	if id, err := strconv.ParseUint(req.Coin1, 10, 64); err == nil {
-		toCoinId = id
-	} else {
-		toCoinId, err = explorer.CoinRepository.FindIdBySymbol(req.Coin1)
-		if err != nil {
-			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
-			return
-		}
-	}
-
-	// define trade type
-	tradeType := swap.TradeTypeExactInput
-	if reqQuery.TradeType == "output" {
-		tradeType = swap.TradeTypeExactOutput
-	}
-
-	trade, err := explorer.PoolService.FindSwapRoutePath(rlog, fromCoinId, toCoinId, tradeType, helpers.StringToBigInt(reqQuery.Amount))
-	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
-		return
-	}
-
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("trade found")
-
-	path := make([]models.Coin, len(trade.Route.Path))
-	for i, t := range trade.Route.Path {
-		coin, err := explorer.CoinRepository.FindByID(uint(t.CoinID))
-		helpers.CheckErr(err)
-		path[i] = coin
-	}
-
-	rlog.WithTime(time.Now()).WithField("t", time.Since(rlog.Context.Value("time").(time.Time))).Debug("result created")
-
-	c.JSON(http.StatusOK, new(pool.RouteResource).Transform(path, trade))
-}
-
 func GetSwapPoolTransactions(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
@@ -352,42 +270,10 @@ func GetCoinPossibleSwaps(c *gin.Context) {
 	// TODO: hot-fix, remove
 	c.JSON(http.StatusOK, resource.TransformCollection(poolCoins, coins.IdResource{}))
 	return
-
-	liquidityPools, err := explorer.PoolRepository.GetAll()
-	helpers.CheckErr(err)
-
-	var swapCoins []models.Coin
-
-	wg := new(sync.WaitGroup)
-	for _, pc := range poolCoins {
-		if pc.ID == fromCoin.ID {
-			continue
-		}
-
-		wg.Add(1)
-		go func(pc models.Coin, wg *sync.WaitGroup) {
-			defer wg.Done()
-			if explorer.PoolService.IsSwapExists(liquidityPools, uint64(fromCoin.ID), uint64(pc.ID), reqQuery.Depth) {
-				swapCoins = append(swapCoins, pc)
-			}
-		}(pc, wg)
-	}
-	wg.Wait()
-
-	c.JSON(http.StatusOK, resource.TransformCollection(swapCoins, coins.IdResource{}))
 }
 
 func EstimateSwap(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
-
-	// todo: remove, temp stats collector
-	hasher := md5.New()
-	hasher.Write([]byte(c.Request.RequestURI + time.Now().String() + c.ClientIP()))
-	rid := hex.EncodeToString(hasher.Sum(nil))
-	rlog := log.WithFields(log.Fields{"req": c.Request.RequestURI, "rid": rid, "ip": c.ClientIP()}).
-		WithContext(context.WithValue(context.Background(), "time", time.Now()))
-	rlog.WithTime(time.Now()).Debug("start")
-	// -----------
 
 	// validate request
 	var req FindSwapPoolRouteRequest
@@ -415,36 +301,40 @@ func EstimateSwap(c *gin.Context) {
 	}
 
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	trade, poolErr := explorer.PoolService.FindSwapRoutePath(rlog, uint64(coinFrom.ID), uint64(coinTo.ID), tradeType, reqQuery.GetAmount())
+	poolResp, poolErr := proxySwapPoolRouteRequest(req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType)
 
-	if poolErr != nil && bancorErr != nil {
+	if poolErr != nil && bancorErr != nil && !poolResp.IsError() {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return
 	}
 
-	if bancorErr == nil && poolErr != nil {
+	if bancorErr == nil && (poolErr != nil || poolResp.IsError()) {
 		c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
 		return
 	}
 
-	if bancorErr == nil && poolErr == nil {
-		if tradeType == swap.TradeTypeExactInput && bancorAmount.Cmp(trade.OutputAmount.GetAmount()) >= 1 {
+	if bancorErr == nil {
+		poolRespData := poolResp.Result().(*swapRouterResponse)
+		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountOut))
+		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountIn))
+
+		if tradeType == swap.TradeTypeExactInput && bancorAmount.Cmp(outputAmount) >= 1 {
 			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
 			return
 		}
 
-		if tradeType == swap.TradeTypeExactOutput && bancorAmount.Cmp(trade.InputAmount.GetAmount()) <= 0 {
+		if tradeType == swap.TradeTypeExactOutput && bancorAmount.Cmp(inputAmount) <= 0 {
 			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
 			return
 		}
 	}
 
-	path := make([]models.Coin, len(trade.Route.Path))
-	for i, t := range trade.Route.Path {
-		path[i], _ = explorer.CoinRepository.FindByID(uint(t.CoinID))
+	if poolResp.IsError() {
+		c.JSON(poolResp.StatusCode(), poolResp.Error())
+		return
 	}
 
-	c.JSON(http.StatusOK, new(pool.RouteResource).Transform(path, trade))
+	c.JSON(poolResp.StatusCode(), poolResp.Result())
 }
 
 func GetSwapPoolTradesVolume(c *gin.Context) {
@@ -519,6 +409,25 @@ func GetSwapPoolsList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resources)
+}
+
+// GetAllSwapPools get all swap pool list
+func GetAllSwapPools(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// add params to each model resource
+	resourceCallback := func(model resource.ParamInterface) resource.ParamsInterface {
+		p := model.(models.LiquidityPool)
+		tv1d := explorer.PoolService.GetLastDayTradesVolume(p)
+		tv30d := explorer.PoolService.GetLastMonthTradesVolume(p)
+
+		return resource.ParamsInterface{pool.Params{
+			TradeVolume1d:  tv1d.BipVolume,
+			TradeVolume30d: tv30d.BipVolume,
+		}}
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollectionWithCallback(explorer.PoolService.GetPools(), new(pool.Resource), resourceCallback))
 }
 
 // GetSwapPoolOrders Get orders related to liquidity pool

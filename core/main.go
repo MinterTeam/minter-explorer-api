@@ -23,7 +23,7 @@ import (
 )
 
 type Explorer struct {
-	CoinRepository               coins.Repository
+	CoinRepository               *coins.Repository
 	BlockRepository              blocks.Repository
 	AddressRepository            address.Repository
 	TransactionRepository        transaction.Repository
@@ -62,12 +62,12 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 	services.Swap = services.NewSwapService(poolService)
 	cacheService := cache.NewCache(blockRepository.GetLastBlock())
 	transactionService := transaction.NewService(coinRepository, cacheService)
-	balanceService := balance.NewService(env.Basecoin, marketService, services.Swap)
+	balanceService := balance.NewService(env.Basecoin, poolService, services.Swap)
 	addressService := address.NewService(addressRepository, stakeRepository, balanceService)
 
 	return &Explorer{
 		BlockRepository:              blockRepository,
-		CoinRepository:               *coinRepository,
+		CoinRepository:               coinRepository,
 		AddressRepository:            *addressRepository,
 		TransactionRepository:        *transaction.NewRepository(db),
 		InvalidTransactionRepository: *invalid_transaction.NewRepository(db),

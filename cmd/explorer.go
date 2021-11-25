@@ -42,7 +42,6 @@ func main() {
 	explorer := core.NewExplorer(db, env)
 
 	// run market price update
-	go explorer.CoinService.RunVerifiedCoinsUpdater()
 	go explorer.MarketService.Run()
 	go explorer.PoolService.RunPoolUpdater()
 
@@ -55,7 +54,7 @@ func main() {
 	blocksChannelHandler.AddSubscriber(explorer.Cache)
 	blocksChannelHandler.AddSubscriber(metrics.NewLastBlockMetric())
 	blocksChannelHandler.AddSubscriber(explorer.PoolService)
-	blocksChannelHandler.AddSubscriber(&explorer.CoinRepository)
+	blocksChannelHandler.AddSubscriber(explorer.CoinRepository)
 
 	// subscribe to channel and add cache handler
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)

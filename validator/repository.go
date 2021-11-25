@@ -85,7 +85,7 @@ func (repository Repository) GetActiveCandidatesCount() int {
 func (repository Repository) GetValidatorsAndStakes() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Relation("Stakes").Select()
+	err := repository.db.Model(&validators).Relation("Stakes").Order("total_stake desc").Select()
 	helpers.CheckErr(err)
 
 	return validators
@@ -95,7 +95,7 @@ func (repository Repository) GetValidatorsAndStakes() []models.Validator {
 func (repository Repository) GetValidators() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Select()
+	err := repository.db.Model(&validators).Order("total_stake desc").Select()
 	helpers.CheckErr(err)
 
 	return validators
