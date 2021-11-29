@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"net/http"
+	"os"
 )
 
 type swapRouterResponse struct {
@@ -59,8 +60,14 @@ func ProxySwapPoolRoute(c *gin.Context) {
 }
 
 func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.Response, error) {
+	// todo: move host url to config
+	hostUrl := "https://swap-router-api.minter.network"
+	if os.Getenv("APP_BASE_COIN") == "MNT" {
+		hostUrl = "https://swap-router-api.testnet.minter.network"
+	}
+
 	return resty.New().R().
 		SetError(&swapRouterErrorResponse{}).
 		SetResult(&swapRouterResponse{}).
-		Get(fmt.Sprintf("https://swap-router-api.minter.network/api/v1/pools/%s/%s/route?amount=%s&type=%s", coin0, coin1, amount, tradeType))
+		Get(fmt.Sprintf("%s/api/v1/pools/%s/%s/route?amount=%s&type=%s", hostUrl, coin0, coin1, amount, tradeType))
 }
