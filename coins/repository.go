@@ -133,9 +133,9 @@ func (repository *Repository) GetCustomCoinsStatusData() (CustomCoinsStatusData,
 func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 	var coin models.Coin
 
-	if id == 0 && repository.baseModel != nil {
-		return *repository.baseModel, nil
-	}
+	//if id == 0 && repository.baseModel != nil {
+	//	return *repository.baseModel, nil
+	//}
 
 	if c, ok := repository.coins.Load(id); ok {
 		return c.(models.Coin), nil
@@ -146,9 +146,9 @@ func (repository *Repository) FindByID(id uint) (models.Coin, error) {
 		Where("deleted_at IS NULL").
 		Select()
 
-	if id == 0 && repository.baseModel == nil {
-		repository.baseModel = &coin
-	}
+	//if id == 0 && repository.baseModel == nil {
+	//	repository.baseModel = &coin
+	//}
 
 	if err == nil {
 		repository.coins.Store(id, coin)
