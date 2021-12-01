@@ -468,7 +468,8 @@ func GetSwapPoolOrders(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.WithError(err).Fatal("failed to load orders for pool")
+		log.WithError(err).Panic("failed to load orders for pool")
+		return
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))

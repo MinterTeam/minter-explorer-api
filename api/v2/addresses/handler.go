@@ -374,7 +374,8 @@ func GetLimitOrders(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 	orders, err := explorer.OrderRepository.GetListPaginated(&pagination, order.NewAddressFilter(*minterAddress), order.NewStatusFilter(rq.Status))
 	if err != nil {
-		log.WithError(err).Fatal("failed to load orders")
+		log.WithError(err).Panic("failed to load orders")
+		return
 	}
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))
