@@ -162,7 +162,7 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) mapToVerifiedCoinIds(verified []models.Coin) []uint64 {
-	ids := []uint64{2024}
+	ids := []uint64{}
 	for _, vc := range verified {
 		ids = append(ids, uint64(vc.ID))
 	}
@@ -201,7 +201,7 @@ func (s *Service) fillCoinToTrackedPoolsMap(pools []models.LiquidityPool, verifi
 
 func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Map {
 	coinPrices := new(sync.Map)
-	coinPrices.Store(uint(config.MUSD), big.NewFloat(1))
+	//coinPrices.Store(uint(config.MUSD), big.NewFloat(1))
 
 	// move bip to start
 	verifiedCoinsSorted := make([]models.Coin, len(verifiedCoins))
