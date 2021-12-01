@@ -57,6 +57,10 @@ func (s *Service) RunVerifiedCoinsUpdater() {
 			continue
 		}
 
+		if len(coins) == 0 {
+			continue
+		}
+
 		s.verifiedCoins = coins
 		time.Sleep(time.Minute * 5)
 	}
