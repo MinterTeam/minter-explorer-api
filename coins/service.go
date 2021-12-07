@@ -17,7 +17,7 @@ type Service struct {
 }
 
 var (
-	hubTokenIds = []uint{0, 2064, 2065, 1942, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2598, 3324, 3258, 3403}
+	hubTokenIds = []uint{0, 2064, 2065, 1942, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2598, 3324, 3258, 3403, 1902}
 )
 
 func NewService(repository *Repository) *Service {
