@@ -11,6 +11,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/events"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/invalid_transaction"
 	"github.com/MinterTeam/minter-explorer-api/v2/order"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/slash"
@@ -47,6 +48,7 @@ type AddressTransactionsQueryRequest struct {
 	StartBlock *string `form:"start_block" binding:"omitempty,numeric"`
 	EndBlock   *string `form:"end_block"   binding:"omitempty,numeric"`
 	Page       *string `form:"page"        binding:"omitempty,numeric"`
+	Type       *string `form:"type"        binding:"omitempty,oneof=failed"`
 }
 
 type StatisticsQueryRequest struct {
@@ -160,22 +162,30 @@ func GetTransactions(c *gin.Context) {
 
 	// fetch data
 	pagination := tools.NewPagination(c.Request)
-	data := explorer.Cache.ExecuteOrGet(fmt.Sprintf("address-txs-%s", *minterAddress), func() interface{} {
-		txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
-			[]string{*minterAddress},
-			transaction.SelectFilter{
-				SendType:   req.SendType,
-				StartBlock: req.StartBlock,
-				EndBlock:   req.EndBlock,
-			}, &pagination)
+	if req.Type == nil {
+		data := explorer.Cache.ExecuteOrGet(fmt.Sprintf("address-txs-%s", *minterAddress), func() interface{} {
+			txs := explorer.TransactionRepository.GetPaginatedTxsByAddresses(
+				[]string{*minterAddress},
+				transaction.SelectFilter{
+					SendType:   req.SendType,
+					StartBlock: req.StartBlock,
+					EndBlock:   req.EndBlock,
+				}, &pagination)
 
-		txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
-		helpers.CheckErr(err)
+			txs, err = explorer.TransactionService.PrepareTransactionsModel(txs)
+			helpers.CheckErr(err)
 
-		return resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination)
-	}, 1, pagination.GetCurrentPage() != 1 || req.StartBlock != nil || req.EndBlock != nil || req.SendType != nil || pagination.Pager.GetLimit() != config.DefaultPaginationLimit).(resource.PaginationResource)
+			return resource.TransformPaginatedCollection(txs, transaction.Resource{}, pagination)
+		}, 1, pagination.GetCurrentPage() != 1 || req.StartBlock != nil || req.EndBlock != nil || req.SendType != nil || pagination.Pager.GetLimit() != config.DefaultPaginationLimit).(resource.PaginationResource)
 
-	c.JSON(http.StatusOK, data)
+		c.JSON(http.StatusOK, data)
+		return
+	}
+
+	txs, err := explorer.InvalidTransactionRepository.GetPaginatedByAddress(*minterAddress, &pagination)
+	helpers.CheckErr(err)
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, invalid_transaction.Resource{}, pagination))
 }
 
 // GetAggregatedRewards Get aggregated by day list of address rewards
