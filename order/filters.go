@@ -63,7 +63,6 @@ func (f PoolFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	return q.Where("liquidity_pool_id = ?", f.Pool.Id), nil
 }
 
-
 // ------------------------------
 
 type StatusFilter struct {

@@ -35,14 +35,14 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 }
 
 type ResourceDetailed struct {
-	ID              uint64               `json:"height"`
-	Size            uint64               `json:"size"`
-	NumTxs          uint32               `json:"transaction_count"`
-	BlockTime       float64              `json:"block_time"`
-	Timestamp       string               `json:"timestamp"`
-	BlockReward     string               `json:"reward"`
-	Hash            string               `json:"hash"`
-	Validators      []resource.Interface `json:"validators"`
+	ID          uint64               `json:"height"`
+	Size        uint64               `json:"size"`
+	NumTxs      uint32               `json:"transaction_count"`
+	BlockTime   float64              `json:"block_time"`
+	Timestamp   string               `json:"timestamp"`
+	BlockReward string               `json:"reward"`
+	Hash        string               `json:"hash"`
+	Validators  []resource.Interface `json:"validators"`
 }
 
 // Transform lastBlockId - uint64 pointer to the last block height, optional field.

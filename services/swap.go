@@ -99,10 +99,6 @@ func (s *SwapService) EstimateSellByBancor(coinFrom models.Coin, coinTo models.C
 			swapAmount,
 		)
 
-		if !s.checkCoinReserveUnderflow(coinTo, swapAmount) {
-			return nil, errors.New("coin reserve underflow")
-		}
-
 		if !(s.checkCoinMaxSupply(coinTo, swapAmount)) {
 			return nil, errors.New("coin max supply reached")
 		}
@@ -123,10 +119,6 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 			coinTo.Crr,
 			swapAmount,
 		)
-
-		if !s.checkCoinReserveUnderflow(coinTo, swapAmount) {
-			return nil, errors.New("coin reserve underflow")
-		}
 
 		if !(s.checkCoinMaxSupply(coinTo, swapAmount)) {
 			return nil, errors.New("coin max supply reached")
@@ -151,7 +143,6 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 
 func (s *SwapService) checkCoinReserveUnderflow(coin models.Coin, delta *big.Int) bool {
 	total := big.NewInt(0).Sub(helpers.StringToBigInt(coin.Reserve), delta)
-
 	if total.Cmp(helpers.Bip2Pip(big.NewFloat(10000))) == -1 {
 		return false
 	}
