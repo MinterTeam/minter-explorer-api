@@ -13,18 +13,20 @@ func NewClient() *Client {
 }
 
 type OracleCoinsResponse struct {
-	Height string `json:"height"`
-	Result []struct {
-		Denom            string `json:"denom"`
-		EthAddr          string `json:"eth_addr"`
-		MinterId         string `json:"minter_id"`
-		EthDecimals      string `json:"eth_decimals"`
-		CustomCommission string `json:"custom_commission"`
-	} `json:"result"`
+	List struct {
+		TokenInfos []struct {
+			Id               string `json:"id"`
+			Denom            string `json:"denom"`
+			ChainId          string `json:"chain_id"`
+			ExternalTokenId  string `json:"external_token_id"`
+			ExternalDecimals string `json:"external_decimals"`
+			Commission       string `json:"commission"`
+		} `json:"token_infos"`
+	} `json:"list"`
 }
 
 func (c *Client) GetOracleCoins() (*OracleCoinsResponse, error) {
 	resp := new(OracleCoinsResponse)
-	_, err := c.http.R().SetResult(resp).Get("/oracle/coins")
+	_, err := c.http.R().SetResult(resp).Get("/mhub2/v1/token_infos")
 	return resp, err
 }

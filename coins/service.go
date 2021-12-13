@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -84,9 +85,20 @@ func (s *Service) RunBlocklistCoinsUpdater() {
 }
 
 func (s *Service) getVerifiedCoins() ([]models.Coin, error) {
-	coinIds := make([]models.Coin, len(hubTokenIds))
-	for i, coinId := range hubTokenIds {
-		coinIds[i], _ = s.repository.FindByID(coinId)
+	resp, err := s.hubClient.GetOracleCoins()
+	if err != nil {
+		return nil, err
+	}
+
+	var coinIds []models.Coin
+	for _, coin := range resp.List.TokenInfos {
+		if coin.ChainId != "minter" {
+			continue
+		}
+
+		coinId, _ := strconv.ParseUint(coin.ExternalTokenId, 10, 64)
+		coinModel, _ := s.repository.FindByIdWithOwner(uint(coinId))
+		coinIds = append(coinIds, coinModel)
 	}
 
 	return coinIds, nil
