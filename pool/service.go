@@ -32,8 +32,6 @@ type Service struct {
 	poolsMap              *sync.Map
 	coinToTrackedPoolsMap *sync.Map
 
-	tradeSearchJobs chan TradeSearch
-
 	plmx sync.RWMutex
 	cpmx sync.RWMutex
 	tvmx sync.RWMutex
@@ -59,7 +57,6 @@ func NewService(repository *Repository, coinService *coins.Service) *Service {
 		poolsMap:               new(sync.Map),
 		coinToTrackedPoolsMap:  new(sync.Map),
 		poolTokenToPoolMap:     new(sync.Map),
-		tradeSearchJobs:        make(chan TradeSearch),
 		lastTradeVolumesUpdate: nil,
 		node:                   resty.New(),
 	}
