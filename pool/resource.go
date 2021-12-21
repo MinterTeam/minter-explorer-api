@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
@@ -134,30 +133,14 @@ func (r ProviderResource) Transform(model resource.ItemInterface, resourceParams
 	}
 }
 
-type RouteResource struct {
-	SwapType  string               `json:"swap_type"`
-	AmountIn  string               `json:"amount_in"`
-	AmountOut string               `json:"amount_out"`
-	Coins     []resource.Interface `json:"coins"`
-}
-
-func (r RouteResource) Transform(route []models.Coin, trade *swap.Trade) RouteResource {
-	return RouteResource{
-		SwapType:  "pool",
-		AmountIn:  helpers.Pip2BipStr(trade.InputAmount.GetAmount()),
-		AmountOut: helpers.Pip2BipStr(trade.OutputAmount.GetAmount()),
-		Coins:     resource.TransformCollection(route, coins.IdResource{}),
-	}
-}
-
 type BancorResource struct {
 	SwapType  string `json:"swap_type"`
 	AmountIn  string `json:"amount_in"`
 	AmountOut string `json:"amount_out"`
 }
 
-func (r BancorResource) Transform(value *big.Int, bancor *big.Int, tradeType swap.TradeType) BancorResource {
-	if tradeType == swap.TradeTypeExactInput {
+func (r BancorResource) Transform(value *big.Int, bancor *big.Int, tradeType TradeType) BancorResource {
+	if tradeType == TradeTypeExactInput {
 		return BancorResource{
 			SwapType:  "bancor",
 			AmountIn:  helpers.Pip2BipStr(value),

@@ -47,3 +47,10 @@ type TradeVolumes struct {
 	Day   TradeVolume
 	Month TradeVolume
 }
+
+type TradeType int
+
+const (
+	TradeTypeExactInput  TradeType = 0
+	TradeTypeExactOutput TradeType = 1
+)

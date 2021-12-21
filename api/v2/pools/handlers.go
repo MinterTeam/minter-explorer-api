@@ -2,7 +2,6 @@ package pools
 
 import (
 	"fmt"
-	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
@@ -295,9 +294,9 @@ func EstimateSwap(c *gin.Context) {
 	}
 
 	// define trade type
-	tradeType := swap.TradeTypeExactInput
+	tradeType := pool.TradeTypeExactInput
 	if reqQuery.TradeType == "output" {
-		tradeType = swap.TradeTypeExactOutput
+		tradeType = pool.TradeTypeExactOutput
 	}
 
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
@@ -318,12 +317,12 @@ func EstimateSwap(c *gin.Context) {
 		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountOut))
 		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountIn))
 
-		if tradeType == swap.TradeTypeExactInput && bancorAmount.Cmp(outputAmount) >= 1 {
+		if tradeType == pool.TradeTypeExactInput && bancorAmount.Cmp(outputAmount) >= 1 {
 			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
 			return
 		}
 
-		if tradeType == swap.TradeTypeExactOutput && bancorAmount.Cmp(inputAmount) <= 0 {
+		if tradeType == pool.TradeTypeExactOutput && bancorAmount.Cmp(inputAmount) <= 0 {
 			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
 			return
 		}

@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"github.com/MinterTeam/explorer-sdk/swap"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/pool"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
@@ -65,8 +64,8 @@ func (s *SwapService) estimateInBipPoolToken(coin *models.Coin, swapAmount *big.
 	return pip
 }
 
-func (s *SwapService) EstimateByBancor(coinFrom models.Coin, coinTo models.Coin, swapAmount *big.Int, tradeType swap.TradeType) (*big.Int, error) {
-	if tradeType == swap.TradeTypeExactInput {
+func (s *SwapService) EstimateByBancor(coinFrom models.Coin, coinTo models.Coin, swapAmount *big.Int, tradeType pool.TradeType) (*big.Int, error) {
+	if tradeType == pool.TradeTypeExactInput {
 		return s.EstimateSellByBancor(coinFrom, coinTo, swapAmount)
 	}
 

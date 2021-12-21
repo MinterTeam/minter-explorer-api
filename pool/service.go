@@ -23,7 +23,6 @@ const (
 type Service struct {
 	repository            *Repository
 	swap                  *swap.Service
-	poolsLiquidity        map[uint64]*big.Float
 	coinPrices            map[uint64]*big.Float
 	tradeVolumes          map[uint64]TradeVolumes
 	poolTokenToPoolMap    *sync.Map
@@ -50,7 +49,6 @@ func NewService(repository *Repository, coinService *coins.Service) *Service {
 		coinService:            coinService,
 		repository:             repository,
 		pools:                  pools,
-		poolsLiquidity:         make(map[uint64]*big.Float),
 		coinPrices:             make(map[uint64]*big.Float),
 		tradeVolumes:           make(map[uint64]TradeVolumes),
 		swapRoutes:             new(sync.Map),
@@ -130,15 +128,6 @@ func (s *Service) GetPoolByToken(token *models.Coin) *models.LiquidityPool {
 	}
 
 	return nil
-}
-
-func (s *Service) RunLiquidityCalculation(pools []models.LiquidityPool) {
-	for _, p := range pools {
-		liquidity := s.swap.GetPoolLiquidity(pools, p)
-		s.plmx.Lock()
-		s.poolsLiquidity[p.Id] = liquidity
-		s.plmx.Unlock()
-	}
 }
 
 func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
