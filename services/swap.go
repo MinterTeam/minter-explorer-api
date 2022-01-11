@@ -78,6 +78,10 @@ func (s *SwapService) EstimateSellByBancor(coinFrom models.Coin, coinTo models.C
 	}
 
 	if coinFrom.ID != 0 {
+		if !s.checkSaleReturn(coinFrom, swapAmount) {
+			return nil, errors.New("coin reserve balance is not sufficient for transaction")
+		}
+
 		swapAmount = formula.CalculateSaleReturn(
 			helpers.StringToBigInt(coinFrom.Volume),
 			helpers.StringToBigInt(coinFrom.Reserve),
@@ -125,6 +129,10 @@ func (s *SwapService) EstimateBuyByBancor(coinFrom models.Coin, coinTo models.Co
 	}
 
 	if coinFrom.ID != 0 {
+		if !s.checkSaleAmount(coinFrom, swapAmount) {
+			return nil, errors.New("coin reserve balance is not sufficient for transaction")
+		}
+
 		swapAmount = formula.CalculateSaleAmount(
 			helpers.StringToBigInt(coinFrom.Volume),
 			helpers.StringToBigInt(coinFrom.Reserve),
@@ -153,4 +161,14 @@ func (s *SwapService) checkCoinMaxSupply(coin models.Coin, delta *big.Int) bool 
 	maxSupply := helpers.StringToBigInt(coin.MaxSupply)
 	volume := helpers.StringToBigInt(coin.Volume)
 	return maxSupply.Cmp(new(big.Int).Add(volume, delta)) != -1
+}
+
+func (s *SwapService) checkSaleReturn(coin models.Coin, value *big.Int) bool {
+	volume := helpers.StringToBigInt(coin.Volume)
+	return !(volume.Cmp(value) == -1)
+}
+
+func (s *SwapService) checkSaleAmount(coin models.Coin, value *big.Int) bool {
+	volume := helpers.StringToBigInt(coin.Reserve)
+	return !(volume.Cmp(value) == -1)
 }
