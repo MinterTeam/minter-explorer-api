@@ -29,6 +29,8 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 		q = q.Apply(f.Filter)
 	}
 
+	q = q.Order("id DESC")
+
 	pagination.Total, err = q.SelectAndCount()
 	return
 }
