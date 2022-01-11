@@ -130,7 +130,7 @@ func (repository Repository) Get24hTransactionsData() Tx24hData {
 
 	err := repository.db.Model(&tx).
 		Relation("Block._").
-		ColumnExpr("COUNT(*) as count, SUM(commission) as fee_sum, AVG(commission) as fee_avg").
+		ColumnExpr("COUNT(*) as count, SUM(commission) / 1e18 as fee_sum, AVG(commission) / 1e18 as fee_avg").
 		Where("block.created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
 		Select(&data)
 
