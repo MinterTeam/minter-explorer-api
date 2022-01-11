@@ -33,3 +33,18 @@ func (r *Repository) GetListPaginated(pagination *tools.Pagination, filters ...t
 	pagination.Total, err = q.SelectAndCount()
 	return
 }
+
+func (r *Repository) FindById(id uint64) (OrderTransaction, error) {
+	var order OrderTransaction
+	err := r.db.Model(&order).
+		Relation("Address").
+		Relation("CoinSell").
+		Relation("CoinBuy").
+		Column("coin_sell_volume", "coin_buy_volume", "created_at_block", "status", "liquidity_pool_id", "price").
+		ColumnExpr(`"order_transaction".id AS "id"`).
+		ColumnExpr(`transactions.data AS "transaction__data"`).
+		Join(`JOIN transactions ON (transactions.tags->>'tx.order_id')::int = "order_transaction".id and transactions.type = ?`, transaction.TypeAddLimitOrder).
+		Where(`"order_transaction".id = ?`, id).
+		Select()
+	return order, err
+}

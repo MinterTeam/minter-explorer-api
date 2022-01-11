@@ -473,3 +473,23 @@ func GetSwapPoolOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))
 }
+
+// GetSwapPoolOrder Get limit order by id
+func GetSwapPoolOrder(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	var req GetSwapPoolOrderRequest
+	if err := c.ShouldBindUri(&req); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	orderModel, err := explorer.OrderRepository.FindById(req.OrderId)
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Order not found.", c)
+		return
+	}
+
+	c.JSON(http.StatusOK, new(order.Resource).Transform(orderModel))
+}
