@@ -376,10 +376,10 @@ func GetSwapPoolsList(c *gin.Context) {
 	}
 
 	type cmcResource struct {
-		BaseId      uint64 `json:"base_id"`
+		BaseId      string `json:"base_id"`
 		BaseName    string `json:"base_name"`
 		BaseSymbol  string `json:"base_symbol"`
-		QuoteId     uint64 `json:"quote_id"`
+		QuoteId     string `json:"quote_id"`
 		QuoteName   string `json:"quote_name"`
 		QuoteSymbol string `json:"quote_symbol"`
 		LastPrice   string `json:"last_price"`
@@ -391,7 +391,7 @@ func GetSwapPoolsList(c *gin.Context) {
 
 	coinToContractMap := make(map[uint64]string)
 	for _, p := range pools {
-		if _, ok := coinToContractMap[p.FirstCoinId]; !ok{
+		if _, ok := coinToContractMap[p.FirstCoinId]; !ok {
 			tc, err := explorer.PoolRepository.GetTokenContractByCoinId(p.FirstCoinId)
 			fmt.Println(tc)
 			fmt.Println(err)
@@ -401,7 +401,7 @@ func GetSwapPoolsList(c *gin.Context) {
 			}
 		}
 
-		if _, ok := coinToContractMap[p.SecondCoinId]; !ok{
+		if _, ok := coinToContractMap[p.SecondCoinId]; !ok {
 			tc, _ := explorer.PoolRepository.GetTokenContractByCoinId(p.SecondCoinId)
 			coinToContractMap[p.SecondCoinId] = tc.Bsc
 			if len(tc.Eth) != 0 {
@@ -416,10 +416,10 @@ func GetSwapPoolsList(c *gin.Context) {
 		price := new(big.Float).Quo(helpers.StrToBigFloat(p.FirstCoinVolume), helpers.StrToBigFloat(p.SecondCoinVolume))
 
 		resources[ticker] = cmcResource{
-			BaseId:      p.FirstCoinId,
+			BaseId:      coinToContractMap[p.FirstCoinId],
 			BaseName:    p.FirstCoin.Name,
 			BaseSymbol:  p.FirstCoin.GetSymbol(),
-			QuoteId:     p.SecondCoinId,
+			QuoteId:     coinToContractMap[p.SecondCoinId],
 			QuoteName:   p.SecondCoin.Name,
 			QuoteSymbol: p.SecondCoin.GetSymbol(),
 			LastPrice:   helpers.Bip2Str(price),
