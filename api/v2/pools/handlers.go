@@ -17,6 +17,7 @@ import (
 	"math/big"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type CachePoolsList struct {
@@ -376,15 +377,20 @@ func GetSwapPoolsList(c *gin.Context) {
 	}
 
 	type cmcResource struct {
-		BaseId      string `json:"base_id"`
-		BaseName    string `json:"base_name"`
-		BaseSymbol  string `json:"base_symbol"`
-		QuoteId     string `json:"quote_id"`
-		QuoteName   string `json:"quote_name"`
-		QuoteSymbol string `json:"quote_symbol"`
-		LastPrice   string `json:"last_price"`
-		BaseVolume  string `json:"base_volume"`
-		QuoteVolume string `json:"quote_volume"`
+		BaseId              string `json:"base_id"`
+		BaseName            string `json:"base_name"`
+		BaseSymbol          string `json:"base_symbol"`
+		BaseUsdPrice        string `json:"base_usd_price"`
+		QuoteId             string `json:"quote_id"`
+		QuoteName           string `json:"quote_name"`
+		QuoteSymbol         string `json:"quote_symbol"`
+		QuoteUsdPrice       string `json:"quote_usd_price"`
+		LastPrice           string `json:"last_price"`
+		BaseVolume          string `json:"base_volume"`
+		QuoteVolume         string `json:"quote_volume"`
+		BaseTradeVolume24h  string `json:"base_trade_volume_24h"`
+		QuoteTradeVolume24h string `json:"quote_trade_volume_24h"`
+		UsdTradeVolume24h   string `json:"usd_trade_volume_24h"`
 	}
 
 	resources := make(map[string]cmcResource, len(pools))
@@ -392,9 +398,7 @@ func GetSwapPoolsList(c *gin.Context) {
 	coinToContractMap := make(map[uint64]string)
 	for _, p := range pools {
 		if _, ok := coinToContractMap[p.FirstCoinId]; !ok {
-			tc, err := explorer.PoolRepository.GetTokenContractByCoinId(p.FirstCoinId)
-			fmt.Println(tc)
-			fmt.Println(err)
+			tc, _ := explorer.PoolRepository.GetTokenContractByCoinId(p.FirstCoinId)
 			coinToContractMap[p.FirstCoinId] = tc.Bsc
 			if len(tc.Eth) != 0 {
 				coinToContractMap[p.FirstCoinId] = tc.Eth
@@ -411,20 +415,45 @@ func GetSwapPoolsList(c *gin.Context) {
 	}
 
 	for _, p := range pools {
-		ticker := fmt.Sprintf(`"%s_%s"`, coinToContractMap[p.FirstCoinId], coinToContractMap[p.SecondCoinId])
+		startTime := time.Now().AddDate(0, 0, -1)
+		trades, _ := explorer.PoolService.GetTradesVolume(p, nil, &startTime)
 
-		price := new(big.Float).Quo(helpers.StrToBigFloat(p.FirstCoinVolume), helpers.StrToBigFloat(p.SecondCoinVolume))
+		tv := pool.TradeVolume{
+			FirstCoinVolume:  "0",
+			SecondCoinVolume: "0",
+			BipVolume:        big.NewFloat(0),
+		}
+
+		if len(trades) != 0 {
+			tv = trades[0]
+		}
+
+		usdTradeVolume24h := new(big.Float).Mul(
+			explorer.PoolService.GetCoinPrice(0),
+			tv.BipVolume,
+		)
+
+		ticker := fmt.Sprintf(`"%s_%s"`, coinToContractMap[p.FirstCoinId], coinToContractMap[p.SecondCoinId])
+		price := new(big.Float).Quo(
+			helpers.StrToBigFloat(p.FirstCoinVolume),
+			helpers.StrToBigFloat(p.SecondCoinVolume),
+		)
 
 		resources[ticker] = cmcResource{
-			BaseId:      coinToContractMap[p.FirstCoinId],
-			BaseName:    p.FirstCoin.Name,
-			BaseSymbol:  p.FirstCoin.GetSymbol(),
-			QuoteId:     coinToContractMap[p.SecondCoinId],
-			QuoteName:   p.SecondCoin.Name,
-			QuoteSymbol: p.SecondCoin.GetSymbol(),
-			LastPrice:   helpers.Bip2Str(price),
-			BaseVolume:  helpers.PipStr2Bip(p.FirstCoinVolume),
-			QuoteVolume: helpers.PipStr2Bip(p.SecondCoinVolume),
+			BaseId:              coinToContractMap[p.FirstCoinId],
+			BaseName:            p.FirstCoin.Name,
+			BaseSymbol:          p.FirstCoin.GetSymbol(),
+			BaseUsdPrice:        explorer.PoolService.GetCoinPrice(p.FirstCoinId).Text('f', 18),
+			BaseTradeVolume24h:  tv.FirstCoinVolume,
+			QuoteId:             coinToContractMap[p.SecondCoinId],
+			QuoteName:           p.SecondCoin.Name,
+			QuoteSymbol:         p.SecondCoin.GetSymbol(),
+			QuoteUsdPrice:       explorer.PoolService.GetCoinPrice(p.SecondCoinId).Text('f', 18),
+			QuoteTradeVolume24h: tv.SecondCoinVolume,
+			LastPrice:           helpers.Bip2Str(price),
+			BaseVolume:          helpers.PipStr2Bip(p.FirstCoinVolume),
+			QuoteVolume:         helpers.PipStr2Bip(p.SecondCoinVolume),
+			UsdTradeVolume24h:   usdTradeVolume24h.Text('f', 18),
 		}
 	}
 
