@@ -100,6 +100,19 @@ func (r *Repository) GetAll() (pools []models.LiquidityPool, err error) {
 	return pools, err
 }
 
+func (r *Repository) GetTracked() (pools []models.LiquidityPool, err error) {
+	err = r.db.Model(&pools).
+		Relation("FirstCoin").
+		Relation("SecondCoin").
+		Relation("Token").
+		Where("first_coin_id in (select coin_id from token_contracts)").
+		Where("second_coin_id in (select coin_id from token_contracts)").
+		Order("liquidity_bip DESC").
+		Select()
+
+	return pools, err
+}
+
 func (r *Repository) Find(from, to uint64) (models.LiquidityPool, error) {
 	var pool models.LiquidityPool
 
@@ -185,4 +198,12 @@ func (r *Repository) GetPoolsTradeVolumeByTimeRange(pools []models.LiquidityPool
 
 func (r *Repository) GetPoolsCount() (count int, err error) {
 	return r.db.Model(&models.LiquidityPool{}).Count()
+}
+
+func (r *Repository) GetTokenContractByCoinId(coinId uint64) (*models.TokenContract, error) {
+	var tc models.TokenContract
+	if err := r.db.Model(&tc).Where("coin_id = ? ", coinId).First(); err != nil {
+		return nil, err
+	}
+	return &tc, nil
 }

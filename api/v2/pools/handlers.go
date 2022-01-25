@@ -370,7 +370,7 @@ func GetSwapPoolTradesVolume(c *gin.Context) {
 func GetSwapPoolsList(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	pools, err := explorer.PoolRepository.GetAll()
+	pools, err := explorer.PoolRepository.GetTracked()
 	if err != nil {
 		log.Panicf("failed to load pools: %s", err)
 	}
@@ -389,8 +389,29 @@ func GetSwapPoolsList(c *gin.Context) {
 
 	resources := make(map[string]cmcResource, len(pools))
 
+	coinToContractMap := make(map[uint64]string)
 	for _, p := range pools {
-		ticker := fmt.Sprintf("%d_%d", p.FirstCoinId, p.SecondCoinId)
+		if _, ok := coinToContractMap[p.FirstCoinId]; !ok{
+			tc, err := explorer.PoolRepository.GetTokenContractByCoinId(p.FirstCoinId)
+			fmt.Println(tc)
+			fmt.Println(err)
+			coinToContractMap[p.FirstCoinId] = tc.Bsc
+			if len(tc.Eth) != 0 {
+				coinToContractMap[p.FirstCoinId] = tc.Eth
+			}
+		}
+
+		if _, ok := coinToContractMap[p.SecondCoinId]; !ok{
+			tc, _ := explorer.PoolRepository.GetTokenContractByCoinId(p.SecondCoinId)
+			coinToContractMap[p.SecondCoinId] = tc.Bsc
+			if len(tc.Eth) != 0 {
+				coinToContractMap[p.SecondCoinId] = tc.Eth
+			}
+		}
+	}
+
+	for _, p := range pools {
+		ticker := fmt.Sprintf(`"%s_%s"`, coinToContractMap[p.FirstCoinId], coinToContractMap[p.SecondCoinId])
 
 		price := new(big.Float).Quo(helpers.StrToBigFloat(p.FirstCoinVolume), helpers.StrToBigFloat(p.SecondCoinVolume))
 
