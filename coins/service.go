@@ -3,7 +3,6 @@ package coins
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/hub"
-	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
@@ -157,13 +156,4 @@ func (s *Service) GetDailyTradingVolume(coinId uint) string {
 	}
 
 	return "0"
-}
-
-func (s *Service) ExtendResourceWithTradingVolumesCallback(model resource.ParamInterface) resource.ParamsInterface {
-	return resource.ParamsInterface{
-		Params{
-			TradingVolume24h: s.GetDailyTradingVolume(model.(models.Coin).ID),
-			TradingVolume1mo: s.GetMonthlyTradingVolume(model.(models.Coin).ID),
-		},
-	}
 }

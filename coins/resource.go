@@ -4,6 +4,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	"math/big"
 )
 
 type Resource struct {
@@ -20,11 +21,13 @@ type Resource struct {
 	Type             string  `json:"type"`
 	TradingVolume24h string  `json:"trading_volume_24h"`
 	TradingVolume1mo string  `json:"trading_volume_1mo"`
+	PriceUsd         string  `json:"price_usd"`
 }
 
 type Params struct {
 	TradingVolume24h string
 	TradingVolume1mo string
+	PriceUsd         *big.Float
 	IsTypeRequired   bool
 }
 
@@ -52,6 +55,7 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 		Type:             helpers.GetCoinType(coin.Type),
 		TradingVolume24h: helpers.PipStr2Bip(params[0].(Params).TradingVolume24h),
 		TradingVolume1mo: helpers.PipStr2Bip(params[0].(Params).TradingVolume1mo),
+		PriceUsd:         params[0].(Params).PriceUsd.String(),
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -21,7 +22,7 @@ func GetCoins(c *gin.Context) {
 	if symbol == "" {
 		data := explorer.Cache.Get("coins", func() interface{} {
 			return resource.TransformCollectionWithCallback(
-				explorer.CoinRepository.GetCoins(), coins.Resource{}, explorer.CoinService.ExtendResourceWithTradingVolumesCallback,
+				explorer.CoinRepository.GetCoins(), coins.Resource{}, extendResourcesWithTradingVolumesCallback(explorer),
 			)
 		}, CacheBlocksCount).([]resource.Interface)
 
@@ -39,7 +40,7 @@ func GetCoins(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": resource.TransformCollectionWithCallback(
-		data, coins.Resource{}, explorer.CoinService.ExtendResourceWithTradingVolumesCallback,
+		data, coins.Resource{}, extendResourcesWithTradingVolumesCallback(explorer),
 	)})
 }
 
@@ -65,10 +66,7 @@ func GetCoinByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(coins.Resource).Transform(coin, coins.Params{
-			TradingVolume24h: explorer.CoinService.GetDailyTradingVolume(coin.ID),
-			TradingVolume1mo: explorer.CoinService.GetMonthlyTradingVolume(coin.ID),
-		}),
+		"data": new(coins.Resource).Transform(coin, extendResourceWithTradingVolumesParams(explorer, coin)),
 	})
 }
 
@@ -88,17 +86,14 @@ func GetCoinBySymbol(c *gin.Context) {
 	}
 
 	symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(request.Symbol)
-	models := explorer.CoinRepository.GetBySymbolAndVersion(symbol, &version)
-	if len(models) == 0 {
+	coinModels := explorer.CoinRepository.GetBySymbolAndVersion(symbol, &version)
+	if len(coinModels) == 0 {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coin not found.", c)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(coins.Resource).Transform(models[0], coins.Params{
-			TradingVolume24h: explorer.CoinService.GetDailyTradingVolume(models[0].ID),
-			TradingVolume1mo: explorer.CoinService.GetMonthlyTradingVolume(models[0].ID),
-		}),
+		"data": new(coins.Resource).Transform(coinModels[0], extendResourceWithTradingVolumesParams(explorer, coinModels[0])),
 	})
 }
 
@@ -108,7 +103,23 @@ func GetOracleVerifiedCoins(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollectionWithCallback(
-			verified, coins.Resource{}, explorer.CoinService.ExtendResourceWithTradingVolumesCallback,
+			verified, coins.Resource{}, extendResourcesWithTradingVolumesCallback(explorer),
 		),
 	})
+}
+
+func extendResourcesWithTradingVolumesCallback(explorer *core.Explorer) func(resource.ParamInterface) resource.ParamsInterface {
+	return func(model resource.ParamInterface) resource.ParamsInterface {
+		return resource.ParamsInterface{
+			extendResourceWithTradingVolumesParams(explorer, model.(models.Coin)),
+		}
+	}
+}
+
+func extendResourceWithTradingVolumesParams(explorer *core.Explorer, model models.Coin) coins.Params {
+	return coins.Params{
+		TradingVolume24h: explorer.CoinService.GetDailyTradingVolume(model.ID),
+		TradingVolume1mo: explorer.CoinService.GetMonthlyTradingVolume(model.ID),
+		PriceUsd:         explorer.PoolService.GetCoinPrice(uint64(model.ID)),
+	}
 }
