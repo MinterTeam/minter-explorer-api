@@ -7,17 +7,25 @@ import (
 )
 
 type Resource struct {
-	ID           uint    `json:"id"`
-	Crr          uint    `json:"crr"`
-	Volume       string  `json:"volume"`
-	Reserve      string  `json:"reserve_balance"`
-	MaxSupply    string  `json:"max_supply"`
-	Name         string  `json:"name"`
-	Symbol       string  `json:"symbol"`
-	OwnerAddress *string `json:"owner_address"`
-	Burnable     bool    `json:"burnable"`
-	Mintable     bool    `json:"mintable"`
-	Type         string  `json:"type"`
+	ID               uint    `json:"id"`
+	Crr              uint    `json:"crr"`
+	Volume           string  `json:"volume"`
+	Reserve          string  `json:"reserve_balance"`
+	MaxSupply        string  `json:"max_supply"`
+	Name             string  `json:"name"`
+	Symbol           string  `json:"symbol"`
+	OwnerAddress     *string `json:"owner_address"`
+	Burnable         bool    `json:"burnable"`
+	Mintable         bool    `json:"mintable"`
+	Type             string  `json:"type"`
+	TradingVolume24h string  `json:"trading_volume_24h"`
+	TradingVolume1mo string  `json:"trading_volume_1mo"`
+}
+
+type Params struct {
+	TradingVolume24h string
+	TradingVolume1mo string
+	IsTypeRequired   bool
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
@@ -31,17 +39,19 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 	}
 
 	return Resource{
-		ID:           coin.ID,
-		Crr:          coin.Crr,
-		Volume:       helpers.PipStr2Bip(coin.Volume),
-		Reserve:      helpers.PipStr2Bip(coin.Reserve),
-		MaxSupply:    helpers.PipStr2Bip(coin.MaxSupply),
-		Name:         coin.Name,
-		Symbol:       coin.GetSymbol(),
-		OwnerAddress: ownerAddress,
-		Burnable:     coin.Burnable,
-		Mintable:     coin.Mintable,
-		Type:         helpers.GetCoinType(coin.Type),
+		ID:               coin.ID,
+		Crr:              coin.Crr,
+		Volume:           helpers.PipStr2Bip(coin.Volume),
+		Reserve:          helpers.PipStr2Bip(coin.Reserve),
+		MaxSupply:        helpers.PipStr2Bip(coin.MaxSupply),
+		Name:             coin.Name,
+		Symbol:           coin.GetSymbol(),
+		OwnerAddress:     ownerAddress,
+		Burnable:         coin.Burnable,
+		Mintable:         coin.Mintable,
+		Type:             helpers.GetCoinType(coin.Type),
+		TradingVolume24h: helpers.PipStr2Bip(params[0].(Params).TradingVolume24h),
+		TradingVolume1mo: helpers.PipStr2Bip(params[0].(Params).TradingVolume1mo),
 	}
 }
 
@@ -49,10 +59,6 @@ type IdResource struct {
 	ID     uint32 `json:"id"`
 	Type   string `json:"type,omitempty"`
 	Symbol string `json:"symbol"`
-}
-
-type Params struct {
-	IsTypeRequired bool
 }
 
 func (IdResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {

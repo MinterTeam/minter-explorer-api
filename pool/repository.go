@@ -207,3 +207,32 @@ func (r *Repository) GetTokenContractByCoinId(coinId uint64) (*models.TokenContr
 	}
 	return &tc, nil
 }
+
+func (r *Repository) GetCoinsTradingVolume(scale string) ([]CoinTradingVolume, error) {
+	var coinTradingVolumes []CoinTradingVolume
+
+	tradingVolumes := r.db.Model(new(models.LiquidityPoolTrade)).
+		ColumnExpr(`sum("liquidity_pool_trade"."first_coin_volume") as volume`).
+		ColumnExpr(`liquidity_pools.first_coin_id as coin_id`).
+		Join(`JOIN liquidity_pools on liquidity_pools.id = "liquidity_pool_trade"."liquidity_pool_id"`).
+		Where("created_at > 'now'::timestamp - ?::interval", scale).
+		Group("liquidity_pools.first_coin_id").
+		UnionAll(
+			r.db.Model(new(models.LiquidityPoolTrade)).
+				ColumnExpr(`sum("liquidity_pool_trade"."second_coin_volume") as volume`).
+				ColumnExpr(`liquidity_pools.second_coin_id as coin_id`).
+				Join(`JOIN liquidity_pools on liquidity_pools.id = "liquidity_pool_trade"."liquidity_pool_id"`).
+				Where("created_at > 'now'::timestamp - ?::interval", scale).
+				Group("liquidity_pools.second_coin_id"),
+		)
+
+	err := r.db.Model().
+		With("data", tradingVolumes).
+		Table("data").
+		ColumnExpr("sum(data.volume) as volume").
+		ColumnExpr("data.coin_id").
+		GroupExpr("data.coin_id").
+		Select(&coinTradingVolumes)
+
+	return coinTradingVolumes, err
+}

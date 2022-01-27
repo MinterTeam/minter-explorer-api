@@ -20,7 +20,9 @@ func GetCoins(c *gin.Context) {
 	// fetch coins resource
 	if symbol == "" {
 		data := explorer.Cache.Get("coins", func() interface{} {
-			return resource.TransformCollection(explorer.CoinRepository.GetCoins(), coins.Resource{})
+			return resource.TransformCollectionWithCallback(
+				explorer.CoinRepository.GetCoins(), coins.Resource{}, explorer.CoinService.ExtendResourceWithTradingVolumesCallback,
+			)
 		}, CacheBlocksCount).([]resource.Interface)
 
 		c.JSON(http.StatusOK, gin.H{"data": data})
@@ -36,7 +38,9 @@ func GetCoins(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": resource.TransformCollection(data, coins.Resource{})})
+	c.JSON(http.StatusOK, gin.H{"data": resource.TransformCollectionWithCallback(
+		data, coins.Resource{}, explorer.CoinService.ExtendResourceWithTradingVolumesCallback,
+	)})
 }
 
 type GetCoinByIdRequest struct {
@@ -61,7 +65,10 @@ func GetCoinByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(coins.Resource).Transform(coin),
+		"data": new(coins.Resource).Transform(coin, coins.Params{
+			TradingVolume24h: explorer.CoinService.GetDailyTradingVolume(coin.ID),
+			TradingVolume1mo: explorer.CoinService.GetMonthlyTradingVolume(coin.ID),
+		}),
 	})
 }
 
@@ -88,7 +95,10 @@ func GetCoinBySymbol(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(coins.Resource).Transform(models[0]),
+		"data": new(coins.Resource).Transform(models[0], coins.Params{
+			TradingVolume24h: explorer.CoinService.GetDailyTradingVolume(models[0].ID),
+			TradingVolume1mo: explorer.CoinService.GetMonthlyTradingVolume(models[0].ID),
+		}),
 	})
 }
 
@@ -97,6 +107,8 @@ func GetOracleVerifiedCoins(c *gin.Context) {
 	verified := explorer.CoinService.GetVerifiedCoins()
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollection(verified, coins.Resource{}),
+		"data": resource.TransformCollectionWithCallback(
+			verified, coins.Resource{}, explorer.CoinService.ExtendResourceWithTradingVolumesCallback,
+		),
 	})
 }

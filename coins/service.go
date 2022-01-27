@@ -3,18 +3,22 @@ package coins
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/hub"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
 	"strconv"
+	"sync"
 	"time"
 )
 
 type Service struct {
-	hubClient        *hub.Client
-	repository       *Repository
-	verifiedCoins    []models.Coin
-	blockListCoinIds []uint64
+	hubClient             *hub.Client
+	repository            *Repository
+	verifiedCoins         []models.Coin
+	blockListCoinIds      []uint64
+	monthlyTradingVolumes *sync.Map
+	dailyTradingVolumes   *sync.Map
 }
 
 var (
@@ -23,8 +27,10 @@ var (
 
 func NewService(repository *Repository) *Service {
 	s := &Service{
-		hubClient:  hub.NewClient(),
-		repository: repository,
+		hubClient:             hub.NewClient(),
+		repository:            repository,
+		monthlyTradingVolumes: new(sync.Map),
+		dailyTradingVolumes:   new(sync.Map),
 	}
 
 	go s.RunVerifiedCoinsUpdater()
@@ -127,4 +133,37 @@ func (s *Service) getBlocklistCoinIds() ([]uint64, error) {
 	}
 
 	return coinIds, nil
+}
+
+func (s *Service) SetMonthlyTradingVolume(coinId uint64, volume string) {
+	s.monthlyTradingVolumes.Store(coinId, volume)
+}
+
+func (s *Service) SetDailyTradingVolume(coinId uint64, volume string) {
+	s.dailyTradingVolumes.Store(coinId, volume)
+}
+
+func (s *Service) GetMonthlyTradingVolume(coinId uint) string {
+	if val, ok := s.monthlyTradingVolumes.Load(uint64(coinId)); ok {
+		return val.(string)
+	}
+
+	return "0"
+}
+
+func (s *Service) GetDailyTradingVolume(coinId uint) string {
+	if val, ok := s.dailyTradingVolumes.Load(uint64(coinId)); ok {
+		return val.(string)
+	}
+
+	return "0"
+}
+
+func (s *Service) ExtendResourceWithTradingVolumesCallback(model resource.ParamInterface) resource.ParamsInterface {
+	return resource.ParamsInterface{
+		Params{
+			TradingVolume24h: s.GetDailyTradingVolume(model.(models.Coin).ID),
+			TradingVolume1mo: s.GetMonthlyTradingVolume(model.(models.Coin).ID),
+		},
+	}
 }

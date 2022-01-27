@@ -446,3 +446,29 @@ func (s *Service) GetLastDayTradesVolume(pool models.LiquidityPool) *TradeVolume
 func (s *Service) GetPools() []models.LiquidityPool {
 	return s.pools
 }
+
+func (s *Service) RunTradingVolumeUpdater() {
+	for {
+		monthlyTradingVolumes, err := s.repository.GetCoinsTradingVolume("1 month")
+		if err != nil {
+			log.Errorf("failed to get monthly coin trading volume: %s", err)
+			continue
+		}
+
+		dailyTradingVolumes, err := s.repository.GetCoinsTradingVolume("1 day")
+		if err != nil {
+			log.Errorf("failed to get daily coin trading volume: %s", err)
+			continue
+		}
+
+		for _, tv := range monthlyTradingVolumes {
+			s.coinService.SetMonthlyTradingVolume(tv.CoinId, tv.Volume)
+		}
+
+		for _, tv := range dailyTradingVolumes {
+			s.coinService.SetDailyTradingVolume(tv.CoinId, tv.Volume)
+		}
+
+		time.Sleep(time.Minute)
+	}
+}

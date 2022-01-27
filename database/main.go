@@ -29,7 +29,7 @@ func Connect(env *core.Environment) *pg.DB {
 		panic("Could not connect to database")
 	}
 
-	//db.AddQueryHook(dbLogger{})
+	db.AddQueryHook(dbLogger{})
 
 	return db
 }
@@ -48,7 +48,9 @@ func (d dbLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Co
 }
 
 func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
-	sql, _ := q.FormattedQuery()
-	fmt.Println(string(sql[:]))
+	if q.Err != nil {
+		sql, _ := q.FormattedQuery()
+		fmt.Println(string(sql[:]))
+	}
 	return nil
 }

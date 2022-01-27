@@ -48,6 +48,11 @@ type TradeVolumes struct {
 	Month TradeVolume
 }
 
+type CoinTradingVolume struct {
+	Volume string
+	CoinId uint64
+}
+
 type TradeType int
 
 const (
