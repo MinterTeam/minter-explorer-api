@@ -59,6 +59,12 @@ func (s *Service) GetBlocklistCoins() []uint64 {
 }
 
 func (s *Service) RunVerifiedCoinsUpdater() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Errorf("verified coins updater panic recover: %s", err)
+		}
+	}()
+
 	for {
 		coins, err := s.getVerifiedCoins()
 		if err != nil {
