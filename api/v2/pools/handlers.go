@@ -381,10 +381,12 @@ func GetSwapPoolsList(c *gin.Context) {
 		BaseName            string `json:"base_name"`
 		BaseSymbol          string `json:"base_symbol"`
 		BaseUsdPrice        string `json:"base_usd_price"`
+		BaseChainId         string `json:"base_chain_id"`
 		QuoteId             string `json:"quote_id"`
 		QuoteName           string `json:"quote_name"`
 		QuoteSymbol         string `json:"quote_symbol"`
 		QuoteUsdPrice       string `json:"quote_usd_price"`
+		QuoteChainId        string `json:"quote_chain_id"`
 		LastPrice           string `json:"last_price"`
 		BaseVolume          string `json:"base_volume"`
 		QuoteVolume         string `json:"quote_volume"`
@@ -395,22 +397,16 @@ func GetSwapPoolsList(c *gin.Context) {
 
 	resources := make(map[string]cmcResource, len(pools))
 
-	coinToContractMap := make(map[uint64]string)
+	coinToContractMap := make(map[uint64]*models.TokenContract)
 	for _, p := range pools {
 		if _, ok := coinToContractMap[p.FirstCoinId]; !ok {
 			tc, _ := explorer.PoolRepository.GetTokenContractByCoinId(p.FirstCoinId)
-			coinToContractMap[p.FirstCoinId] = tc.Bsc
-			if len(tc.Eth) != 0 {
-				coinToContractMap[p.FirstCoinId] = tc.Eth
-			}
+			coinToContractMap[p.FirstCoinId] = tc
 		}
 
 		if _, ok := coinToContractMap[p.SecondCoinId]; !ok {
 			tc, _ := explorer.PoolRepository.GetTokenContractByCoinId(p.SecondCoinId)
-			coinToContractMap[p.SecondCoinId] = tc.Bsc
-			if len(tc.Eth) != 0 {
-				coinToContractMap[p.SecondCoinId] = tc.Eth
-			}
+			coinToContractMap[p.SecondCoinId] = tc
 		}
 	}
 
@@ -433,23 +429,28 @@ func GetSwapPoolsList(c *gin.Context) {
 			tv.BipVolume,
 		)
 
-		ticker := fmt.Sprintf(`"%s_%s"`, coinToContractMap[p.FirstCoinId], coinToContractMap[p.SecondCoinId])
+		baseContract, baseChain := helpers.GetTokenContractAndChain(coinToContractMap[p.FirstCoinId])
+		quoteContract, quoteChain := helpers.GetTokenContractAndChain(coinToContractMap[p.SecondCoinId])
+
+		ticker := fmt.Sprintf(`"%s_%s"`, baseContract, quoteContract)
 		price := new(big.Float).Quo(
 			helpers.StrToBigFloat(p.FirstCoinVolume),
 			helpers.StrToBigFloat(p.SecondCoinVolume),
 		)
 
 		resources[ticker] = cmcResource{
-			BaseId:              coinToContractMap[p.FirstCoinId],
+			BaseId:              baseContract,
 			BaseName:            p.FirstCoin.Name,
 			BaseSymbol:          p.FirstCoin.GetSymbol(),
 			BaseUsdPrice:        explorer.PoolService.GetCoinPrice(p.FirstCoinId).Text('f', 18),
+			BaseChainId:         baseChain,
 			BaseTradeVolume24h:  helpers.PipStr2Bip(tv.FirstCoinVolume),
-			QuoteId:             coinToContractMap[p.SecondCoinId],
+			QuoteId:             quoteContract,
 			QuoteName:           p.SecondCoin.Name,
 			QuoteSymbol:         p.SecondCoin.GetSymbol(),
 			QuoteUsdPrice:       explorer.PoolService.GetCoinPrice(p.SecondCoinId).Text('f', 18),
 			QuoteTradeVolume24h: helpers.PipStr2Bip(tv.SecondCoinVolume),
+			QuoteChainId:        quoteChain,
 			LastPrice:           helpers.Bip2Str(price),
 			BaseVolume:          helpers.PipStr2Bip(p.FirstCoinVolume),
 			QuoteVolume:         helpers.PipStr2Bip(p.SecondCoinVolume),

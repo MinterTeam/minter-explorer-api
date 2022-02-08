@@ -79,3 +79,17 @@ func GetPoolIdFromToken(token string) uint {
 	id, _ := strconv.ParseUint(token[2:], 10, 64)
 	return uint(id)
 }
+
+func GetTokenContractAndChain(tokenContract *models.TokenContract) (contract string, chain string) {
+	// for BIP and HUB
+	if tokenContract.CoinId == 0 || tokenContract.CoinId == 1902 {
+		return tokenContract.Eth, "minter"
+	}
+
+	contract = tokenContract.Bsc
+	if len(tokenContract.Eth) != 0 {
+		return tokenContract.Eth, "ethereum"
+	}
+
+	return contract, "bsc"
+}
