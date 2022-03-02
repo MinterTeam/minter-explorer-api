@@ -1,6 +1,9 @@
 package invalid_transaction
 
 import (
+	"encoding/base64"
+	"encoding/hex"
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/invalid_transaction/data_resources"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
@@ -10,30 +13,53 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"reflect"
+	"strconv"
 	"time"
 )
 
 type Resource struct {
-	Hash      string                 `json:"hash"`
-	Block     uint64                 `json:"height"`
-	Timestamp string                 `json:"timestamp"`
-	Type      uint8                  `json:"type"`
-	From      string                 `json:"from"`
-	Data      resource.ItemInterface `json:"data"`
-	Log       string                 `json:"log"`
+	Hash                 string                 `json:"hash"`
+	Nonce                uint64                 `json:"nonce"`
+	Block                uint64                 `json:"height"`
+	Timestamp            string                 `json:"timestamp"`
+	Type                 uint8                  `json:"type"`
+	Payload              string                 `json:"payload"`
+	From                 string                 `json:"from"`
+	Data                 resource.ItemInterface `json:"data"`
+	Gas                  string                 `json:"gas"`
+	GasPrice             uint64                 `json:"gas_price"`
+	GasCoin              resource.Interface     `json:"gas_coin"`
+	Fee                  string                 `json:"fee"`
+	CommissionInBaseCoin string                 `json:"commission_in_base_coin"`
+	CommissionInGasCoin  string                 `json:"commission_in_gas_coin"`
+	CommissionPrice      string                 `json:"commission_price"`
+	CommissionPriceCoin  resource.Interface     `json:"commission_price_coin"`
+	RawTx                string                 `json:"raw_tx"`
+	Log                  string                 `json:"log"`
 }
 
 func (Resource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	tx := model.(models.InvalidTransaction)
 
 	return Resource{
-		Hash:      tx.GetHash(),
-		Block:     tx.BlockID,
-		Timestamp: tx.CreatedAt.Format(time.RFC3339),
-		Type:      tx.Type,
-		From:      tx.FromAddress.GetAddress(),
-		Data:      TransformTxData(tx),
-		Log:       tx.Log,
+		Hash:                 tx.GetHash(),
+		Nonce:                tx.Nonce,
+		Block:                tx.BlockID,
+		Timestamp:            tx.CreatedAt.Format(time.RFC3339),
+		Gas:                  strconv.FormatUint(tx.Gas, 10),
+		GasPrice:             tx.GasPrice,
+		Fee:                  helpers.PipStr2Bip(tx.Commission),
+		GasCoin:              new(coins.IdResource).Transform(*tx.GasCoin),
+		Type:                 tx.Type,
+		Payload:              base64.StdEncoding.EncodeToString(tx.Payload[:]),
+		From:                 tx.FromAddress.GetAddress(),
+		Data:                 TransformTxData(tx),
+		RawTx:                hex.EncodeToString(tx.RawTx),
+		CommissionInBaseCoin: helpers.PipStr2Bip(tx.Commission),
+		CommissionInGasCoin:  helpers.PipStr2Bip(tx.Tags["tx.commission_amount"]),
+		CommissionPrice:      helpers.PipStr2Bip(tx.Tags["tx.commission_price"]),
+		CommissionPriceCoin:  new(coins.IdResource).Transform(tx.CommissionPriceCoin),
+		Log:                  tx.Log,
 	}
 }
 
