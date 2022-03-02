@@ -2,7 +2,7 @@ name: M2
 
 on:
   push:
-    branches: [ taconet ]
+    branches: [ torronet ]
 
 jobs:
   docker:
