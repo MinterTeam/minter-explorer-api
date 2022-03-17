@@ -110,10 +110,14 @@ var transformConfig = map[uint8]TransformTxConfig{
 
 func TransformTxData(tx models.Transaction) resource.Interface {
 	config := transformConfig[tx.Type]
+	val, err := unmarshalTxData(tx)
+	helpers.CheckErr(err)
+	return config.Resource.Transform(val, tx)
+}
 
+func unmarshalTxData(tx models.Transaction) (interface{}, error) {
+	config := transformConfig[tx.Type]
 	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface().(proto.Message)
 	err := protojson.Unmarshal(tx.Data, val)
-	helpers.CheckErr(err)
-
-	return config.Resource.Transform(val, tx)
+	return val, err
 }

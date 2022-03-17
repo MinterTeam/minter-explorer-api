@@ -391,3 +391,31 @@ func GetLimitOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))
 	return
 }
+
+// GetLocks Get list of locked tokens by address
+func GetLocks(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	minterAddress, err := GetAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request
+	var rq GetOrdersRequest
+	if err := c.ShouldBindQuery(&rq); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	locks, err := explorer.TransactionService.GetAddressTokenLocks(*minterAddress)
+	if err != nil {
+		log.WithError(err).Panicf("failed to load locked tokens for %s", *minterAddress)
+		return
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollection(locks, new(address.LockedTokenResource)))
+	return
+}
