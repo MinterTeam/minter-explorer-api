@@ -152,3 +152,18 @@ func (repository Repository) GetListByTypeAndAddress(address string, txType uint
 
 	return txs, err
 }
+
+func (repository Repository) GetLastByTypeAndAddress(address string, txType uint8) (*models.Transaction, error) {
+	var tx models.Transaction
+
+	err := repository.db.Model(&tx).
+		Relation("FromAddress.address").
+		Join("INNER JOIN addresses ON addresses.id = from_address_id").
+		Where("addresses.address = ?", address).
+		Where("type = ?", txType).
+		Order("id DESC").
+		Limit(1).
+		Select()
+
+	return &tx, err
+}
