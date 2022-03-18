@@ -278,8 +278,8 @@ func GetDelegations(c *gin.Context) {
 	tx, err := explorer.TransactionRepository.GetLastByTypeAndAddress(*minterAddress, uint8(minterTx.TypeLockStake))
 	if tx != nil && err == nil {
 		additionalFields["locked_data"] = map[string]interface{}{
-			"start_block_id":  tx.BlockID,
-			"end_block_id":    helpers.StrToUint64(tx.Tags["tx.unlock_block_id"]),
+			"start_block":  tx.BlockID,
+			"end_block":    helpers.StrToUint64(tx.Tags["tx.unlock_block_id"]),
 			"start_timestamp": tx.CreatedAt.Format(time.RFC3339),
 		}
 	}
