@@ -197,6 +197,7 @@ func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Ma
 	}
 
 	verifiedCoinsSorted = append(verifiedCoinsSorted, models.Coin{ID: uint(config.MUSD)})
+	verifiedCoinsSorted = append(verifiedCoinsSorted, models.Coin{ID: uint(2361)})
 
 	for _, p := range verifiedCoinsSorted {
 		pid := uint64(p.ID)
