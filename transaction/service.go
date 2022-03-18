@@ -116,16 +116,17 @@ func (s Service) transformCheckDataToModel(data *transaction.CheckData) (*dataMo
 	}, nil
 }
 
-func (s Service) GetAddressTokenLocks(address string) ([]*api_pb.LockData, error) {
+func (s Service) GetAddressTokenLocks(address string) ([]models.Transaction, error) {
 	txs, err := s.repository.GetListByTypeAndAddress(address, uint8(transaction.TypeLock))
 	if err != nil {
 		return nil, err
 	}
 
-	var locked []*api_pb.LockData
+	var locked []models.Transaction
 	for _, tx := range txs {
 		data, _ := unmarshalTxData(tx)
-		locked = append(locked, data.(*api_pb.LockData))
+		tx.IData = data.(*api_pb.LockData)
+		locked = append(locked, tx)
 	}
 
 	return locked, nil

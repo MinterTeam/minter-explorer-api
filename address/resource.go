@@ -54,16 +54,20 @@ func (r *Resource) transformParams(params Params) {
 }
 
 type LockedTokenResource struct {
-	Coin     data_resources.Coin `json:"coin"`
-	DueBlock uint64              `json:"due_block"`
-	Value    string              `json:"value"`
+	Coin       data_resources.Coin `json:"coin"`
+	DueBlock   uint64              `json:"due_block"`
+	Value      string              `json:"value"`
+	StartBlock uint64              `json:"start_block"`
 }
 
 func (r LockedTokenResource) Transform(model resource.ItemInterface, resourceParams ...resource.ParamInterface) resource.Interface {
-	data := model.(api_pb.LockData)
+	m := model.(models.Transaction)
+	data := m.IData.(*api_pb.LockData)
+
 	return LockedTokenResource{
-		Coin:     new(data_resources.Coin).Transform(data.Coin),
-		DueBlock: data.DueBlock,
-		Value:    helpers.PipStr2Bip(data.Value),
+		Coin:       new(data_resources.Coin).Transform(data.Coin),
+		DueBlock:   data.DueBlock,
+		Value:      helpers.PipStr2Bip(data.Value),
+		StartBlock: m.BlockID,
 	}
 }
