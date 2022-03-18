@@ -148,7 +148,7 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) mapToVerifiedCoinIds(verified []models.Coin) []uint64 {
-	ids := []uint64{config.MUSD}
+	ids := []uint64{config.MUSD, 2361}
 	for _, vc := range verified {
 		ids = append(ids, uint64(vc.ID))
 	}
