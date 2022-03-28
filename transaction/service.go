@@ -122,10 +122,17 @@ func (s Service) GetAddressTokenLocks(address string) ([]models.Transaction, err
 		return nil, err
 	}
 
+	lastBlock := s.cache.GetLastBlock()
+
 	var locked []models.Transaction
 	for _, tx := range txs {
 		data, _ := unmarshalTxData(tx)
 		tx.IData = data.(*api_pb.LockData)
+
+		if data.(*api_pb.LockData).DueBlock <= lastBlock.ID {
+			continue
+		}
+
 		locked = append(locked, tx)
 	}
 
