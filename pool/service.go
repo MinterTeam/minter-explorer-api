@@ -152,7 +152,7 @@ func (s *Service) RunCoinPriceCalculation(pools []models.LiquidityPool) {
 }
 
 func (s *Service) mapToVerifiedCoinIds(verified []models.Coin) []uint64 {
-	ids := []uint64{config.MUSD}
+	ids := []uint64{config.MUSD, 2361}
 	for _, vc := range verified {
 		ids = append(ids, uint64(vc.ID))
 	}
@@ -201,6 +201,7 @@ func (s *Service) computeTrackedCoinPrices(verifiedCoins []models.Coin) *sync.Ma
 	}
 
 	verifiedCoinsSorted = append(verifiedCoinsSorted, models.Coin{ID: uint(config.MUSD)})
+	verifiedCoinsSorted = append(verifiedCoinsSorted, models.Coin{ID: uint(2361)})
 
 	for _, p := range verifiedCoinsSorted {
 		pid := uint64(p.ID)
