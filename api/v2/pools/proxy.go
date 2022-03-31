@@ -63,7 +63,7 @@ func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.R
 	// todo: move host url to config
 	hostUrl := "https://swap-router-api.minter.network"
 	if os.Getenv("APP_BASE_COIN") == "MNT" {
-		hostUrl = "https://swap-router-api.testnet.minter.network"
+		hostUrl = "https://swap-router-api.toronet.minter.network"
 	}
 
 	return resty.New().R().
