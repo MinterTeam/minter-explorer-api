@@ -53,8 +53,16 @@ func ProxySwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	resp, err := proxySwapPoolRouteRequest(req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType)
+	coinFrom, coinTo, err := req.GetCoins(explorer)
+	if err != nil {
+		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coins not found.", c)
+		return
+	}
 
+	coin0 := strconv.FormatUint(uint64(coinFrom.ID), 10)
+	coin1 := strconv.FormatUint(uint64(coinTo.ID), 10)
+
+	resp, err := proxySwapPoolRouteRequest(coin0, coin1, reqQuery.Amount, reqQuery.TradeType)
 	if err != nil {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
 		return

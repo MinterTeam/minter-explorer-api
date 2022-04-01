@@ -300,8 +300,11 @@ func EstimateSwap(c *gin.Context) {
 		tradeType = pool.TradeTypeExactOutput
 	}
 
+	coin0 := strconv.FormatUint(uint64(coinFrom.ID), 10)
+	coin1 := strconv.FormatUint(uint64(coinTo.ID), 10)
+
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	poolResp, poolErr := proxySwapPoolRouteRequest(req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType)
+	poolResp, poolErr := proxySwapPoolRouteRequest(coin0, coin1, reqQuery.Amount, reqQuery.TradeType)
 
 	if poolErr != nil && bancorErr != nil && !poolResp.IsError() {
 		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
