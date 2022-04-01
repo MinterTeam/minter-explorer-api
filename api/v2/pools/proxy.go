@@ -2,21 +2,21 @@ package pools
 
 import (
 	"fmt"
+	"github.com/MinterTeam/minter-explorer-api/v2/coins"
+	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
+	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 type swapRouterResponse struct {
-	SwapType  string `json:"swap_type"`
-	AmountIn  string `json:"amount_in"`
-	AmountOut string `json:"amount_out"`
-	Coins     []struct {
-		Id     int    `json:"id"`
-		Symbol string `json:"symbol"`
-	} `json:"coins"`
+	Path   []string `json:"path"`
+	Result string   `json:"result"`
 }
 
 type swapRouterErrorResponse struct {
@@ -25,7 +25,16 @@ type swapRouterErrorResponse struct {
 	} `json:"error"`
 }
 
+type routeResource struct {
+	SwapType  string               `json:"swap_type"`
+	AmountIn  string               `json:"amount_in"`
+	AmountOut string               `json:"amount_out"`
+	Coins     []resource.Interface `json:"coins"`
+}
+
 func ProxySwapPoolRoute(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
 	// validate request
 	var req FindSwapPoolRouteRequest
 	if err := c.ShouldBindUri(&req); err != nil {
@@ -56,18 +65,39 @@ func ProxySwapPoolRoute(c *gin.Context) {
 		return
 	}
 
-	c.JSON(resp.StatusCode(), resp.Result())
+	data := resp.Result().(*swapRouterResponse)
+	path := make([]resource.Interface, len(data.Path))
+	for i, cidStr := range data.Path {
+		cid, _ := strconv.ParseUint(cidStr, 10, 64)
+		coin, _ := explorer.CoinRepository.FindByID(uint(cid))
+		path[i] = new(coins.IdResource).Transform(coin)
+	}
+
+	outputAmount := helpers.PipStr2Bip(data.Result)
+	inputAmount := helpers.PipStr2Bip(reqQuery.Amount)
+
+	if reqQuery.TradeType == "output" {
+		inputAmount = helpers.PipStr2Bip(data.Result)
+		outputAmount = helpers.PipStr2Bip(reqQuery.Amount)
+	}
+
+	c.JSON(resp.StatusCode(), routeResource{
+		SwapType:  "pool",
+		AmountIn:  inputAmount,
+		AmountOut: outputAmount,
+		Coins:     path,
+	})
 }
 
 func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.Response, error) {
 	// todo: move host url to config
 	hostUrl := "https://swap-router-api.minter.network"
 	if os.Getenv("APP_BASE_COIN") == "MNT" {
-		hostUrl = "https://swap-router-api.toronet.minter.network"
+		hostUrl = "https://node-api.toronet.minter.network/"
 	}
 
 	return resty.New().R().
 		SetError(&swapRouterErrorResponse{}).
 		SetResult(&swapRouterResponse{}).
-		Get(fmt.Sprintf("%s/api/v1/pools/%s/%s/route?amount=%s&type=%s", hostUrl, coin0, coin1, amount, tradeType))
+		Get(fmt.Sprintf("%s/v2/best_trade/%s/%s/%s/%s?max_depth=4", hostUrl, coin0, coin1, tradeType, amount))
 }

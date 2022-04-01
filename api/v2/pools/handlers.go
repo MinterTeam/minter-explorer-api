@@ -315,8 +315,13 @@ func EstimateSwap(c *gin.Context) {
 
 	if bancorErr == nil {
 		poolRespData := poolResp.Result().(*swapRouterResponse)
-		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountOut))
-		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountIn))
+		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.Result))
+		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(reqQuery.Amount))
+
+		if tradeType == pool.TradeTypeExactOutput {
+			inputAmount = helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.Result))
+			outputAmount = helpers.Bip2Pip(helpers.StrToBigFloat(reqQuery.Amount))
+		}
 
 		if tradeType == pool.TradeTypeExactInput && bancorAmount.Cmp(outputAmount) >= 1 {
 			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
@@ -334,7 +339,28 @@ func EstimateSwap(c *gin.Context) {
 		return
 	}
 
-	c.JSON(poolResp.StatusCode(), poolResp.Result())
+	data := poolResp.Result().(*swapRouterResponse)
+	path := make([]resource.Interface, len(data.Path))
+	for i, cidStr := range data.Path {
+		cid, _ := strconv.ParseUint(cidStr, 10, 64)
+		coin, _ := explorer.CoinRepository.FindByID(uint(cid))
+		path[i] = new(coins.IdResource).Transform(coin)
+	}
+
+	outputAmount := helpers.PipStr2Bip(data.Result)
+	inputAmount := helpers.PipStr2Bip(reqQuery.Amount)
+
+	if reqQuery.TradeType == "output" {
+		inputAmount = helpers.PipStr2Bip(data.Result)
+		outputAmount = helpers.PipStr2Bip(reqQuery.Amount)
+	}
+
+	c.JSON(poolResp.StatusCode(), routeResource{
+		SwapType:  "pool",
+		AmountIn:  inputAmount,
+		AmountOut: outputAmount,
+		Coins:     path,
+	})
 }
 
 func GetSwapPoolTradesVolume(c *gin.Context) {
