@@ -15,7 +15,7 @@ type Resource struct {
 	Value        string             `json:"value"`
 	Validator    resource.Interface `json:"validator"`
 	ToValidator  resource.Interface `json:"to_validator,omitempty"`
-	BlockID      uint               `json:"height"`
+	BlockID      uint               `json:"end_height"`
 	StartBlockID uint               `json:"start_height"`
 	CreatedAt    string             `json:"created_at"`
 	Type         string             `json:"type"`
@@ -61,7 +61,7 @@ type EventResource struct {
 	Value        string             `json:"value"`
 	Validator    resource.Interface `json:"validator"`
 	ToValidator  resource.Interface `json:"to_validator,omitempty"`
-	BlockID      uint               `json:"height"`
+	BlockID      uint               `json:"end_height"`
 	StartBlockID uint               `json:"start_height"`
 	CreatedAt    string             `json:"created_at"`
 	Type         string             `json:"type"`
