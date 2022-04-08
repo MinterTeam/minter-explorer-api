@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	validatorTypes "github.com/MinterTeam/minter-explorer-extender/v2/validator"
 	"math"
 	"strconv"
 	"strings"
@@ -92,4 +94,18 @@ func GetTokenContractAndChain(tokenContract *models.TokenContract) (contract str
 	}
 
 	return contract, "bsc"
+}
+
+func GetUnbondStartHeight(unbondBlockId uint, lockType string) uint {
+	if config.BaseCoinSymbol == "BIP" {
+		if lockType == "unbond" {
+			return unbondBlockId - validatorTypes.UnbondBlockCount
+		}
+		return unbondBlockId - validatorTypes.MoveStakeBlockCount
+	}
+
+	if lockType == "unbond" {
+		return unbondBlockId - validatorTypes.UnbondBlockCountTestnet
+	}
+	return unbondBlockId - validatorTypes.MoveStakeBlockCountTestnet
 }

@@ -10,14 +10,15 @@ import (
 )
 
 type Resource struct {
-	Coin        resource.Interface `json:"coin"`
-	Address     string             `json:"address"`
-	Value       string             `json:"value"`
-	Validator   resource.Interface `json:"validator"`
-	ToValidator resource.Interface `json:"to_validator,omitempty"`
-	BlockID     uint               `json:"height"`
-	CreatedAt   string             `json:"created_at"`
-	Type        string             `json:"type"`
+	Coin         resource.Interface `json:"coin"`
+	Address      string             `json:"address"`
+	Value        string             `json:"value"`
+	Validator    resource.Interface `json:"validator"`
+	ToValidator  resource.Interface `json:"to_validator,omitempty"`
+	BlockID      uint               `json:"height"`
+	StartBlockID uint               `json:"start_height"`
+	CreatedAt    string             `json:"created_at"`
+	Type         string             `json:"type"`
 }
 
 const (
@@ -30,49 +31,53 @@ func (Resource) Transform(model resource.ItemInterface, params ...resource.Param
 
 	if unbond.ToValidator == nil {
 		return Resource{
-			Coin:      new(coins.IdResource).Transform(*unbond.Coin),
-			Address:   unbond.Address.GetAddress(),
-			Value:     helpers.PipStr2Bip(unbond.Value),
-			Validator: new(validator.Resource).Transform(*unbond.FromValidator),
-			BlockID:   unbond.BlockId,
-			CreatedAt: unbond.CreatedAt.Format(time.RFC3339),
-			Type:      typeUnbond,
+			Coin:         new(coins.IdResource).Transform(*unbond.Coin),
+			Address:      unbond.Address.GetAddress(),
+			Value:        helpers.PipStr2Bip(unbond.Value),
+			Validator:    new(validator.Resource).Transform(*unbond.FromValidator),
+			BlockID:      unbond.BlockId,
+			StartBlockID: helpers.GetUnbondStartHeight(unbond.BlockId, typeUnbond),
+			CreatedAt:    unbond.CreatedAt.Format(time.RFC3339),
+			Type:         typeUnbond,
 		}
 	}
 
 	return Resource{
-		Coin:        new(coins.IdResource).Transform(*unbond.Coin),
-		Address:     unbond.Address.GetAddress(),
-		Value:       helpers.PipStr2Bip(unbond.Value),
-		Validator:   new(validator.Resource).Transform(*unbond.FromValidator),
-		ToValidator: new(validator.Resource).Transform(*unbond.ToValidator),
-		BlockID:     unbond.BlockId,
-		CreatedAt:   unbond.CreatedAt.Format(time.RFC3339),
-		Type:        typeMoveStake,
+		Coin:         new(coins.IdResource).Transform(*unbond.Coin),
+		Address:      unbond.Address.GetAddress(),
+		Value:        helpers.PipStr2Bip(unbond.Value),
+		Validator:    new(validator.Resource).Transform(*unbond.FromValidator),
+		ToValidator:  new(validator.Resource).Transform(*unbond.ToValidator),
+		BlockID:      unbond.BlockId,
+		StartBlockID: helpers.GetUnbondStartHeight(unbond.BlockId, typeMoveStake),
+		CreatedAt:    unbond.CreatedAt.Format(time.RFC3339),
+		Type:         typeMoveStake,
 	}
 }
 
 type EventResource struct {
-	Coin        resource.Interface `json:"coin"`
-	Address     string             `json:"address"`
-	Value       string             `json:"value"`
-	Validator   resource.Interface `json:"validator"`
-	ToValidator resource.Interface `json:"to_validator,omitempty"`
-	BlockID     uint               `json:"height"`
-	CreatedAt   string             `json:"created_at"`
-	Type        string             `json:"type"`
+	Coin         resource.Interface `json:"coin"`
+	Address      string             `json:"address"`
+	Value        string             `json:"value"`
+	Validator    resource.Interface `json:"validator"`
+	ToValidator  resource.Interface `json:"to_validator,omitempty"`
+	BlockID      uint               `json:"height"`
+	StartBlockID uint               `json:"start_height"`
+	CreatedAt    string             `json:"created_at"`
+	Type         string             `json:"type"`
 }
 
 func (EventResource) Transform(model resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
 	unbond := model.(models.Unbond)
 
 	return EventResource{
-		Coin:      new(coins.IdResource).Transform(*unbond.Coin),
-		Address:   unbond.Address.GetAddress(),
-		Value:     helpers.PipStr2Bip(unbond.Value),
-		Validator: new(validator.Resource).Transform(*unbond.Validator),
-		BlockID:   unbond.BlockId,
+		Coin:         new(coins.IdResource).Transform(*unbond.Coin),
+		Address:      unbond.Address.GetAddress(),
+		Value:        helpers.PipStr2Bip(unbond.Value),
+		Validator:    new(validator.Resource).Transform(*unbond.Validator),
+		BlockID:      unbond.BlockId,
+		StartBlockID: helpers.GetUnbondStartHeight(unbond.BlockId, typeUnbond),
 		//CreatedAt: unbond.CreatedAt.Format(time.RFC3339),
-		Type:      typeUnbond,
+		Type: typeUnbond,
 	}
 }

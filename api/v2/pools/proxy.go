@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
+	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -99,13 +99,8 @@ func ProxySwapPoolRoute(c *gin.Context) {
 
 func proxySwapPoolRouteRequest(coin0, coin1, amount, tradeType string) (*resty.Response, error) {
 	// todo: move host url to config
-	hostUrl := "https://swap-router-api.minter.network"
-	if os.Getenv("APP_BASE_COIN") == "MNT" {
-		hostUrl = "https://node-api.toronet.minter.network/"
-	}
-
 	return resty.New().R().
 		SetError(&swapRouterErrorResponse{}).
 		SetResult(&swapRouterResponse{}).
-		Get(fmt.Sprintf("%s/v2/best_trade/%s/%s/%s/%s?max_depth=4", hostUrl, coin0, coin1, tradeType, amount))
+		Get(fmt.Sprintf("%s/v2/best_trade/%s/%s/%s/%s?max_depth=4", config.SwapRouterProxyUrl, coin0, coin1, tradeType, amount))
 }
