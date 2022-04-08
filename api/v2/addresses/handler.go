@@ -320,7 +320,7 @@ func GetRewardsStatistics(c *gin.Context) {
 	})
 }
 
-func GetUnbonds(c *gin.Context) {
+func GetLockedDelegations(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
 	filter, _, err := prepareEventsRequest(c)
@@ -429,4 +429,23 @@ func GetLocks(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resource.TransformCollection(locks, new(address.LockedTokenResource)))
 	return
+}
+
+func GetUnbonds(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	filter, _, err := prepareEventsRequest(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	wl, err := explorer.UnbondRepository.GetListAsEventsByAddress(filter, explorer.Cache.GetLastBlock().ID)
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": resource.TransformCollection(wl, unbond.EventResource{}),
+	})
 }

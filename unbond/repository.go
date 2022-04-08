@@ -53,3 +53,20 @@ func (r *Repository) GetListByAddress(filter *events.SelectFilter) ([]UnbondMove
 
 	return unbonds, err
 }
+
+func (r *Repository) GetListAsEventsByAddress(filter *events.SelectFilter, lastBlockId uint64) ([]models.Unbond, error) {
+	var unbonds []models.Unbond
+
+	err := r.db.Model(&unbonds).
+		Relation("Coin").
+		Relation("Validator").
+		ColumnExpr("unbond.block_id, unbond.value, address.address as address__address").
+		Join("JOIN addresses as address ON address.id = unbond.address_id").
+		Apply(filter.Filter).
+		Where("unbond.block_id <= ?", lastBlockId).
+		Where("to_validator_id is null").
+		Order("unbond.block_id desc").
+		Select()
+
+	return unbonds, err
+}
