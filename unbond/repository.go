@@ -64,7 +64,6 @@ func (r *Repository) GetListAsEventsByAddress(filter *events.SelectFilter, lastB
 		Join("JOIN addresses as address ON address.id = unbond.address_id").
 		Apply(filter.Filter).
 		Where("unbond.block_id <= ?", lastBlockId).
-		Where("to_validator_id is null").
 		Order("unbond.block_id desc").
 		Select()
 
