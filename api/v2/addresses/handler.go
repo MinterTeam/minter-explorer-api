@@ -336,9 +336,7 @@ func GetLockedDelegations(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformPaginatedCollection(wl, unbond.Resource{}, pagination),
-	})
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(wl, unbond.Resource{}, pagination))
 }
 
 func GetBans(c *gin.Context) {
@@ -448,7 +446,5 @@ func GetUnbonds(c *gin.Context) {
 		panic(err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformPaginatedCollection(wl, unbond.EventResource{}, pagination),
-	})
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(wl, unbond.EventResource{}, pagination))
 }
