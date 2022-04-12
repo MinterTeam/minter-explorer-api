@@ -59,9 +59,13 @@ func (s *SwapService) estimateInBipByPools(coin *models.Coin, swapAmount *big.In
 }
 
 func (s *SwapService) estimateInBipPoolToken(coin *models.Coin, swapAmount *big.Float) *big.Int {
-	lpBip := helpers.StrToBigFloat(s.poolService.GetPoolByToken(coin).LiquidityBip)
-	pip, _ := new(big.Float).Mul(new(big.Float).Quo(swapAmount, helpers.StrToBigFloat(coin.Volume)), lpBip).Int(nil)
-	return pip
+	if p := s.poolService.GetPoolByToken(coin); p != nil {
+		lpBip := helpers.StrToBigFloat(s.poolService.GetPoolByToken(coin).LiquidityBip)
+		pip, _ := new(big.Float).Mul(new(big.Float).Quo(swapAmount, helpers.StrToBigFloat(coin.Volume)), lpBip).Int(nil)
+		return pip
+	}
+
+	return big.NewInt(0)
 }
 
 func (s *SwapService) EstimateByBancor(coinFrom models.Coin, coinTo models.Coin, swapAmount *big.Int, tradeType pool.TradeType) (*big.Int, error) {
