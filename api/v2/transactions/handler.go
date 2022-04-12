@@ -109,7 +109,7 @@ func GetTransaction(c *gin.Context) {
 	if tx == nil {
 		invalidTx := explorer.InvalidTransactionRepository.GetTxByHash(hash)
 		if invalidTx == nil {
-			errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Transaction not found.", c)
+			errors.SetErrorResponse(http.StatusNotFound, "Transaction not found.", c)
 			return
 		}
 

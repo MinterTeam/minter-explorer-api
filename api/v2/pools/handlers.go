@@ -57,7 +57,7 @@ func GetSwapPool(c *gin.Context) {
 	}, 1)
 
 	if data == nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Pool not found.", c)
 		return
 	}
 
@@ -76,7 +76,7 @@ func GetSwapPoolProvider(c *gin.Context) {
 
 	p, err := explorer.PoolRepository.FindProvider(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token}, helpers.RemoveMinterPrefix(req.Address))
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Provider not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Provider not found.", c)
 		return
 	}
 
@@ -144,7 +144,7 @@ func GetSwapPoolProviders(c *gin.Context) {
 	pagination := tools.NewPagination(c.Request)
 	providers, err := explorer.PoolRepository.GetProviders(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token}, &pagination)
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Provider not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Provider not found.", c)
 		return
 	}
 
@@ -290,7 +290,7 @@ func EstimateSwap(c *gin.Context) {
 
 	coinFrom, coinTo, err := req.GetCoins(explorer)
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Coins not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Coins not found.", c)
 		return
 	}
 
@@ -300,11 +300,14 @@ func EstimateSwap(c *gin.Context) {
 		tradeType = pool.TradeTypeExactOutput
 	}
 
+	coin0 := strconv.FormatUint(uint64(coinFrom.ID), 10)
+	coin1 := strconv.FormatUint(uint64(coinTo.ID), 10)
+
 	bancorAmount, bancorErr := explorer.SwapService.EstimateByBancor(coinFrom, coinTo, reqQuery.GetAmount(), tradeType)
-	poolResp, poolErr := proxySwapPoolRouteRequest(req.Coin0, req.Coin1, reqQuery.Amount, reqQuery.TradeType)
+	poolResp, poolErr := proxySwapPoolRouteRequest(coin0, coin1, reqQuery.Amount, reqQuery.TradeType)
 
 	if poolErr != nil && bancorErr != nil && !poolResp.IsError() {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Route path not exists.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Route path not exists.", c)
 		return
 	}
 
@@ -315,8 +318,13 @@ func EstimateSwap(c *gin.Context) {
 
 	if bancorErr == nil {
 		poolRespData := poolResp.Result().(*swapRouterResponse)
-		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountOut))
-		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.AmountIn))
+		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.Result))
+		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(reqQuery.Amount))
+
+		if tradeType == pool.TradeTypeExactOutput {
+			inputAmount = helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.Result))
+			outputAmount = helpers.Bip2Pip(helpers.StrToBigFloat(reqQuery.Amount))
+		}
 
 		if tradeType == pool.TradeTypeExactInput && bancorAmount.Cmp(outputAmount) >= 1 {
 			c.JSON(http.StatusOK, new(pool.BancorResource).Transform(reqQuery.GetAmount(), bancorAmount, tradeType))
@@ -334,7 +342,28 @@ func EstimateSwap(c *gin.Context) {
 		return
 	}
 
-	c.JSON(poolResp.StatusCode(), poolResp.Result())
+	data := poolResp.Result().(*swapRouterResponse)
+	path := make([]resource.Interface, len(data.Path))
+	for i, cidStr := range data.Path {
+		cid, _ := strconv.ParseUint(cidStr, 10, 64)
+		coin, _ := explorer.CoinRepository.FindByID(uint(cid))
+		path[i] = new(coins.IdResource).Transform(coin)
+	}
+
+	outputAmount := helpers.PipStr2Bip(data.Result)
+	inputAmount := helpers.PipStr2Bip(reqQuery.Amount)
+
+	if reqQuery.TradeType == "output" {
+		inputAmount = helpers.PipStr2Bip(data.Result)
+		outputAmount = helpers.PipStr2Bip(reqQuery.Amount)
+	}
+
+	c.JSON(poolResp.StatusCode(), routeResource{
+		SwapType:  "pool",
+		AmountIn:  inputAmount,
+		AmountOut: outputAmount,
+		Coins:     path,
+	})
 }
 
 func GetSwapPoolTradesVolume(c *gin.Context) {
@@ -356,7 +385,7 @@ func GetSwapPoolTradesVolume(c *gin.Context) {
 
 	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Pool not found.", c)
 		return
 	}
 
@@ -500,7 +529,7 @@ func GetSwapPoolOrders(c *gin.Context) {
 
 	p, err := explorer.PoolRepository.FindByCoins(pool.SelectByCoinsFilter{Coin0: req.Coin0, Coin1: req.Coin1, Token: req.Token})
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Pool not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Pool not found.", c)
 		return
 	}
 
@@ -538,7 +567,7 @@ func GetSwapPoolOrder(c *gin.Context) {
 
 	orderModel, err := explorer.OrderRepository.FindById(req.OrderId)
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Order not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Order not found.", c)
 		return
 	}
 

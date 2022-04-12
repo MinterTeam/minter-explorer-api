@@ -103,14 +103,21 @@ var transformConfig = map[uint8]TransformTxConfig{
 	uint8(transaction.TypeCreateSwapPool):          {Model: new(api_pb.CreateSwapPoolData), Resource: data_resources.CreateSwapPool{}},
 	uint8(transaction.TypeAddLimitOrder):           {Model: new(api_pb.AddLimitOrderData), Resource: data_resources.AddLimitOrder{}},
 	uint8(transaction.TypeRemoveLimitOrder):        {Model: new(api_pb.RemoveLimitOrderData), Resource: data_resources.RemoveLimitOrder{}},
+	uint8(transaction.TypeLockStake):               {Model: new(api_pb.LockStakeData), Resource: data_resources.LockStakeData{}},
+	uint8(transaction.TypeLock):                    {Model: new(api_pb.LockData), Resource: data_resources.LockData{}},
+	uint8(transaction.TypeMoveStake):               {Model: new(api_pb.MoveStakeData), Resource: data_resources.MoveStake{}},
 }
 
 func TransformTxData(tx models.Transaction) resource.Interface {
 	config := transformConfig[tx.Type]
+	val, err := unmarshalTxData(tx)
+	helpers.CheckErr(err)
+	return config.Resource.Transform(val, tx)
+}
 
+func unmarshalTxData(tx models.Transaction) (interface{}, error) {
+	config := transformConfig[tx.Type]
 	val := reflect.New(reflect.TypeOf(config.Model).Elem()).Interface().(proto.Message)
 	err := protojson.Unmarshal(tx.Data, val)
-	helpers.CheckErr(err)
-
-	return config.Resource.Transform(val, tx)
+	return val, err
 }

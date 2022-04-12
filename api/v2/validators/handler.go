@@ -83,7 +83,7 @@ func GetValidator(c *gin.Context) {
 
 	// check validator to existing
 	if data == nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Validator not found.", c)
 		return
 	}
 
@@ -162,7 +162,7 @@ func GetValidatorStakes(c *gin.Context) {
 	publicKey := helpers.RemoveMinterPrefix(request.PublicKey)
 	v := explorer.ValidatorRepository.GetByPublicKey(publicKey)
 	if v == nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Validator not found.", c)
 		return
 	}
 
@@ -193,7 +193,7 @@ func GetValidatorSlashes(c *gin.Context) {
 	publicKey := helpers.RemoveMinterPrefix(request.PublicKey)
 	v := explorer.ValidatorRepository.GetByPublicKey(publicKey)
 	if v == nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Validator not found.", c)
 		return
 	}
 
@@ -221,7 +221,7 @@ func GetValidatorBans(c *gin.Context) {
 	publicKey := helpers.RemoveMinterPrefix(request.PublicKey)
 	v := explorer.ValidatorRepository.GetByPublicKey(publicKey)
 	if v == nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Validator not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Validator not found.", c)
 		return
 	}
 

@@ -15,10 +15,15 @@ import (
 type Service struct {
 	cache          *cache.ExplorerCache
 	coinRepository *coins.Repository
+	repository     *Repository
 }
 
-func NewService(coinRepository *coins.Repository, cache *cache.ExplorerCache) *Service {
-	return &Service{cache, coinRepository}
+func NewService(coinRepository *coins.Repository, cache *cache.ExplorerCache, repository *Repository) *Service {
+	return &Service{
+		cache:          cache,
+		coinRepository: coinRepository,
+		repository:     repository,
+	}
 }
 
 func (s *Service) PrepareTransactionsModel(txs []models.Transaction) ([]models.Transaction, error) {
@@ -109,4 +114,27 @@ func (s Service) transformCheckDataToModel(data *transaction.CheckData) (*dataMo
 		Sender:   sender,
 		DueBlock: data.DueBlock,
 	}, nil
+}
+
+func (s Service) GetAddressTokenLocks(address string) ([]models.Transaction, error) {
+	txs, err := s.repository.GetListByTypeAndAddress(address, uint8(transaction.TypeLock))
+	if err != nil {
+		return nil, err
+	}
+
+	lastBlock := s.cache.GetLastBlock()
+
+	var locked []models.Transaction
+	for _, tx := range txs {
+		data, _ := unmarshalTxData(tx)
+		tx.IData = data.(*api_pb.LockData)
+
+		if data.(*api_pb.LockData).DueBlock <= lastBlock.ID {
+			continue
+		}
+
+		locked = append(locked, tx)
+	}
+
+	return locked, nil
 }

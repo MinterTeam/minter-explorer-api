@@ -46,7 +46,7 @@ func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 
 	// Default handler 404
 	router.NoRoute(func(c *gin.Context) {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Resource not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Resource not found.", c)
 	})
 
 	// Create base api prefix
@@ -98,7 +98,7 @@ func throttle(ipMap *sync.Map) gin.HandlerFunc {
 		}
 
 		if !limiter.(*rate.Limiter).Allow() {
-			errors.SetErrorResponse(http.StatusTooManyRequests, -1, "Too many requests", c)
+			errors.SetErrorResponse(http.StatusTooManyRequests, "Too many requests", c)
 			c.Abort()
 		} else {
 			c.Next()

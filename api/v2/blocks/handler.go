@@ -78,7 +78,7 @@ func GetBlock(c *gin.Context) {
 
 	// check block to existing
 	if block == nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Block not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Block not found.", c)
 		return
 	}
 

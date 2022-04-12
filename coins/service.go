@@ -69,6 +69,7 @@ func (s *Service) RunVerifiedCoinsUpdater() {
 		coins, err := s.getVerifiedCoins()
 		if err != nil {
 			log.Errorf("failed to get verified coins: %s", err)
+			time.Sleep(time.Second * 5)
 			continue
 		}
 

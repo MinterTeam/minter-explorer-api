@@ -19,9 +19,11 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/MinterTeam/minter-explorer-api/v2/unbond"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
+	minterTx "github.com/MinterTeam/minter-go-sdk/v2/transaction"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 type GetAddressRequest struct {
@@ -273,6 +275,15 @@ func GetDelegations(c *gin.Context) {
 		),
 	}
 
+	tx, err := explorer.TransactionRepository.GetLastByTypeAndAddress(*minterAddress, uint8(minterTx.TypeLockStake))
+	if tx != nil && err == nil {
+		additionalFields["locked_data"] = map[string]interface{}{
+			"start_block":     tx.BlockID,
+			"end_block":       helpers.StrToUint64(tx.Tags["tx.unlock_block_id"]),
+			"start_timestamp": tx.CreatedAt.Format(time.RFC3339),
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"data": resource.TransformCollection(delegationsData.Value, delegation.Resource{}),
 		"meta": gin.H{
@@ -309,23 +320,23 @@ func GetRewardsStatistics(c *gin.Context) {
 	})
 }
 
-func GetUnbonds(c *gin.Context) {
+func GetLockedDelegations(c *gin.Context) {
 	explorer := c.MustGet("explorer").(*core.Explorer)
 
-	filter, pagination, err := prepareEventsRequest(c)
+	filter, _, err := prepareEventsRequest(c)
 	if err != nil {
 		errors.SetValidationErrorResponse(err, c)
 		return
 	}
 
-	wl, err := explorer.UnbondRepository.GetListByAddress(filter, pagination)
+	pagination := tools.NewPagination(c.Request)
+	wl, err := explorer.UnbondRepository.GetListByAddress(filter, &pagination)
 	if err != nil {
-		panic(err)
+		errors.SetErrorResponse(http.StatusInternalServerError, "failed to get unbonds", c)
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollection(wl, unbond.Resource{}),
-	})
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(wl, unbond.Resource{}, pagination))
 }
 
 func GetBans(c *gin.Context) {
@@ -390,4 +401,50 @@ func GetLimitOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(orders, new(order.Resource), pagination))
 	return
+}
+
+// GetLocks Get list of locked tokens by address
+func GetLocks(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	// validate request
+	minterAddress, err := GetAddressFromRequestUri(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	// validate request
+	var rq GetOrdersRequest
+	if err := c.ShouldBindQuery(&rq); err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	locks, err := explorer.TransactionService.GetAddressTokenLocks(*minterAddress)
+	if err != nil {
+		log.WithError(err).Panicf("failed to load locked tokens for %s", *minterAddress)
+		return
+	}
+
+	c.JSON(http.StatusOK, resource.TransformCollection(locks, new(address.LockedTokenResource)))
+	return
+}
+
+func GetUnbonds(c *gin.Context) {
+	explorer := c.MustGet("explorer").(*core.Explorer)
+
+	filter, _, err := prepareEventsRequest(c)
+	if err != nil {
+		errors.SetValidationErrorResponse(err, c)
+		return
+	}
+
+	pagination := tools.NewPagination(c.Request)
+	wl, err := explorer.UnbondRepository.GetListAsEventsByAddress(filter, explorer.Cache.GetLastBlock().ID, &pagination)
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(wl, unbond.EventResource{}, pagination))
 }

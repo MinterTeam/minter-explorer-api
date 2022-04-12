@@ -79,6 +79,10 @@ func (s *Service) GetCoinPriceInBip(coinId uint64) *big.Float {
 	s.cpmx.RLock()
 	defer s.cpmx.RUnlock()
 
+	if _, ok := s.coinPrices[0]; !ok {
+		return big.NewFloat(0)
+	}
+
 	if amount, ok := s.coinPrices[coinId]; ok {
 		return new(big.Float).Quo(amount, s.coinPrices[0])
 	}

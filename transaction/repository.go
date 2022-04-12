@@ -138,3 +138,32 @@ func (repository Repository) Get24hTransactionsData() Tx24hData {
 
 	return data
 }
+
+// GetListByTypeAndAddress Get list of transactions by type and sender address
+func (repository Repository) GetListByTypeAndAddress(address string, txType uint8) ([]models.Transaction, error) {
+	var txs []models.Transaction
+
+	err := repository.db.Model(&txs).
+		Relation("FromAddress.address").
+		Join("INNER JOIN addresses ON addresses.id = from_address_id").
+		Where("addresses.address = ?", address).
+		Where("type = ?", txType).
+		Select()
+
+	return txs, err
+}
+
+func (repository Repository) GetLastByTypeAndAddress(address string, txType uint8) (*models.Transaction, error) {
+	var tx models.Transaction
+
+	err := repository.db.Model(&tx).
+		Relation("FromAddress.address").
+		Join("INNER JOIN addresses ON addresses.id = from_address_id").
+		Where("addresses.address = ?", address).
+		Where("type = ?", txType).
+		Order("id DESC").
+		Limit(1).
+		Select()
+
+	return &tx, err
+}

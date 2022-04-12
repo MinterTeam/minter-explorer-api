@@ -24,3 +24,7 @@ const (
 var (
 	StableCoinIds = []uint64{1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000}
 )
+
+var (
+	SwapRouterProxyUrl string
+)

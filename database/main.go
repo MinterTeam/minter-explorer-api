@@ -52,5 +52,6 @@ func (d dbLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
 		sql, _ := q.FormattedQuery()
 		fmt.Println(string(sql[:]))
 	}
+
 	return nil
 }

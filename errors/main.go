@@ -10,7 +10,6 @@ import (
 )
 
 type Error struct {
-	Code    int               `json:"code"`
 	Message string            `json:"message"`
 	Fields  map[string]string `json:"fields,omitempty"`
 }
@@ -20,10 +19,9 @@ type Response struct {
 }
 
 // Return error response
-func SetErrorResponse(statusCode int, errorCode int, text string, c *gin.Context) {
+func SetErrorResponse(statusCode int, text string, c *gin.Context) {
 	c.JSON(statusCode, Response{
 		Error: Error{
-			Code:    errorCode,
 			Message: text,
 		},
 	})
@@ -40,7 +38,6 @@ func SetValidationErrorResponse(err error, c *gin.Context) {
 
 	c.JSON(http.StatusUnprocessableEntity, Response{
 		Error{
-			Code:    1,
 			Message: "Validation failed.",
 			Fields:  errorFieldsList,
 		},

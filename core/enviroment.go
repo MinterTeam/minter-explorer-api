@@ -29,6 +29,7 @@ func NewEnvironment() *Environment {
 	}
 
 	config.BaseCoinSymbol = os.Getenv("APP_BASE_COIN")
+	config.SwapRouterProxyUrl = os.Getenv("SWAP_ROUTER_PROXY_URL")
 
 	env := Environment{
 		DbName:          os.Getenv("DB_NAME"),
