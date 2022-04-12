@@ -2,6 +2,7 @@ package unbond
 
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/events"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
 )
@@ -14,8 +15,9 @@ func NewRepository(db *pg.DB) *Repository {
 	return &Repository{db}
 }
 
-func (r *Repository) GetListByAddress(filter *events.SelectFilter) ([]UnbondMoveStake, error) {
+func (r *Repository) GetListByAddress(filter *events.SelectFilter, pagination *tools.Pagination) ([]UnbondMoveStake, error) {
 	var unbonds []UnbondMoveStake
+	var err error
 
 	allCoins := r.db.Model(new(models.Unbond)).
 		ColumnExpr("block_id, coin_id, validator_id, null as to_validator_id, value, created_at, address.address as minter_address").
@@ -26,7 +28,7 @@ func (r *Repository) GetListByAddress(filter *events.SelectFilter) ([]UnbondMove
 			Join("JOIN addresses as address ON address.id = moved_stake.address_id").
 			Apply(filter.Filter))
 
-	err := r.db.Model().
+	pagination.Total, err = r.db.Model().
 		With("data", allCoins).
 		Table("data").
 		Join("JOIN coins on coins.id = data.coin_id").
@@ -49,23 +51,23 @@ func (r *Repository) GetListByAddress(filter *events.SelectFilter) ([]UnbondMove
 		ColumnExpr("toValidators.status as to_validator__status").
 		ColumnExpr("data.minter_address as address__address").
 		OrderExpr("data.block_id desc").
-		Select(&unbonds)
+		Apply(pagination.Filter).
+		SelectAndCount(&unbonds)
 
 	return unbonds, err
 }
 
-func (r *Repository) GetListAsEventsByAddress(filter *events.SelectFilter, lastBlockId uint64) ([]models.Unbond, error) {
-	var unbonds []models.Unbond
-
-	err := r.db.Model(&unbonds).
+func (r *Repository) GetListAsEventsByAddress(filter *events.SelectFilter, lastBlockId uint64, pagination *tools.Pagination) (unbonds []models.Unbond, err error) {
+	pagination.Total, err = r.db.Model(&unbonds).
 		Relation("Coin").
 		Relation("Validator").
 		ColumnExpr("unbond.block_id, unbond.value, address.address as address__address").
 		Join("JOIN addresses as address ON address.id = unbond.address_id").
 		Apply(filter.Filter).
+		Apply(pagination.Filter).
 		Where("unbond.block_id <= ?", lastBlockId).
 		Order("unbond.block_id desc").
-		Select()
+		SelectAndCount()
 
 	return unbonds, err
 }

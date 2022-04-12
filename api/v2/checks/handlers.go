@@ -34,7 +34,7 @@ func GetCheck(c *gin.Context) {
 
 	minterCheck, err := explorer.CheckRepository.GetByRawCheck(helpers.RemoveMinterPrefix(req.RawCheck))
 	if err != nil {
-		errors.SetErrorResponse(http.StatusNotFound, http.StatusNotFound, "Check not found.", c)
+		errors.SetErrorResponse(http.StatusNotFound, "Check not found.", c)
 		return
 	}
 

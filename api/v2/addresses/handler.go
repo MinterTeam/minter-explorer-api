@@ -329,13 +329,15 @@ func GetLockedDelegations(c *gin.Context) {
 		return
 	}
 
-	wl, err := explorer.UnbondRepository.GetListByAddress(filter)
+	pagination := tools.NewPagination(c.Request)
+	wl, err := explorer.UnbondRepository.GetListByAddress(filter, &pagination)
 	if err != nil {
-		panic(err)
+		errors.SetErrorResponse(http.StatusInternalServerError, "failed to get unbonds", c)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollection(wl, unbond.Resource{}),
+		"data": resource.TransformPaginatedCollection(wl, unbond.Resource{}, pagination),
 	})
 }
 
@@ -440,12 +442,13 @@ func GetUnbonds(c *gin.Context) {
 		return
 	}
 
-	wl, err := explorer.UnbondRepository.GetListAsEventsByAddress(filter, explorer.Cache.GetLastBlock().ID)
+	pagination := tools.NewPagination(c.Request)
+	wl, err := explorer.UnbondRepository.GetListAsEventsByAddress(filter, explorer.Cache.GetLastBlock().ID, &pagination)
 	if err != nil {
 		panic(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": resource.TransformCollection(wl, unbond.EventResource{}),
+		"data": resource.TransformPaginatedCollection(wl, unbond.EventResource{}, pagination),
 	})
 }
