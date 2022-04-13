@@ -96,7 +96,7 @@ func (s *Service) RunBlocklistCoinsUpdater() {
 	}
 }
 
-func (s *Service) getVerifiedCoins() ([]models.Coin, error) {
+func (s *Service) getVerifiedCoinsFromOracle() ([]models.Coin, error) {
 	resp, err := s.hubClient.GetOracleCoins()
 	if err != nil {
 		return nil, err
@@ -114,6 +114,10 @@ func (s *Service) getVerifiedCoins() ([]models.Coin, error) {
 	}
 
 	return coinIds, nil
+}
+
+func (s *Service) getVerifiedCoins() ([]models.Coin, error) {
+	return s.repository.GetVerifiedCoins()
 }
 
 func (s *Service) getBlocklistCoinIds() ([]uint64, error) {
