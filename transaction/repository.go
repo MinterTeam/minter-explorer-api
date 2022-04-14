@@ -22,11 +22,11 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get paginated list of transactions by address filter
-func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filter SelectFilter, pagination *tools.Pagination) []models.Transaction {
+func (r Repository) GetPaginatedTxsByAddresses(addresses []string, filter SelectFilter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 
-	pagination.Total, err = repository.db.Model(&transactions).
+	pagination.Total, err = r.db.Model(&transactions).
 		Join("INNER JOIN index_transaction_by_address AS ind").
 		JoinOn("ind.transaction_id = transaction.id").
 		Join("INNER JOIN addresses AS a").
@@ -47,11 +47,11 @@ func (repository Repository) GetPaginatedTxsByAddresses(addresses []string, filt
 }
 
 // Get paginated list of transactions by select filter
-func (repository Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagination *tools.Pagination) []models.Transaction {
+func (r Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagination *tools.Pagination) []models.Transaction {
 	var transactions []models.Transaction
 	var err error
 
-	pagination.Total, err = repository.db.Model(&transactions).
+	pagination.Total, err = r.db.Model(&transactions).
 		Relation("FromAddress.address").
 		Relation("GasCoin").
 		Column("transaction.*").
@@ -66,10 +66,10 @@ func (repository Repository) GetPaginatedTxsByFilter(filter tools.Filter, pagina
 }
 
 // Get transaction by hash
-func (repository Repository) GetTxByHash(hash string) *models.Transaction {
+func (r Repository) GetTxByHash(hash string) *models.Transaction {
 	var transaction models.Transaction
 
-	err := repository.db.Model(&transaction).
+	err := r.db.Model(&transaction).
 		Relation("FromAddress").
 		Relation("GasCoin").
 		Where("hash = ?", hash).
@@ -88,11 +88,11 @@ type TxCountChartData struct {
 }
 
 // Get list of transactions counts filtered by created_at
-func (repository Repository) GetTxCountChartDataByFilter(filter tools.Filter) []TxCountChartData {
+func (r Repository) GetTxCountChartDataByFilter(filter tools.Filter) []TxCountChartData {
 	var tx models.Transaction
 	var data []TxCountChartData
 
-	err := repository.db.Model(&tx).
+	err := r.db.Model(&tx).
 		ColumnExpr("COUNT(*) as count").
 		Apply(filter.Filter).
 		Select(&data)
@@ -103,10 +103,10 @@ func (repository Repository) GetTxCountChartDataByFilter(filter tools.Filter) []
 }
 
 // Get total transaction count
-func (repository Repository) GetTotalTransactionCount(startTime *string) int {
+func (r Repository) GetTotalTransactionCount(startTime *string) int {
 	var tx models.Transaction
 
-	query := repository.db.Model(&tx)
+	query := r.db.Model(&tx)
 	if startTime != nil {
 		query = query.Relation("Block._").Where("block.created_at >= ?", *startTime)
 	}
@@ -124,11 +124,11 @@ type Tx24hData struct {
 }
 
 // Get transactions data by last 24 hours
-func (repository Repository) Get24hTransactionsData() Tx24hData {
+func (r Repository) Get24hTransactionsData() Tx24hData {
 	var tx models.Transaction
 	var data Tx24hData
 
-	err := repository.db.Model(&tx).
+	err := r.db.Model(&tx).
 		Relation("Block._").
 		ColumnExpr("COUNT(*) as count, SUM(commission) / 1e18 as fee_sum, AVG(commission) / 1e18 as fee_avg").
 		Where("block.created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
@@ -140,10 +140,10 @@ func (repository Repository) Get24hTransactionsData() Tx24hData {
 }
 
 // GetListByTypeAndAddress Get list of transactions by type and sender address
-func (repository Repository) GetListByTypeAndAddress(address string, txType uint8) ([]models.Transaction, error) {
+func (r Repository) GetListByTypeAndAddress(address string, txType uint8) ([]models.Transaction, error) {
 	var txs []models.Transaction
 
-	err := repository.db.Model(&txs).
+	err := r.db.Model(&txs).
 		Relation("FromAddress.address").
 		Join("INNER JOIN addresses ON addresses.id = from_address_id").
 		Where("addresses.address = ?", address).
@@ -153,10 +153,10 @@ func (repository Repository) GetListByTypeAndAddress(address string, txType uint
 	return txs, err
 }
 
-func (repository Repository) GetLastByTypeAndAddress(address string, txType uint8) (*models.Transaction, error) {
+func (r Repository) GetLastByTypeAndAddress(address string, txType uint8) (*models.Transaction, error) {
 	var tx models.Transaction
 
-	err := repository.db.Model(&tx).
+	err := r.db.Model(&tx).
 		Relation("FromAddress.address").
 		Join("INNER JOIN addresses ON addresses.id = from_address_id").
 		Where("addresses.address = ?", address).

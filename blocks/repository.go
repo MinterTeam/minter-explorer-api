@@ -11,22 +11,22 @@ import (
 )
 
 type Repository struct {
-	DB *pg.DB
+	db *pg.DB
 }
 
 func NewRepository(db *pg.DB) *Repository {
 	orm.RegisterTable((*models.BlockValidator)(nil))
 
 	return &Repository{
-		DB: db,
+		db: db,
 	}
 }
 
 // Get block by height (id)
-func (repository Repository) GetById(id uint64) *models.Block {
+func (r Repository) GetById(id uint64) *models.Block {
 	var block models.Block
 
-	err := repository.DB.Model(&block).
+	err := r.db.Model(&block).
 		Relation("BlockValidators").
 		Relation("BlockValidators.Validator").
 		Where("block.id = ?", id).
@@ -40,11 +40,11 @@ func (repository Repository) GetById(id uint64) *models.Block {
 }
 
 // Get paginated list of blocks
-func (repository Repository) GetPaginated(pagination *tools.Pagination) []models.Block {
+func (r Repository) GetPaginated(pagination *tools.Pagination) []models.Block {
 	var blocks []models.Block
 	var err error
 
-	pagination.Total, err = repository.DB.Model(&blocks).
+	pagination.Total, err = r.db.Model(&blocks).
 		Relation("BlockValidators").
 		Apply(pagination.Filter).
 		Order("id DESC").
@@ -56,21 +56,21 @@ func (repository Repository) GetPaginated(pagination *tools.Pagination) []models
 }
 
 // Get last block
-func (repository Repository) GetLastBlock() models.Block {
+func (r Repository) GetLastBlock() models.Block {
 	var block models.Block
 
-	repository.DB.Model(&block).Last()
+	r.db.Model(&block).Last()
 	//helpers.CheckErr(err)
 
 	return block
 }
 
 // Get average block time
-func (repository Repository) GetAverageBlockTime() float64 {
+func (r Repository) GetAverageBlockTime() float64 {
 	var block models.Block
 	var blockTime float64
 
-	err := repository.DB.Model(&block).
+	err := r.db.Model(&block).
 		ColumnExpr("AVG(block_time) / ?", time.Second).
 		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).
 		Select(&blockTime)
@@ -81,11 +81,11 @@ func (repository Repository) GetAverageBlockTime() float64 {
 }
 
 // Get sum of delta slow time
-func (repository Repository) GetSumSlowBlocksTimeBy24h() float64 {
+func (r Repository) GetSumSlowBlocksTimeBy24h() float64 {
 	var block models.Block
 	var sum float64
 
-	err := repository.DB.Model(&block).
+	err := r.db.Model(&block).
 		ColumnExpr("SUM(block_time - ?) / ?", helpers.Seconds2Nano(config.SlowBlocksMaxTimeInSec), helpers.Seconds2Nano(1)).
 		Where("block_time >= ?", helpers.Seconds2Nano(config.SlowBlocksMaxTimeInSec)).
 		Where("created_at >= ?", time.Now().AddDate(0, 0, -1).Format(time.RFC3339)).

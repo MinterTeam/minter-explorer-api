@@ -18,11 +18,11 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, pagination *tools.Pagination) []models.Slash {
+func (r Repository) GetPaginatedByAddress(filter events.SelectFilter, pagination *tools.Pagination) []models.Slash {
 	var slashes []models.Slash
 	var err error
 
-	pagination.Total, err = repository.db.Model(&slashes).
+	pagination.Total, err = r.db.Model(&slashes).
 		Relation("Coin").
 		Relation("Address.address").
 		Relation("Block.created_at").
@@ -37,11 +37,11 @@ func (repository Repository) GetPaginatedByAddress(filter events.SelectFilter, p
 	return slashes
 }
 
-func (repository Repository) GetPaginatedByValidator(validator *models.Validator, pagination *tools.Pagination) ([]models.Slash, error) {
+func (r Repository) GetPaginatedByValidator(validator *models.Validator, pagination *tools.Pagination) ([]models.Slash, error) {
 	var slashes []models.Slash
 	var err error
 
-	pagination.Total, err = repository.db.Model(&slashes).
+	pagination.Total, err = r.db.Model(&slashes).
 		Relation("Coin").
 		Relation("Address.address").
 		Relation("Block.created_at").

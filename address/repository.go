@@ -7,20 +7,20 @@ import (
 )
 
 type Repository struct {
-	DB *pg.DB
+	db *pg.DB
 }
 
 func NewRepository(db *pg.DB) *Repository {
 	return &Repository{
-		DB: db,
+		db: db,
 	}
 }
 
 // Get address model by address
-func (repository Repository) GetByAddress(minterAddress string) *models.Address {
+func (r Repository) GetByAddress(minterAddress string) *models.Address {
 	var address models.Address
 
-	err := repository.DB.Model(&address).
+	err := r.db.Model(&address).
 		Relation("Balances").
 		Relation("Balances.Coin").
 		Where("address = ?", minterAddress).
@@ -34,10 +34,10 @@ func (repository Repository) GetByAddress(minterAddress string) *models.Address 
 }
 
 // Get list of addresses models
-func (repository Repository) GetByAddresses(minterAddresses []string) []*models.Address {
+func (r Repository) GetByAddresses(minterAddresses []string) []*models.Address {
 	var addresses []*models.Address
 
-	err := repository.DB.Model(&addresses).
+	err := r.db.Model(&addresses).
 		Relation("Balances").
 		Relation("Balances.Coin").
 		WhereIn("address IN (?)", minterAddresses).
@@ -48,8 +48,8 @@ func (repository Repository) GetByAddresses(minterAddresses []string) []*models.
 	return addresses
 }
 
-func (repository Repository) GetNonZeroAddressesCount() (count uint64, err error) {
-	err = repository.DB.Model(new(models.Balance)).
+func (r Repository) GetNonZeroAddressesCount() (count uint64, err error) {
+	err = r.db.Model(new(models.Balance)).
 		ColumnExpr("count (DISTINCT address_id)").
 		Select(&count)
 

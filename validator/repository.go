@@ -17,10 +17,10 @@ func NewRepository(db *pg.DB) *Repository {
 	}
 }
 
-func (repository Repository) GetByPublicKey(publicKey string) *models.Validator {
+func (r Repository) GetByPublicKey(publicKey string) *models.Validator {
 	var validator models.Validator
 
-	err := repository.db.Model(&validator).
+	err := r.db.Model(&validator).
 		Relation("Stakes").
 		Join("JOIN validator_public_keys ON validator_public_keys.validator_id = validator.id").
 		Where("validator_public_keys.key = ?", publicKey).
@@ -33,11 +33,11 @@ func (repository Repository) GetByPublicKey(publicKey string) *models.Validator 
 	return &validator
 }
 
-func (repository Repository) GetTotalStakeByActiveValidators(ids []uint) string {
+func (r Repository) GetTotalStakeByActiveValidators(ids []uint) string {
 	var total string
 
 	// get total stake of active validators
-	err := repository.db.Model((*models.Validator)(nil)).
+	err := r.db.Model((*models.Validator)(nil)).
 		ColumnExpr("SUM(total_stake)").
 		Where("id IN (?)", pg.In(ids)).
 		Select(&total)
@@ -47,18 +47,18 @@ func (repository Repository) GetTotalStakeByActiveValidators(ids []uint) string 
 	return total
 }
 
-func (repository Repository) GetActiveValidatorIds() []uint {
+func (r Repository) GetActiveValidatorIds() []uint {
 	var blockValidator models.BlockValidator
 	var lastBlock models.Block
 	var ids []uint
 
-	lastBlockQuery := repository.db.Model(&lastBlock).
+	lastBlockQuery := r.db.Model(&lastBlock).
 		Column("id").
 		Order("id DESC").
 		Limit(1)
 
 	// get active validators by last block
-	err := repository.db.Model(&blockValidator).
+	err := r.db.Model(&blockValidator).
 		Column("validator_id").
 		Where("block_id = (?)", lastBlockQuery).
 		Select(&ids)
@@ -69,10 +69,10 @@ func (repository Repository) GetActiveValidatorIds() []uint {
 }
 
 // Get active candidates count
-func (repository Repository) GetActiveCandidatesCount() int {
+func (r Repository) GetActiveCandidatesCount() int {
 	var validator models.Validator
 
-	count, err := repository.db.Model(&validator).
+	count, err := r.db.Model(&validator).
 		Where("status = ?", models.ValidatorStatusReady).
 		Count()
 
@@ -82,28 +82,28 @@ func (repository Repository) GetActiveCandidatesCount() int {
 }
 
 // GetValidatorsAndStakes Get validators and stakes
-func (repository Repository) GetValidatorsAndStakes() []models.Validator {
+func (r Repository) GetValidatorsAndStakes() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Relation("Stakes").Order("total_stake desc").Select()
+	err := r.db.Model(&validators).Relation("Stakes").Order("total_stake desc").Select()
 	helpers.CheckErr(err)
 
 	return validators
 }
 
 // GetValidators Get validators
-func (repository Repository) GetValidators() []models.Validator {
+func (r Repository) GetValidators() []models.Validator {
 	var validators []models.Validator
 
-	err := repository.db.Model(&validators).Order("total_stake desc").Select()
+	err := r.db.Model(&validators).Order("total_stake desc").Select()
 	helpers.CheckErr(err)
 
 	return validators
 }
 
 // Get validator bans
-func (repository Repository) GetBans(validator *models.Validator, pagination *tools.Pagination) (bans []models.ValidatorBan, err error) {
-	pagination.Total, err = repository.db.Model(&bans).
+func (r Repository) GetBans(validator *models.Validator, pagination *tools.Pagination) (bans []models.ValidatorBan, err error) {
+	pagination.Total, err = r.db.Model(&bans).
 		Relation("Block").
 		Where("validator_id = ?", validator.ID).
 		Apply(pagination.Filter).
@@ -114,10 +114,10 @@ func (repository Repository) GetBans(validator *models.Validator, pagination *to
 }
 
 // Get bans of validator list
-func (repository Repository) GetBansByValidatorIds(validatorIds []uint64, pagination *tools.Pagination) ([]models.ValidatorBan, error) {
+func (r Repository) GetBansByValidatorIds(validatorIds []uint64, pagination *tools.Pagination) ([]models.ValidatorBan, error) {
 	var bans []models.ValidatorBan
 
-	err := repository.db.Model(&bans).
+	err := r.db.Model(&bans).
 		Relation("Block").
 		Relation("Validator").
 		Where(`validator_id in (?)`, pg.In(validatorIds)).

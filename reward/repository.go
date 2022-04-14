@@ -24,11 +24,11 @@ type ChartData struct {
 	Amount string    `json:"amount"`
 }
 
-func (repository Repository) GetAggregatedChartData(filter aggregated_reward.SelectFilter) []ChartData {
+func (r Repository) GetAggregatedChartData(filter aggregated_reward.SelectFilter) []ChartData {
 	var rewards models.AggregatedReward
 	var chartData []ChartData
 
-	err := repository.db.Model(&rewards).
+	err := r.db.Model(&rewards).
 		Relation("Address._").
 		ColumnExpr("date_trunc('day', time_id) as time").
 		ColumnExpr("SUM(amount) as amount").
@@ -42,12 +42,12 @@ func (repository Repository) GetAggregatedChartData(filter aggregated_reward.Sel
 	return chartData
 }
 
-func (repository Repository) GetPaginatedAggregatedByAddress(filter aggregated_reward.SelectFilter, pagination *tools.Pagination) []models.AggregatedReward {
+func (r Repository) GetPaginatedAggregatedByAddress(filter aggregated_reward.SelectFilter, pagination *tools.Pagination) []models.AggregatedReward {
 	var rewards []models.AggregatedReward
 	var err error
 
 	// get rewards
-	pagination.Total, err = repository.db.Model(&rewards).
+	pagination.Total, err = r.db.Model(&rewards).
 		Relation("Address.address").
 		Relation("Validator").
 		Apply(filter.Filter).

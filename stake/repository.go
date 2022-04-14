@@ -17,10 +17,10 @@ func NewRepository(db *pg.DB) *Repository {
 }
 
 // Get list of stakes by Minter address
-func (repository Repository) GetAllByAddress(address string) ([]models.Stake, error) {
+func (r Repository) GetAllByAddress(address string) ([]models.Stake, error) {
 	var stakes []models.Stake
 
-	err := repository.db.Model(&stakes).
+	err := r.db.Model(&stakes).
 		Relation("Coin").
 		Relation("Validator").
 		Relation("OwnerAddress._").
@@ -32,10 +32,10 @@ func (repository Repository) GetAllByAddress(address string) ([]models.Stake, er
 }
 
 // Get total delegated bip value
-func (repository Repository) GetSumInBipValue() (string, error) {
+func (r Repository) GetSumInBipValue() (string, error) {
 	var sum string
 
-	err := repository.db.Model(&models.Stake{}).
+	err := r.db.Model(&models.Stake{}).
 		Where("is_kicked = false").
 		ColumnExpr("SUM(bip_value)").
 		Select(&sum)
@@ -44,9 +44,9 @@ func (repository Repository) GetSumInBipValue() (string, error) {
 }
 
 // Get total delegated sum by address
-func (repository Repository) GetSumInBipValueByAddress(address string) (string, error) {
+func (r Repository) GetSumInBipValueByAddress(address string) (string, error) {
 	var sum string
-	err := repository.db.Model(&models.Stake{}).
+	err := r.db.Model(&models.Stake{}).
 		Relation("OwnerAddress._").
 		ColumnExpr("SUM(bip_value)").
 		Where("is_kicked = false").
@@ -57,14 +57,14 @@ func (repository Repository) GetSumInBipValueByAddress(address string) (string, 
 }
 
 // Get paginated list of stakes by validator
-func (repository Repository) GetPaginatedByValidator(
+func (r Repository) GetPaginatedByValidator(
 	validator models.Validator,
 	pagination *tools.Pagination,
 ) ([]models.Stake, error) {
 	var stakes []models.Stake
 	var err error
 
-	pagination.Total, err = repository.db.Model(&stakes).
+	pagination.Total, err = r.db.Model(&stakes).
 		Relation("Coin").
 		Relation("OwnerAddress.address").
 		Where("validator_id = ?", validator.ID).
@@ -75,10 +75,10 @@ func (repository Repository) GetPaginatedByValidator(
 	return stakes, err
 }
 
-func (repository Repository) GetMinStakes() ([]models.Stake, error) {
+func (r Repository) GetMinStakes() ([]models.Stake, error) {
 	var stakes []models.Stake
 
-	err := repository.db.Model(&stakes).
+	err := r.db.Model(&stakes).
 		ColumnExpr("min(bip_value) as bip_value").
 		Column("validator_id").
 		Where("bip_value != 0").
@@ -89,10 +89,10 @@ func (repository Repository) GetMinStakes() ([]models.Stake, error) {
 	return stakes, err
 }
 
-func (repository Repository) GetSumValueByCoin(coinID uint) (string, error) {
+func (r Repository) GetSumValueByCoin(coinID uint) (string, error) {
 	var sum string
 
-	err := repository.db.Model(new(models.Stake)).
+	err := r.db.Model(new(models.Stake)).
 		ColumnExpr("SUM(value)").
 		Where("coin_id = ?", coinID).
 		Select(&sum)
@@ -100,16 +100,16 @@ func (repository Repository) GetSumValueByCoin(coinID uint) (string, error) {
 	return sum, err
 }
 
-func (repository Repository) GetDelegatorsCount() (count uint64, err error) {
-	err = repository.db.Model(new(models.Stake)).
+func (r Repository) GetDelegatorsCount() (count uint64, err error) {
+	err = r.db.Model(new(models.Stake)).
 		ColumnExpr("count (DISTINCT owner_address_id)").
 		Select(&count)
 
 	return count, err
 }
 
-func (repository Repository) GetAddressValidatorIds(address string) (ids []uint64, err error) {
-	err = repository.db.Model(new(models.Stake)).
+func (r Repository) GetAddressValidatorIds(address string) (ids []uint64, err error) {
+	err = r.db.Model(new(models.Stake)).
 		Relation("OwnerAddress._").
 		ColumnExpr("DISTINCT validator_id").
 		Where("owner_address.address = ?", address).
