@@ -3,21 +3,24 @@ package address
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/balance"
 	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
-	"github.com/MinterTeam/minter-explorer-api/v2/stake"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 )
 
 type Service struct {
-	rp              *Repository
-	stakeRepository *stake.Repository
-	balanceService  *balance.Service
+	rp             *Repository
+	stakeRepo      StakeRepository
+	balanceService *balance.Service
 }
 
-func NewService(rp *Repository, stakeRepository *stake.Repository, balanceService *balance.Service) *Service {
+type StakeRepository interface {
+	GetAllByAddress(address string) ([]models.Stake, error)
+}
+
+func NewService(rp *Repository, stakeRepo StakeRepository, balanceService *balance.Service) *Service {
 	return &Service{
-		rp:              rp,
-		stakeRepository: stakeRepository,
-		balanceService:  balanceService,
+		rp:             rp,
+		stakeRepo:      stakeRepo,
+		balanceService: balanceService,
 	}
 }
 
@@ -33,7 +36,7 @@ func (s *Service) GetBalance(minterAddress string, isTotal bool) (*Balance, erro
 }
 
 func (s *Service) GetTotalBalance(model *models.Address) (*Balance, error) {
-	stakes, err := s.stakeRepository.GetAllByAddress(model.Address)
+	stakes, err := s.stakeRepo.GetAllByAddress(model.Address)
 	if err != nil {
 		return nil, err
 	}

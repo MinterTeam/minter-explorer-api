@@ -4,26 +4,23 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/MinterTeam/minter-explorer-api/v2/stake"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/cache"
-	"github.com/MinterTeam/minter-explorer-api/v2/validator"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type ValidatorService struct {
-	stakeRepository *stake.Repository
-	repository      *validator.Repository
-	cache           *cache.ExplorerCache
+	stakeRepo *stake.Repository
+	cache     *cache.ExplorerCache
 }
 
-func NewValidatorService(
-	repository *validator.Repository,
-	stakeRepository *stake.Repository,
-	cache *cache.ExplorerCache,
-) *ValidatorService {
+type StakeRepository interface {
+	GetMinStakes() ([]models.Stake, error)
+}
+
+func NewValidatorService(stakeRepo *stake.Repository, cache *cache.ExplorerCache) *ValidatorService {
 	return &ValidatorService{
-		stakeRepository: stakeRepository,
-		repository:      repository,
-		cache:           cache,
+		stakeRepo: stakeRepo,
+		cache:     cache,
 	}
 }
 
@@ -57,9 +54,10 @@ func (s *ValidatorService) GetMinStakesByValidator(validator *models.Validator) 
 }
 
 func (s *ValidatorService) getMinStakes() ValidatorsMinStake {
-	stakes, err := s.stakeRepository.GetMinStakes()
+	stakes, err := s.stakeRepo.GetMinStakes()
 	if err != nil {
-		logrus.WithField("err", err).Error("min stakes error")
+		log.Errorf("failed to get min stakes: %s", err)
+		return nil
 	}
 
 	minStakes := make(ValidatorsMinStake, len(stakes))

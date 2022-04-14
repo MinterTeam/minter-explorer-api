@@ -81,7 +81,7 @@ func NewExplorer(db *pg.DB, env *Environment) *Explorer {
 		MarketService:                marketService,
 		TransactionService:           transactionService,
 		BalanceService:               balanceService,
-		ValidatorService:             services.NewValidatorService(validatorRepository, stakeRepository, cacheService),
+		ValidatorService:             services.NewValidatorService(stakeRepository, cacheService),
 		UnbondRepository:             unbond.NewRepository(db),
 		StakeService:                 stake.NewService(stakeRepository),
 		CheckRepository:              check.NewRepository(db),
