@@ -6,10 +6,9 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/core/ws"
 	"github.com/MinterTeam/minter-explorer-api/v2/database"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools/metrics"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools/recovery"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"time"
 )
@@ -29,8 +28,6 @@ func main() {
 		log.Fatal(".env file not found")
 	}
 
-	//uptrace.ConfigureOpentelemetry()
-
 	// init environment
 	env := core.NewEnvironment()
 
@@ -42,9 +39,9 @@ func main() {
 	explorer := core.NewExplorer(db, env)
 
 	// run market price update
-	go explorer.MarketService.Run()
-	go explorer.PoolService.RunPoolUpdater()
-	go explorer.PoolService.RunTradingVolumeUpdater()
+	go recovery.SafeGo(explorer.MarketService.Run)
+	go recovery.SafeGo(explorer.PoolService.RunPoolUpdater)
+	go recovery.SafeGo(explorer.PoolService.RunTradingVolumeUpdater)
 
 	// create ws extender
 	extender := ws.NewExtenderWsClient(explorer)
@@ -61,11 +58,6 @@ func main() {
 	sub := extender.CreateSubscription(explorer.Environment.WsBlocksChannel)
 	sub.OnPublish(blocksChannelHandler)
 	extender.Subscribe(sub)
-
-	// run api
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 
 	api.Run(db, explorer)
 }

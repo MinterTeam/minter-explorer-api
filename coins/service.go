@@ -3,6 +3,7 @@ package coins
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/hub"
+	"github.com/MinterTeam/minter-explorer-api/v2/tools/recovery"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
@@ -20,10 +21,6 @@ type Service struct {
 	dailyTradingVolumes   *sync.Map
 }
 
-var (
-	hubTokenIds = []uint{0, 2064, 2065, 1942, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2598, 3324, 3258, 3403, 1902}
-)
-
 func NewService(repository *Repository) *Service {
 	s := &Service{
 		hubClient:             hub.NewClient(),
@@ -32,8 +29,8 @@ func NewService(repository *Repository) *Service {
 		dailyTradingVolumes:   new(sync.Map),
 	}
 
-	go s.RunVerifiedCoinsUpdater()
-	go s.RunBlocklistCoinsUpdater()
+	go recovery.SafeGo(s.RunVerifiedCoinsUpdater)
+	go recovery.SafeGo(s.RunBlocklistCoinsUpdater)
 
 	return s
 }
@@ -59,12 +56,6 @@ func (s *Service) GetBlocklistCoins() []uint64 {
 }
 
 func (s *Service) RunVerifiedCoinsUpdater() {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Errorf("verified coins updater panic recover: %s", err)
-		}
-	}()
-
 	for {
 		coins, err := s.getVerifiedCoins()
 		if err != nil {

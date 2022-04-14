@@ -6,7 +6,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/coins"
 	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
-	. "github.com/MinterTeam/minter-explorer-api/v2/errors"
+	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-resty/resty/v2"
@@ -104,8 +104,6 @@ func (s *Service) OnNewBlock(block blocks.Resource) {
 }
 
 func (s *Service) RunPoolUpdater() {
-	defer Recovery()
-
 	pools, err := s.repository.GetAll()
 	if err != nil {
 		log.Error(err)
@@ -250,6 +248,8 @@ func (s *Service) computeCoinPrices(pools []models.LiquidityPool, coinPrices *sy
 		wg.Add(1)
 		go func(p models.LiquidityPool, wg *sync.WaitGroup) {
 			defer wg.Done()
+			defer errors.Recovery()
+
 			if _, ok := coinPrices.Load(uint(p.FirstCoinId)); !ok {
 				if coinPools, ok := s.coinToTrackedPoolsMap.Load(p.FirstCoinId); ok {
 					cp := coinPools.([]models.LiquidityPool)[0]
