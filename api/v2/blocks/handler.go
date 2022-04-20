@@ -1,6 +1,9 @@
 package blocks
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/core"
 	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
@@ -10,8 +13,6 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 // TODO: replace string to int

@@ -318,12 +318,12 @@ func EstimateSwap(c *gin.Context) {
 
 	if bancorErr == nil {
 		poolRespData := poolResp.Result().(*swapRouterResponse)
-		outputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.Result))
-		inputAmount := helpers.Bip2Pip(helpers.StrToBigFloat(reqQuery.Amount))
+		outputAmount := helpers.StringToBigInt(poolRespData.Result)
+		inputAmount := reqQuery.GetAmount()
 
 		if tradeType == pool.TradeTypeExactOutput {
-			inputAmount = helpers.Bip2Pip(helpers.StrToBigFloat(poolRespData.Result))
-			outputAmount = helpers.Bip2Pip(helpers.StrToBigFloat(reqQuery.Amount))
+			inputAmount = helpers.StringToBigInt(poolRespData.Result)
+			outputAmount = reqQuery.GetAmount()
 		}
 
 		if tradeType == pool.TradeTypeExactInput && bancorAmount.Cmp(outputAmount) >= 1 {
