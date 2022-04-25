@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
-	"github.com/MinterTeam/minter-explorer-api/v2/tools/recovery"
 	"github.com/centrifugal/centrifuge-go"
 )
 
@@ -35,8 +34,6 @@ func (b *BlocksChannelHandler) OnPublish(sub *centrifuge.Subscription, e centrif
 	helpers.CheckErr(err)
 
 	for _, sub := range b.Subscribers {
-		go recovery.SafeGo(func() {
-			sub.OnNewBlock(block)
-		})
+		go sub.OnNewBlock(block)
 	}
 }
