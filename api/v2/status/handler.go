@@ -11,6 +11,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"math"
+	"math/big"
 	"net/http"
 	"strconv"
 	"time"
@@ -94,6 +95,8 @@ func GetStatusPage(c *gin.Context) {
 	nonZeroAddressesCountCh := make(chan Data)
 	delegatorsCountCh := make(chan Data)
 	poolsCountCh := make(chan Data)
+	tvlCh := make(chan Data)
+	tslCh := make(chan Data)
 
 	go getTransactionsDataBy24h(explorer, tx24hDataCh)
 	go getTotalTxCount(explorer, txTotalCountCh)
@@ -107,6 +110,8 @@ func GetStatusPage(c *gin.Context) {
 	go getNonZeroAddressesCount(explorer, nonZeroAddressesCountCh)
 	go getDelegatorsCount(explorer, delegatorsCountCh)
 	go getPoolsCount(explorer, poolsCountCh)
+	go getTotalValueLocked(explorer, tvlCh)
+	go getTotalStakesLocked(explorer, tslCh)
 
 	// get values from goroutines
 	tx24hData, txTotalCount := <-tx24hDataCh, <-txTotalCountCh
@@ -115,6 +120,7 @@ func GetStatusPage(c *gin.Context) {
 	stakesSumData, customCoinsData := <-stakesSumCh, <-customCoinsDataCh
 	nonZeroAddressesCountData, delegatorsCountData := <-nonZeroAddressesCountCh, <-delegatorsCountCh
 	poolsCountData := <-poolsCountCh
+	tvl, tsl := <-tvlCh, <-tslCh
 
 	// handle errors from goroutines
 	helpers.CheckErr(tx24hData.Error)
@@ -129,6 +135,8 @@ func GetStatusPage(c *gin.Context) {
 	helpers.CheckErr(nonZeroAddressesCountData.Error)
 	helpers.CheckErr(delegatorsCountData.Error)
 	helpers.CheckErr(poolsCountData.Error)
+	helpers.CheckErr(tvl.Error)
+	helpers.CheckErr(tsl.Error)
 
 	// prepare data
 	lastBlock := lastBlockData.Result.(models.Block)
@@ -143,25 +151,27 @@ func GetStatusPage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"status":                     status,
-			"blocks_count":               lastBlock.ID,
-			"block_speed_24h":            avgBlockTime.Result.(float64),
-			"transactions_total":         txTotalCount.Result.(int) + 12784024, // todo: move to config
-			"transaction_count_24h":      tx24hData.Result.(transaction.Tx24hData).Count,
-			"active_validators":          activeValidators.Result.(int),
-			"active_candidates":          activeCandidates.Result.(int),
-			"total_delegated_bip":        stakesSum,
-			"custom_coins_count":         customCoins.Count,
-			"avg_transaction_commission": tx24h.FeeAvg,
-			"total_commission":           tx24h.FeeSum,
-			"custom_coins_sum":           helpers.PipStr2Bip(customCoins.ReserveSum),
-			"bip_emission":               helpers.CalculateEmission(lastBlock.ID),
-			"free_float_bip":             getFreeBipSum(stakesSum, lastBlock.ID),
-			"transactions_per_second":    getTransactionSpeed(tx24h.Count),
-			"uptime":                     calculateUptime(slowBlocksTimeSum.Result.(float64)),
-			"non_zero_addresses_count":   nonZeroAddressesCountData.Result.(uint64),
-			"delegators_count":           delegatorsCountData.Result.(uint64),
-			"pools_count":                poolsCountData.Result.(int),
+			"status":                       status,
+			"blocks_count":                 lastBlock.ID,
+			"block_speed_24h":              avgBlockTime.Result.(float64),
+			"transactions_total":           txTotalCount.Result.(int) + 12784024, // todo: move to config
+			"transaction_count_24h":        tx24hData.Result.(transaction.Tx24hData).Count,
+			"active_validators":            activeValidators.Result.(int),
+			"active_candidates":            activeCandidates.Result.(int),
+			"total_delegated_bip":          stakesSum,
+			"custom_coins_count":           customCoins.Count,
+			"avg_transaction_commission":   tx24h.FeeAvg,
+			"total_commission":             tx24h.FeeSum,
+			"custom_coins_sum":             helpers.PipStr2Bip(customCoins.ReserveSum),
+			"bip_emission":                 helpers.CalculateEmission(lastBlock.ID),
+			"free_float_bip":               getFreeBipSum(stakesSum, lastBlock.ID),
+			"transactions_per_second":      getTransactionSpeed(tx24h.Count),
+			"uptime":                       calculateUptime(slowBlocksTimeSum.Result.(float64)),
+			"non_zero_addresses_count":     nonZeroAddressesCountData.Result.(uint64),
+			"delegators_count":             delegatorsCountData.Result.(uint64),
+			"pools_count":                  poolsCountData.Result.(int),
+			"pools_total_value_locked_bip": helpers.Pip2BipStr(tvl.Result.(*big.Int)),
+			"total_locked_stake_bip":       helpers.Pip2BipStr(tsl.Result.(*big.Int)),
 		},
 	})
 }
@@ -406,6 +416,30 @@ func getPoolsCount(explorer *core.Explorer, ch chan Data) {
 		count, err := explorer.PoolRepository.GetPoolsCount()
 		helpers.CheckErr(err)
 		return count
+	}, lastDataCacheTime)
+
+	ch <- Data{data, nil}
+}
+
+func getTotalStakesLocked(explorer *core.Explorer, ch chan Data) {
+	defer recoveryStatusData(ch)
+
+	data := explorer.Cache.Get(fmt.Sprintf("tsl"), func() interface{} {
+		tsl, err := explorer.StakeRepository.GetTotalStakeLocked()
+		helpers.CheckErr(err)
+		return tsl
+	}, lastDataCacheTime)
+
+	ch <- Data{data, nil}
+}
+
+func getTotalValueLocked(explorer *core.Explorer, ch chan Data) {
+	defer recoveryStatusData(ch)
+
+	data := explorer.Cache.Get(fmt.Sprintf("pools_tvl"), func() interface{} {
+		tvl, err := explorer.PoolRepository.GetTotalValueLocked()
+		helpers.CheckErr(err)
+		return tvl
 	}, lastDataCacheTime)
 
 	ch <- Data{data, nil}

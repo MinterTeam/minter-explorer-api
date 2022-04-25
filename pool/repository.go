@@ -1,10 +1,12 @@
 package pool
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
+	"math/big"
 	"time"
 )
 
@@ -235,4 +237,14 @@ func (r *Repository) GetCoinsTradingVolume(scale string) ([]CoinTradingVolume, e
 		Select(&coinTradingVolumes)
 
 	return coinTradingVolumes, err
+}
+
+func (r *Repository) GetTotalValueLocked() (*big.Int, error) {
+	var tvlStr string
+	err := r.db.Model(new(models.LiquidityPool)).ColumnExpr("sum(liquidity_bip)").Select(&tvlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	return helpers.StringToBigInt(tvlStr), err
 }

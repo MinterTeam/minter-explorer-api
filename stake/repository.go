@@ -1,9 +1,11 @@
 package stake
 
 import (
+	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/go-pg/pg/v10"
+	"math/big"
 )
 
 type Repository struct {
@@ -116,4 +118,19 @@ func (r Repository) GetAddressValidatorIds(address string) (ids []uint64, err er
 		Select(&ids)
 
 	return ids, err
+}
+
+func (r Repository) GetTotalStakeLocked() (*big.Int, error) {
+	var tsl string
+
+	err := r.db.Model(new(models.Stake)).
+		ColumnExpr("sum(bip_value)").
+		Where(`exists (select 1 from transactions where type = 37 and from_address_id = "stake"."owner_address_id")`).
+		Select(&tsl)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return helpers.StringToBigInt(tsl), err
 }
