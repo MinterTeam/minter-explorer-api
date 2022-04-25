@@ -34,6 +34,7 @@ func (r Repository) GetPaginatedByAddress(address string, pagination *tools.Pagi
 		Relation("FromAddress").
 		Join(`INNER JOIN addresses ON addresses.id = "invalid_transaction"."from_address_id"`).
 		Where("addresses.address = ?", address).
+		Where("gas_coin_id is not null").
 		Apply(pagination.Filter).
 		SelectAndCount()
 
