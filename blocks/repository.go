@@ -58,10 +58,7 @@ func (r Repository) GetPaginated(pagination *tools.Pagination) []models.Block {
 // Get last block
 func (r Repository) GetLastBlock() models.Block {
 	var block models.Block
-
 	r.db.Model(&block).Last()
-	//helpers.CheckErr(err)
-
 	return block
 }
 

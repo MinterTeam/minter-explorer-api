@@ -3,6 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"github.com/MinterTeam/minter-explorer-api/v2/blocks"
+	"github.com/MinterTeam/minter-explorer-api/v2/errors"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/centrifugal/centrifuge-go"
 )
@@ -34,6 +35,9 @@ func (b *BlocksChannelHandler) OnPublish(sub *centrifuge.Subscription, e centrif
 	helpers.CheckErr(err)
 
 	for _, sub := range b.Subscribers {
-		go sub.OnNewBlock(block)
+		go func(sub NewBlockSubscriber) {
+			defer errors.Recovery()
+			sub.OnNewBlock(block)
+		}(sub)
 	}
 }
