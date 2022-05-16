@@ -20,7 +20,12 @@ func NewRepository(db *pg.DB) *Repository {
 func (r Repository) GetTxByHash(hash string) *models.InvalidTransaction {
 	var transaction models.InvalidTransaction
 
-	err := r.db.Model(&transaction).Relation("FromAddress").Where("hash = ?", hash).Select()
+	err := r.db.Model(&transaction).
+		Relation("FromAddress").
+		Relation("GasCoin").
+		Where("hash = ?", hash).
+		Select()
+
 	if err != nil {
 		return nil
 	}
@@ -32,6 +37,7 @@ func (r Repository) GetTxByHash(hash string) *models.InvalidTransaction {
 func (r Repository) GetPaginatedByAddress(address string, pagination *tools.Pagination) (txs []*models.InvalidTransaction, err error) {
 	pagination.Total, err = r.db.Model(&txs).
 		Relation("FromAddress").
+		Relation("GasCoin").
 		Join(`INNER JOIN addresses ON addresses.id = "invalid_transaction"."from_address_id"`).
 		Where("addresses.address = ?", address).
 		Where("gas_coin_id is not null").
