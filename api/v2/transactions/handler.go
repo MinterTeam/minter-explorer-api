@@ -9,6 +9,7 @@ import (
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
 	"github.com/MinterTeam/minter-explorer-api/v2/tools"
 	"github.com/MinterTeam/minter-explorer-api/v2/transaction"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -119,10 +120,10 @@ func GetTransaction(c *gin.Context) {
 		return
 	}
 
-	tx, err = explorer.TransactionService.PrepareTransactionModel(tx)
+	preparedTx, err := explorer.TransactionService.PrepareTransactionModel(transaction.NewValidTx(tx))
 	helpers.CheckErr(err)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": new(transaction.Resource).Transform(*tx),
+		"data": new(transaction.Resource).Transform(*preparedTx.GetModel().(*models.Transaction)),
 	})
 }

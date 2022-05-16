@@ -187,6 +187,9 @@ func GetTransactions(c *gin.Context) {
 	txs, err := explorer.InvalidTransactionRepository.GetPaginatedByAddress(*minterAddress, &pagination)
 	helpers.CheckErr(err)
 
+	txs, err = explorer.TransactionService.PrepareInvalidTransactionsModel(txs)
+	helpers.CheckErr(err)
+
 	c.JSON(http.StatusOK, resource.TransformPaginatedCollection(txs, invalid_transaction.Resource{}, pagination))
 }
 

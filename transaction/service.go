@@ -26,30 +26,49 @@ func NewService(coinRepository *coins.Repository, cache *cache.ExplorerCache, re
 	}
 }
 
+
 func (s *Service) PrepareTransactionsModel(txs []models.Transaction) ([]models.Transaction, error) {
 	for key, tx := range txs {
-		prepared, err := s.PrepareTransactionModel(&tx)
+		prepared, err := s.PrepareTransactionModel(&ValidTx{&tx})
 		if err != nil {
 			return nil, err
 		}
 
-		txs[key] = *prepared
+		txs[key] = prepared.GetModel().(models.Transaction)
 	}
 
 	return txs, nil
 }
 
-func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Transaction, error) {
-	tx.CommissionPriceCoin = s.cache.Get(fmt.Sprintf("commission_price_coin_%s", tx.Tags["tx.commission_price_coin"]), func() interface{} {
-		priceCoinId, _ := strconv.ParseUint(tx.Tags["tx.commission_price_coin"], 10, 64)
+
+func (s *Service) PrepareInvalidTransactionsModel(txs []*models.InvalidTransaction) ([]*models.InvalidTransaction, error) {
+	for key, tx := range txs {
+		prepared, err := s.PrepareTransactionModel(&invalidTx{tx})
+		if err != nil {
+			return nil, err
+		}
+
+		txs[key] = prepared.GetModel().(*models.InvalidTransaction)
+	}
+
+	return txs, nil
+}
+
+func (s *Service) PrepareTransactionModel(tx Transaction) (Transaction, error) {
+	tx.SetCommissionPriceCoin(s.cache.Get(fmt.Sprintf("commission_price_coin_%s", tx.GetTags()["tx.commission_price_coin"]), func() interface{} {
+		priceCoinId, _ := strconv.ParseUint(tx.GetTags()["tx.commission_price_coin"], 10, 64)
 		priceCoin, _ := coins.GlobalRepository.FindByID(uint(priceCoinId))
 		return priceCoin
-	}, 17280).(models.Coin)
+	}, 17280).(models.Coin))
 
-	if tx.Type == uint8(transaction.TypeRedeemCheck) {
+	if tx.GetType() == uint8(transaction.TypeRedeemCheck) {
 		data := new(api_pb.RedeemCheckData)
 
-		err := protojson.Unmarshal(tx.Data, data)
+		if tx.GetData() == nil {
+			return tx, nil
+		}
+
+		err := protojson.Unmarshal(tx.GetData(), data)
 		if err != nil {
 			return nil, err
 		}
@@ -59,11 +78,11 @@ func (s *Service) PrepareTransactionModel(tx *models.Transaction) (*models.Trans
 			return nil, err
 		}
 
-		tx.IData = dataModels.Check{
+		tx.SetData(dataModels.Check{
 			RawCheck: data.RawCheck,
 			Proof:    data.Proof,
 			Check:    *checkData,
-		}
+		})
 	}
 
 	return tx, nil
