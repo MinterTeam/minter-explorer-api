@@ -3,20 +3,23 @@ package data_resources
 import (
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
+	"github.com/MinterTeam/minter-explorer-extender/v2/models"
 	"github.com/MinterTeam/node-grpc-gateway/api_pb"
 )
 
 type BuySwapPool struct {
-	CoinToBuy          Coin   `json:"coin_to_buy"`
-	CoinToSell         Coin   `json:"coin_to_sell"`
-	ValueToBuy         string `json:"value_to_buy"`
-	MaximumValueToSell string `json:"maximum_value_to_sell"`
+	Coins              []PoolCoin `json:"coins"`
+	CoinToBuy          Coin       `json:"coin_to_buy"`
+	CoinToSell         Coin       `json:"coin_to_sell"`
+	ValueToBuy         string     `json:"value_to_buy"`
+	MaximumValueToSell string     `json:"maximum_value_to_sell"`
 }
 
 func (BuySwapPool) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.BuySwapPoolData)
+	data, model := txData.(*api_pb.BuySwapPoolData), params[0].(models.InvalidTransaction)
 
 	return BuySwapPool{
+		Coins:              new(PoolCoin).TransformCollection(data.Coins, model),
 		CoinToBuy:          new(Coin).Transform(data.Coins[len(data.Coins)-1]),
 		CoinToSell:         new(Coin).Transform(data.Coins[0]),
 		ValueToBuy:         helpers.PipStr2Bip(data.ValueToBuy),
@@ -25,10 +28,11 @@ func (BuySwapPool) Transform(txData resource.ItemInterface, params ...resource.P
 }
 
 type SellSwapPool struct {
-	CoinToBuy         Coin   `json:"coin_to_buy"`
-	CoinToSell        Coin   `json:"coin_to_sell"`
-	ValueToSell       string `json:"value_to_sell"`
-	MinimumValueToBuy string `json:"minimum_value_to_buy"`
+	Coins             []PoolCoin `json:"coins"`
+	CoinToBuy         Coin       `json:"coin_to_buy"`
+	CoinToSell        Coin       `json:"coin_to_sell"`
+	ValueToSell       string     `json:"value_to_sell"`
+	MinimumValueToBuy string     `json:"minimum_value_to_buy"`
 }
 
 type LimitOrderData struct {
@@ -39,9 +43,10 @@ type LimitOrderData struct {
 }
 
 func (SellSwapPool) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.SellSwapPoolData)
+	data, model := txData.(*api_pb.SellSwapPoolData), params[0].(models.InvalidTransaction)
 
 	return SellSwapPool{
+		Coins:             new(PoolCoin).TransformCollection(data.Coins, model),
 		CoinToSell:        new(Coin).Transform(data.Coins[0]),
 		CoinToBuy:         new(Coin).Transform(data.Coins[len(data.Coins)-1]),
 		ValueToSell:       helpers.PipStr2Bip(data.ValueToSell),
@@ -50,15 +55,17 @@ func (SellSwapPool) Transform(txData resource.ItemInterface, params ...resource.
 }
 
 type SellAllSwapPool struct {
-	CoinToBuy         Coin   `json:"coin_to_buy"`
-	CoinToSell        Coin   `json:"coin_to_sell"`
-	MinimumValueToBuy string `json:"minimum_value_to_buy"`
+	Coins             []PoolCoin `json:"coins"`
+	CoinToBuy         Coin       `json:"coin_to_buy"`
+	CoinToSell        Coin       `json:"coin_to_sell"`
+	MinimumValueToBuy string     `json:"minimum_value_to_buy"`
 }
 
 func (SellAllSwapPool) Transform(txData resource.ItemInterface, params ...resource.ParamInterface) resource.Interface {
-	data := txData.(*api_pb.SellAllSwapPoolData)
+	data, model := txData.(*api_pb.SellAllSwapPoolData), params[0].(models.InvalidTransaction)
 
 	return SellAllSwapPool{
+		Coins:             new(PoolCoin).TransformCollection(data.Coins, model),
 		CoinToSell:        new(Coin).Transform(data.Coins[0]),
 		CoinToBuy:         new(Coin).Transform(data.Coins[len(data.Coins)-1]),
 		MinimumValueToBuy: helpers.PipStr2Bip(data.MinimumValueToBuy),
