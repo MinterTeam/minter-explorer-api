@@ -34,7 +34,7 @@ func (s *Service) PrepareTransactionsModel(txs []models.Transaction) ([]models.T
 			return nil, err
 		}
 
-		txs[key] = prepared.GetModel().(models.Transaction)
+		txs[key] = *prepared.GetModel().(*models.Transaction)
 	}
 
 	return txs, nil

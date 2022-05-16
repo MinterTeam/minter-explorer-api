@@ -63,11 +63,12 @@ func (i *invalidTx) SetCommissionPriceCoin(coin models.Coin) {
 }
 
 func (i *invalidTx) GetData() json.RawMessage {
+	// no data field for this model
 	return nil
 }
 
 func (i *invalidTx) SetData(value interface{}) {
-
+	// no data field for this model
 }
 
 func (i *invalidTx) GetModel() interface{} {
