@@ -42,6 +42,7 @@ func (r Repository) GetPaginatedByAddress(address string, pagination *tools.Pagi
 		Where("addresses.address = ?", address).
 		Where("gas_coin_id is not null").
 		Apply(pagination.Filter).
+		Order("invalid_transaction.id DESC").
 		SelectAndCount()
 
 	if err != nil {
