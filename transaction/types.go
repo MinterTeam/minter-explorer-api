@@ -50,6 +50,10 @@ type invalidTx struct {
 	tx *models.InvalidTransaction
 }
 
+func NewInvalidTx(tx *models.InvalidTransaction) *invalidTx {
+	return &invalidTx{tx}
+}
+
 func (i *invalidTx) GetTags() map[string]string {
 	return i.tx.Tags
 }

@@ -114,8 +114,11 @@ func GetTransaction(c *gin.Context) {
 			return
 		}
 
+		preparedTx, err := explorer.TransactionService.PrepareTransactionModel(transaction.NewInvalidTx(invalidTx))
+		helpers.CheckErr(err)
+
 		c.JSON(http.StatusPartialContent, gin.H{
-			"data": new(invalid_transaction.Resource).Transform(*invalidTx),
+			"data": new(invalid_transaction.Resource).Transform(*preparedTx.GetModel().(*models.InvalidTransaction)),
 		})
 		return
 	}
