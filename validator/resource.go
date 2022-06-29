@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"github.com/MinterTeam/minter-explorer-api/v2/core/config"
 	"github.com/MinterTeam/minter-explorer-api/v2/helpers"
 	"github.com/MinterTeam/minter-explorer-api/v2/resource"
@@ -46,13 +47,15 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		delegatorCount -= delegatorCount - config.MaxDelegatorCount
 	}
 
+	iconUrl := fmt.Sprintf("https://explorer-static.minter.network/validators/%s.png", validator.GetPublicKey())
+
 	result := ResourceDetailed{
 		PublicKey:      validator.GetPublicKey(),
 		Status:         validator.Status,
 		Stake:          helpers.PipStr2Bip(totalStake),
 		Name:           validator.Name,
 		Description:    validator.Description,
-		IconUrl:        validator.IconUrl,
+		IconUrl:        &iconUrl,
 		SiteUrl:        validator.SiteUrl,
 		Commission:     validator.Commission,
 		Part:           validatorStakePart,
@@ -92,12 +95,14 @@ type Resource struct {
 func (r Resource) Transform(model resource.ItemInterface, values ...resource.ParamInterface) resource.Interface {
 	validator := model.(models.Validator)
 
+	iconUrl := fmt.Sprintf("https://explorer-static.minter.network/validators/%s.png", validator.GetPublicKey())
+
 	result := Resource{
 		PublicKey:   validator.GetPublicKey(),
 		Status:      validator.Status,
 		Name:        validator.Name,
 		Description: validator.Description,
-		IconUrl:     validator.IconUrl,
+		IconUrl:     &iconUrl,
 		SiteUrl:     validator.SiteUrl,
 	}
 
