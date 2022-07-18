@@ -14,14 +14,15 @@ type SelectPoolsFilter struct {
 func (f SelectPoolsFilter) Filter(q *orm.Query) (*orm.Query, error) {
 	if f.Coin != nil {
 		if id, err := strconv.Atoi(*f.Coin); err == nil {
-			q = q.Where("first_coin_id = ?", id).WhereOr("second_coin_id = ?", id)
+			q = q.Where("first_coin_id = ?", id).WhereOr("second_coin_id = ?", id).
+				OrderExpr(`CASE WHEN first_coin_id = ? THEN first_coin_volume WHEN second_coin_id = ? THEN second_coin_volume ELSE liquidity_bip END desc`, id, id)
 		} else {
 			symbol, version := helpers.GetSymbolAndDefaultVersionFromStr(*f.Coin)
 			q = q.WhereGroup(func(*orm.Query) (*orm.Query, error) {
 				return q.Where(`"first_coin"."symbol" = ?`, symbol).Where(`"first_coin"."version" = ?`, version), nil
 			}).WhereOrGroup(func(*orm.Query) (*orm.Query, error) {
 				return q.Where(`"second_coin"."symbol" = ?`, symbol).Where(`"second_coin"."version" = ?`, version), nil
-			})
+			}).OrderExpr(`CASE WHEN "first_coin"."symbol" = ? THEN first_coin_volume WHEN "second_coin"."symbol" = ? THEN second_coin_volume ELSE liquidity_bip END desc`, symbol, symbol)
 		}
 	}
 
