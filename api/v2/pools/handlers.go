@@ -344,10 +344,19 @@ func EstimateSwap(c *gin.Context) {
 
 	data := poolResp.Result().(*swapRouterResponse)
 	path := make([]resource.Interface, len(data.Path))
+	duplications := make(map[uint]bool)
 	for i, cidStr := range data.Path {
 		cid, _ := strconv.ParseUint(cidStr, 10, 64)
 		coin, _ := explorer.CoinRepository.FindByID(uint(cid))
 		path[i] = new(coins.IdResource).Transform(coin)
+
+		// todo: temp logs; remove
+		_, duplicationExists := duplications[coin.ID]
+		if duplicationExists {
+			log.Debugf("duplications: %v ; %d ; %v", data, cid, coin)
+		} else {
+			duplications[coin.ID] = true
+		}
 	}
 
 	outputAmount := helpers.PipStr2Bip(data.Result)
