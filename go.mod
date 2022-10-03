@@ -9,7 +9,6 @@ require (
 	github.com/MinterTeam/minter-go-sdk/v2 v2.4.1-0.20220222111347-67fbebbdf760
 	github.com/MinterTeam/node-grpc-gateway v1.5.2-0.20220222111111-70a755dd46ee
 	github.com/centrifugal/centrifuge-go v0.3.0
-	github.com/centrifugal/gocent v2.2.0+incompatible // indirect
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-pg/pg/v10 v10.10.6
 	github.com/go-pg/urlstruct v0.2.8

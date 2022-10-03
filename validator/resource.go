@@ -20,6 +20,9 @@ type ResourceDetailed struct {
 	Part           string  `json:"part"`
 	DelegatorCount int     `json:"delegator_count"`
 	MinStake       string  `json:"min_stake"`
+	RewardAddress  string  `json:"reward_address"`
+	OwnerAddress   string  `json:"owner_address"`
+	ControlAddress string  `json:"control_address"`
 }
 
 type Params struct {
@@ -61,6 +64,9 @@ func (r ResourceDetailed) Transform(model resource.ItemInterface, values ...reso
 		Part:           validatorStakePart,
 		MinStake:       helpers.PipStr2Bip(params.MinStake),
 		DelegatorCount: delegatorCount,
+		RewardAddress:  validator.RewardAddress.GetAddress(),
+		OwnerAddress:   validator.OwnerAddress.GetAddress(),
+		ControlAddress: validator.ControlAddress.GetAddress(),
 	}
 
 	return result

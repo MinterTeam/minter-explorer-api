@@ -22,6 +22,9 @@ func (r Repository) GetByPublicKey(publicKey string) *models.Validator {
 
 	err := r.db.Model(&validator).
 		Relation("Stakes").
+		Relation("OwnerAddress.address").
+		Relation("RewardAddress.address").
+		Relation("ControlAddress.address").
 		Join("JOIN validator_public_keys ON validator_public_keys.validator_id = validator.id").
 		Where("validator_public_keys.key = ?", publicKey).
 		Select()
@@ -87,6 +90,9 @@ func (r Repository) GetValidatorsAndStakes() []models.Validator {
 
 	err := r.db.Model(&validators).
 		Relation("Stakes").
+		Relation("OwnerAddress.address").
+		Relation("RewardAddress.address").
+		Relation("ControlAddress.address").
 		Where("status is not null").
 		Order("total_stake desc").
 		Select()
