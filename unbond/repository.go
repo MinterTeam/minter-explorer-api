@@ -43,12 +43,14 @@ func (r *Repository) GetListByAddress(filter *events.SelectFilter, pagination *t
 		ColumnExpr("validators.icon_url as from_validator__icon_url").
 		ColumnExpr("validators.site_url as from_validator__site_url").
 		ColumnExpr("validators.status as from_validator__status").
+		ColumnExpr("validators.commission as from_validator__commission").
 		ColumnExpr("toValidators.public_key as to_validator__public_key").
 		ColumnExpr("toValidators.name as to_validator__name").
 		ColumnExpr("toValidators.description as to_validator__description").
 		ColumnExpr("toValidators.icon_url as to_validator__icon_url").
 		ColumnExpr("toValidators.site_url as to_validator__site_url").
 		ColumnExpr("toValidators.status as to_validator__status").
+		ColumnExpr("toValidators.commission as to_validator__commission").
 		ColumnExpr("data.minter_address as address__address").
 		OrderExpr("data.block_id desc").
 		Apply(pagination.Filter).

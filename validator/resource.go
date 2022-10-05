@@ -96,6 +96,7 @@ type Resource struct {
 	IconUrl     *string `json:"icon_url"`
 	SiteUrl     *string `json:"site_url"`
 	Status      *uint8  `json:"status"`
+	Commission  *uint64 `json:"commission"`
 }
 
 func (r Resource) Transform(model resource.ItemInterface, values ...resource.ParamInterface) resource.Interface {
@@ -110,6 +111,7 @@ func (r Resource) Transform(model resource.ItemInterface, values ...resource.Par
 		Description: validator.Description,
 		IconUrl:     &iconUrl,
 		SiteUrl:     validator.SiteUrl,
+		Commission:  validator.Commission,
 	}
 
 	return result
