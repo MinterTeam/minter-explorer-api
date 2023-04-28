@@ -20,6 +20,7 @@ type Resource struct {
 	LiquidityInBip    string             `json:"liquidity_bip"`
 	TradeVolumeBip1d  string             `json:"trade_volume_bip_1d"`
 	TradeVolumeBip30d string             `json:"trade_volume_bip_30d"`
+	UpdatedAtBlock    uint64             `json:"updated_at_block"`
 }
 
 type Params struct {
@@ -53,6 +54,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 			LiquidityInBip:    helpers.Pip2BipStr(helpers.StringToBigInt(pool.LiquidityBip)),
 			TradeVolumeBip1d:  helpers.Bip2Str(params.TradeVolume1d),
 			TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
+			UpdatedAtBlock:    pool.UpdatedAtBlockId,
 		}
 	}
 
@@ -66,6 +68,7 @@ func (r Resource) Transform(model resource.ItemInterface, resourceParams ...reso
 		LiquidityInBip:    helpers.Pip2BipStr(helpers.StringToBigInt(pool.LiquidityBip)),
 		TradeVolumeBip1d:  helpers.Bip2Str(params.TradeVolume1d),
 		TradeVolumeBip30d: helpers.Bip2Str(params.TradeVolume30d),
+		UpdatedAtBlock:    pool.UpdatedAtBlockId,
 	}
 }
 

@@ -28,7 +28,10 @@ func Run(db *pg.DB, explorer *core.Explorer) {
 // Setup router
 func SetupRouter(db *pg.DB, explorer *core.Explorer) *gin.Engine {
 	// Set release mode
-	gin.SetMode(gin.ReleaseMode)
+	if !explorer.Environment.IsDebug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router := gin.New()
 	router.Use(gin.Recovery())
 	//router.Use(gin.Logger())
