@@ -23,3 +23,5 @@ values-prod.yaml
 values.*.yaml
 .env
 go.sum
+*.private.*
+*.tmp.*
