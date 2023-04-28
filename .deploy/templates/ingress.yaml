@@ -25,7 +25,7 @@ spec:
               service:
                 name: "{{ include "chart.fullname" . }}"
                 port:
-                 number: {{.Values.service.port}}
+                  number: {{.Values.service.port}}
             path: /
             pathType: ImplementationSpecific
     - host: "{{ .Values.ingress.host3 }}"
@@ -35,7 +35,7 @@ spec:
               service:
                 name: " {{ include "chart.fullname" . }}"
                 port:
-                 number: {{.Values.service.port}}
+                  number: {{.Values.service.port}}
             path: /
             pathType: ImplementationSpecific
 
