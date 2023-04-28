@@ -3,7 +3,7 @@ FROM golang:1.20-alpine as builder
 WORKDIR /app
 COPY ./ /app
 RUN apk add --no-cache make gcc musl-dev linux-headers
-RUN go mod download
+RUN go mod tidy
 RUN go build -o ./builds/linux/explorer ./cmd/explorer.go
 
 FROM alpine:3.17
