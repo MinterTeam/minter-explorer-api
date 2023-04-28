@@ -1,6 +1,6 @@
 module github.com/MinterTeam/minter-explorer-api/v2
 
-go 1.15
+go 1.20
 
 require (
 	github.com/MinterTeam/explorer-sdk v0.1.1-0.20211108095047-4421b691e285
