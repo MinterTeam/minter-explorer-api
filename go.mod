@@ -68,7 +68,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.0.0-RC2 // indirect
 	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
 	golang.org/x/net v0.0.0-20211208012354-db4efeb81f4b // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20211207154714-918901c715cf // indirect
 	google.golang.org/grpc v1.44.0 // indirect
