@@ -1,0 +1,347 @@
+###
+GET {{host}}/api/v2/blocks
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/blocks/{{height}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/blocks/{{height}}/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/coins
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/coins/symbol/{{symbol}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/coins/id/{{id}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/coins/oracle/verified
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/locks
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/orders
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/events/unbonds
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/events/slashes
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/events/bans
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/delegations
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/delegations/locked
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/statistics/rewards
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/addresses/{{address}}/events/rewards/aggregated
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/transactions/{{hash}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators/meta
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators/{{publicKey}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators/{{publicKey}}/stakes
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators/{{publicKey}}/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators/{{publicKey}}/events/bans
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/validators/{{publicKey}}/events/slashes
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/statistics/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/status
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/status-page
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/info
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/checks
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/checks/{{raw}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/all
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/token/{{token}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/token/{{token}}/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/token/{{token}}/providers
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/token/{{token}}/providers/{{address}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/token/{{token}}/stats/volume
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/token/{{token}}/orders
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/route
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/estimate
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/transactions
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/providers
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/stats/volume
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/providers/{{address}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/coins/{{coin0}}/{{coin1}}/orders
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/orders/{{orderId}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/providers/{{address}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/list/coins
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/list/coins/{{coin}}
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/pools/list/cmc
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v2/check
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/api/v1/info
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
+
+###
+GET {{host}}/metrics
+Accept: application/json
+Content-Type: application/json
+Cache-Control: no-cache
