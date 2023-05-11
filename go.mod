@@ -28,11 +28,12 @@ require (
 	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
 	github.com/MinterTeam/minter-explorer-tools/v4 v4.2.3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/btcsuite/btcd v0.22.0-beta // indirect
+	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/centrifugal/protocol v0.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/codemodus/kace v0.5.1 // indirect
-	github.com/ethereum/go-ethereum v1.10.13 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
+	github.com/ethereum/go-ethereum v1.10.22 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
@@ -67,8 +68,8 @@ require (
 	go.opentelemetry.io/otel v1.0.0-RC2 // indirect
 	go.opentelemetry.io/otel/trace v1.0.0-RC2 // indirect
 	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
-	golang.org/x/net v0.0.0-20211208012354-db4efeb81f4b // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20211207154714-918901c715cf // indirect
 	google.golang.org/grpc v1.44.0 // indirect
