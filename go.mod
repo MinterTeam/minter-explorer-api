@@ -20,7 +20,7 @@ require (
 	github.com/zsais/go-gin-prometheus v0.1.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.22.0
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
-	google.golang.org/protobuf v1.27.1
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
@@ -30,7 +30,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/centrifugal/protocol v0.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/codemodus/kace v0.5.1 // indirect
 	github.com/ethereum/go-ethereum v1.10.13 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -67,11 +67,11 @@ require (
 	go.opentelemetry.io/otel v1.0.0-RC2 // indirect
 	go.opentelemetry.io/otel/trace v1.0.0-RC2 // indirect
 	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
-	golang.org/x/net v0.0.0-20211208012354-db4efeb81f4b // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20211207154714-918901c715cf // indirect
-	google.golang.org/grpc v1.44.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
+	google.golang.org/grpc v1.53.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
